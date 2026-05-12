@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数据补充申请 · 基础学科学生</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'OPPOSans',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#F5F7FA;color:#3C444F;min-height:100vh;font-size:14px}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+.layout{display:flex;min-height:100vh}
+
+.sidebar{width:232px;background:#fff;border-right:1px solid #ECEFF4;flex-shrink:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.sidebar-brand{padding:20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #ECEFF4}
+.brand-icon{width:38px;height:38px;background:linear-gradient(135deg,#1BB975,#16a164);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
+.brand-text h1{font-size:14px;font-weight:700;color:#3C444F}
+.brand-text p{font-size:11px;color:#9096A2;margin-top:2px}
+.sidebar-nav{flex:1;padding:14px 12px;overflow-y:auto}
+.nav-group{margin-bottom:18px}
+.nav-group-title{font-size:11px;color:#9096A2;font-weight:600;padding:0 10px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;color:#696F7D;cursor:pointer;transition:all .15s;margin-bottom:2px}
+.nav-item i{font-size:15px;width:18px}
+.nav-item:hover{background:#F5F7FA;color:#1BB975}
+.nav-item.active{background:#E8FCF4;color:#1BB975;font-weight:600}
+.nav-item .badge{margin-left:auto;font-size:11px;background:#DF2027;color:#fff;padding:1px 6px;border-radius:8px;font-weight:600}
+.sidebar-footer{padding:14px 16px;border-top:1px solid #ECEFF4;display:flex;align-items:center;gap:10px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1BB975,#16a164);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.user-info .name{font-size:13px;font-weight:600;color:#3C444F}
+.user-info .role{font-size:11px;color:#9096A2;margin-top:1px}
+
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{background:#fff;border-bottom:1px solid #ECEFF4;padding:14px 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10}
+.breadcrumb{font-size:13px;color:#9096A2}
+.breadcrumb .current{color:#3C444F;font-weight:600}
+.breadcrumb i{font-size:10px;margin:0 6px}
+.breadcrumb a:hover{color:#1BB975}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid transparent;line-height:1.2}
+.btn-primary{background:#1BB975;color:#fff}
+.btn-primary:hover{background:#16a164}
+.btn-outline{background:#fff;color:#1BB975;border-color:#1BB975}
+.btn-outline:hover{background:#E8FCF4}
+.btn-default{background:#fff;color:#696F7D;border-color:#C8CAD1}
+.btn-default:hover{border-color:#1BB975;color:#1BB975}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+.content{padding:24px 28px;flex:1;overflow-y:auto;max-width:1040px;margin:0 auto;width:100%}
+.page-title{margin-bottom:20px}
+.page-title h2{font-size:22px;font-weight:700;color:#3C444F}
+.page-title .desc{font-size:13px;color:#9096A2;margin-top:6px}
+
+/* Type Tabs */
+.type-tabs{background:#fff;border:1px solid #ECEFF4;border-radius:12px;padding:6px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.type-tab{padding:14px 20px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:all .15s}
+.type-tab:hover{background:#F5F7FA}
+.type-tab.active{background:#E8FCF4}
+.tt-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.type-tab.t-supp .tt-icon{background:#E3F1F9;color:#3087CC}
+.type-tab.t-corr .tt-icon{background:#FFF5E5;color:#F29100}
+.type-tab.active .tt-icon{box-shadow:0 0 0 4px #fff}
+.tt-text .tt-title{font-size:14px;font-weight:600;color:#3C444F}
+.tt-text .tt-desc{font-size:11px;color:#9096A2;margin-top:2px}
+
+/* Category grid */
+.category-section{background:#fff;border:1px solid #ECEFF4;border-radius:12px;padding:20px;margin-bottom:16px}
+.cs-title{font-size:13px;font-weight:600;color:#3C444F;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.cs-title .req{color:#DF2027}
+.cat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.cat-block{padding:14px;border:2px solid #ECEFF4;border-radius:10px;cursor:pointer;text-align:center;transition:all .15s}
+.cat-block:hover{border-color:#1BB975;background:#F0FBF5}
+.cat-block.selected{border-color:#1BB975;background:#E8FCF4}
+.cat-block .ci{font-size:22px;color:#3087CC;margin-bottom:6px}
+.cat-block.selected .ci{color:#1BB975}
+.cat-block .ct{font-size:12px;font-weight:600;color:#3C444F}
+
+/* Form */
+.form-card{background:#fff;border:1px solid #ECEFF4;border-radius:12px;overflow:hidden}
+.form-head{padding:16px 20px;border-bottom:1px solid #ECEFF4;display:flex;align-items:center;justify-content:space-between;background:#F0FBF5}
+.form-head h3{font-size:15px;font-weight:700;color:#3C444F;display:flex;align-items:center;gap:8px}
+.form-head h3 i{color:#1BB975}
+.form-body{padding:22px 24px}
+.form-row{display:grid;gap:16px;margin-bottom:18px}
+.form-row-2{grid-template-columns:1fr 1fr}
+.form-row-3{grid-template-columns:1fr 1fr 1fr}
+.form-row-1{grid-template-columns:1fr}
+.form-group{margin-bottom:0}
+.form-label{display:block;font-size:13px;color:#3C444F;font-weight:500;margin-bottom:7px}
+.form-label .req{color:#DF2027;margin-left:2px}
+.form-label .hint{font-weight:400;font-size:11px;color:#9096A2;margin-left:6px}
+.form-control{width:100%;height:38px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none;font-family:inherit;transition:all .15s;background:#fff}
+.form-control:focus{border-color:#1BB975;box-shadow:0 0 0 3px rgba(27,185,117,0.15)}
+textarea.form-control{height:auto;min-height:80px;padding:10px 12px;resize:vertical}
+.input-group{display:flex;gap:8px}
+.input-group .form-control{flex:1}
+.unit-tag{padding:0 14px;height:38px;background:#F5F7FA;border:1px solid #C8CAD1;border-left:none;border-radius:0 6px 6px 0;display:flex;align-items:center;font-size:12px;color:#696F7D}
+
+/* Radio cards */
+.radio-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.radio-card{padding:10px 14px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;color:#3C444F;cursor:pointer;text-align:center;transition:all .15s;background:#fff}
+.radio-card:hover{border-color:#1BB975;color:#1BB975}
+.radio-card.selected{background:#E8FCF4;border-color:#1BB975;color:#1BB975;font-weight:600}
+
+/* Upload */
+.upload-zone{border:2px dashed #C8CAD1;border-radius:10px;padding:28px;text-align:center;background:#FAFBFC;transition:all .15s;cursor:pointer}
+.upload-zone:hover{border-color:#1BB975;background:#F0FBF5}
+.upload-icon{width:48px;height:48px;border-radius:50%;background:#E8FCF4;color:#1BB975;display:inline-flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:10px}
+.upload-text{font-size:13px;color:#3C444F;font-weight:500;margin-bottom:4px}
+.upload-hint{font-size:11px;color:#9096A2}
+.upload-list{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.up-file{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid #ECEFF4;border-radius:8px;background:#fff}
+.up-icon{width:34px;height:34px;border-radius:6px;background:#FCE8EA;color:#DF2027;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.up-icon.img{background:#FFF5E5;color:#F29100}
+.up-info{flex:1;min-width:0}
+.up-name{font-size:13px;color:#3C444F;font-weight:500}
+.up-meta{font-size:11px;color:#9096A2;margin-top:2px}
+.up-actions{display:flex;gap:6px}
+.up-actions button{padding:5px 8px;color:#9096A2;background:none;border-radius:4px;font-size:13px}
+.up-actions button:hover{color:#DF2027;background:#FCE8EA}
+
+/* Routing info */
+.routing-info{background:#F5FBFF;border:1px solid #BADEF3;border-radius:10px;padding:14px 18px;margin-top:18px;display:flex;gap:12px;align-items:flex-start}
+.routing-info i.lead{color:#3087CC;font-size:18px;margin-top:2px}
+.routing-info .ri-content{flex:1}
+.routing-info .ri-title{font-size:13px;font-weight:600;color:#3C444F;margin-bottom:6px}
+.routing-info .ri-text{font-size:12px;color:#696F7D;line-height:1.7}
+.routing-info .ri-text strong{color:#3087CC;font-weight:600}
+.routing-info .ri-text .step{display:inline-block;padding:1px 8px;background:#fff;border:1px solid #BADEF3;color:#3087CC;border-radius:10px;font-size:11px;margin:0 3px}
+.routing-info .ri-text .arrow{color:#9096A2;font-size:10px;margin:0 3px}
+
+/* Footer actions */
+.form-footer{padding:18px 24px;background:#F8FAFC;border-top:1px solid #ECEFF4;display:flex;justify-content:space-between;align-items:center}
+.footer-tip{font-size:12px;color:#9096A2;display:flex;align-items:center;gap:6px}
+.footer-tip i{color:#1BB975}
+.footer-actions{display:flex;gap:10px}
+
+/* Corrigendum mode */
+.corr-original{background:#F5F7FA;border:1px solid #ECEFF4;border-radius:8px;padding:16px;margin-bottom:4px}
+.co-title{font-size:13px;font-weight:600;color:#9096A2;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.co-row{display:flex;justify-content:space-between;padding:7px 0;font-size:13px;border-bottom:1px dashed #ECEFF4}
+.co-row:last-child{border-bottom:none}
+.co-key{color:#9096A2}
+.co-val{color:#3C444F;font-weight:500}
+.corr-modified .form-group.changed .form-control{border-color:#F29100!important;background:#FFFBF5!important}
+.corr-modified .form-group.changed .form-label::after{content:'已修改';font-size:11px;color:#F29100;margin-left:8px;font-weight:400}
+
+@media(max-width:900px){.cat-grid{grid-template-columns:repeat(3,1fr)}.form-row-2,.form-row-3{grid-template-columns:1fr}.radio-cards{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="fa-solid fa-user-graduate"></i></div>
+    <div class="brand-text"><h1>成长档案</h1><p>基础学科 · 学生端</p></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-group">
+      <div class="nav-group-title">我的档案</div>
+      <a class="nav-item" href="my-archive.html"><i class="fa-solid fa-folder-open"></i>我的成长档案</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">数据维护</div>
+      <div class="nav-item active"><i class="fa-solid fa-file-circle-plus"></i>数据补充</div>
+      <a class="nav-item" href="my-requests.html"><i class="fa-solid fa-list-check"></i>我的申请<span class="badge">3</span></a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">学年事务</div>
+      <a class="nav-item" href="annual-confirm.html"><i class="fa-solid fa-circle-check"></i>学年数据确认</a>
+      <a class="nav-item" href="self-evaluation.html"><i class="fa-solid fa-pen-fancy"></i>自我鉴定</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">系统</div>
+      <a class="nav-item" href="../index.html"><i class="fa-solid fa-arrow-right-from-bracket"></i>返回导航</a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-avatar">王</div>
+    <div class="user-info"><div class="name">王明</div><div class="role">物理学拔尖 · 2022级</div></div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="breadcrumb">
+      <i class="fa-solid fa-house"></i> <a href="my-archive.html">首页</a> <i class="fa-solid fa-chevron-right"></i>
+      <span class="current">数据补充申请</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="page-title">
+      <h2>新增成长数据</h2>
+      <div class="desc">填写并提交后，将进入"学院初审 → 职能部门复审"流程，审核通过后数据生效</div>
+    </div>
+
+    <!-- 类型选择 -->
+    <div class="type-tabs">
+      <div class="type-tab t-supp active">
+        <div class="tt-icon"><i class="fa-solid fa-file-circle-plus"></i></div>
+        <div class="tt-text">
+          <div class="tt-title">补充新增数据 <i class="fa-solid fa-circle-check" style="color:#1BB975;margin-left:6px;font-size:14px"></i></div>
+          <div class="tt-desc">系统中尚未收录的新项目，如竞赛、论文、专利等</div>
+        </div>
+      </div>
+      <div class="type-tab t-corr">
+        <div class="tt-icon"><i class="fa-solid fa-pen-to-square"></i></div>
+        <div class="tt-text">
+          <div class="tt-title">勘误已有数据</div>
+          <div class="tt-desc">系统已收录但存在错误，需要修正</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 类目选择 -->
+    <div class="category-section">
+      <div class="cs-title">请选择补充类目<span class="req">*</span></div>
+      <div class="cat-grid">
+        <div class="cat-block selected" data-category="competition"><div class="ci"><i class="fa-solid fa-trophy"></i></div><div class="ct">竞赛获奖</div></div>
+        <div class="cat-block" data-category="other-award"><div class="ci"><i class="fa-solid fa-award"></i></div><div class="ct">其他获奖</div></div>
+        <div class="cat-block" data-category="paper"><div class="ci"><i class="fa-solid fa-file-lines"></i></div><div class="ct">发表论文</div></div>
+        <div class="cat-block" data-category="patent"><div class="ci"><i class="fa-solid fa-certificate"></i></div><div class="ct">专利软著</div></div>
+        <div class="cat-block" data-category="innovation"><div class="ci"><i class="fa-solid fa-lightbulb"></i></div><div class="ct">创新创业</div></div>
+        <div class="cat-block" data-category="scholarship"><div class="ci"><i class="fa-solid fa-money-bill"></i></div><div class="ct">奖学金</div></div>
+        <div class="cat-block" data-category="exchange"><div class="ci"><i class="fa-solid fa-globe"></i></div><div class="ct">境内外交流</div></div>
+        <div class="cat-block" data-category="practice"><div class="ci"><i class="fa-solid fa-handshake-angle"></i></div><div class="ct">社会实践</div></div>
+        <div class="cat-block" data-category="research"><div class="ci"><i class="fa-solid fa-flask"></i></div><div class="ct">科研实践</div></div>
+        <div class="cat-block" data-category="graduation"><div class="ci"><i class="fa-solid fa-route"></i></div><div class="ct">毕业去向</div></div>
+      </div>
+    </div>
+
+    <!-- 表单 -->
+    <div class="form-card">
+      <div class="form-head">
+        <h3 id="form-title"><i class="fa-solid fa-trophy"></i>填写竞赛获奖信息</h3>
+        <span style="font-size:12px;color:#9096A2">所属学年：2025-2026</span>
+      </div>
+      <div class="form-body">
+
+        <div id="form-fields">
+        <div class="form-row form-row-1">
+          <div class="form-group">
+            <label class="form-label">竞赛名称<span class="req">*</span></label>
+            <input type="text" class="form-control" placeholder="请输入完整的竞赛全称">
+          </div>
+        </div>
+
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label class="form-label">是否学术竞赛<span class="req">*</span></label>
+            <div class="radio-cards" style="grid-template-columns:1fr 1fr">
+              <div class="radio-card selected">学术竞赛</div>
+              <div class="radio-card">非学术竞赛</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">竞赛级别<span class="req">*</span></label>
+            <div class="radio-cards">
+              <div class="radio-card">国家级</div>
+              <div class="radio-card selected">省级</div>
+              <div class="radio-card">校级</div>
+              <div class="radio-card">其他</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row form-row-3">
+          <div class="form-group">
+            <label class="form-label">获奖等级<span class="req">*</span></label>
+            <select class="form-control">
+              <option>请选择</option>
+              <option>特等奖</option>
+              <option selected>一等奖</option>
+              <option>二等奖</option>
+              <option>三等奖</option>
+              <option>金奖</option>
+              <option>银奖</option>
+              <option>铜奖</option>
+              <option>优秀奖</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">获奖时间<span class="req">*</span></label>
+            <input type="date" class="form-control" value="2025-09-20">
+          </div>
+          <div class="form-group">
+            <label class="form-label">本人排名 <span class="hint">(团体项目)</span></label>
+            <select class="form-control">
+              <option>本人独立完成</option>
+              <option selected>团体项目 - 第 1 位</option>
+              <option>团体项目 - 第 2 位</option>
+              <option>团体项目 - 第 3 位</option>
+              <option>团体项目 - 其他</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row form-row-2">
+          <div class="form-group">
+            <label class="form-label">主办单位<span class="req">*</span></label>
+            <input type="text" class="form-control" placeholder="如：教育部高等教育司">
+          </div>
+          <div class="form-group">
+            <label class="form-label">指导教师 <span class="hint">(选填)</span></label>
+            <input type="text" class="form-control" placeholder="支持搜索选择">
+          </div>
+        </div>
+
+        <div class="form-row form-row-1">
+          <div class="form-group">
+            <label class="form-label">补充说明 <span class="hint">(可选，填写有助于审核理解)</span></label>
+            <textarea class="form-control" placeholder="例如：本项目作为团队负责人完成，研究方向为..."></textarea>
+          </div>
+        </div>
+        </div>
+
+        <div class="form-row form-row-1">
+          <div class="form-group">
+            <label class="form-label">证明材料<span class="req">*</span> <span class="hint">至少 1 份，可上传 PDF/图片，单文件不超过 10MB</span></label>
+            <div class="upload-zone" onclick="showToast('文件选择器已打开（原型演示）','info')">
+              <div class="upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+              <div class="upload-text">点击或拖拽文件到此区域上传</div>
+              <div class="upload-hint">支持 PDF / JPG / PNG / GIF · 单个最大 10MB</div>
+            </div><!--upload-zone end-->
+            <div class="upload-list">
+              <div class="up-file">
+                <div class="up-icon"><i class="fa-regular fa-file-pdf"></i></div>
+                <div class="up-info">
+                  <div class="up-name">获奖证书_数学建模竞赛.pdf</div>
+                  <div class="up-meta">1.8 MB · 上传成功</div>
+                </div>
+                <div class="up-actions">
+                  <button title="预览" onclick="showToast('正在预览文件…','info')"><i class="fa-solid fa-eye"></i></button>
+                  <button title="删除" onclick="showConfirm('删除文件','确定删除「获奖证书_数学建模竞赛.pdf」吗？',function(){showToast('文件已删除','warning')})"><i class="fa-solid fa-trash"></i></button>
+                </div>
+              </div>
+              <div class="up-file">
+                <div class="up-icon img"><i class="fa-regular fa-image"></i></div>
+                <div class="up-info">
+                  <div class="up-name">颁奖照片.jpg</div>
+                  <div class="up-meta">2.6 MB · 上传成功</div>
+                </div>
+                <div class="up-actions">
+                  <button title="预览" onclick="showToast('正在预览文件…','info')"><i class="fa-solid fa-eye"></i></button>
+                  <button title="删除" onclick="showConfirm('删除文件','确定删除「颁奖照片.jpg」吗？',function(){showToast('文件已删除','warning')})"><i class="fa-solid fa-trash"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="routing-info">
+          <i class="fa-solid fa-route lead"></i>
+          <div class="ri-content">
+            <div class="ri-title">本申请将按以下流程审核</div>
+            <div class="ri-text">
+              <span class="step">您提交</span>
+              <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span>
+              <span class="step">学院初审（物理学院教务员）</span>
+              <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span>
+              <span class="step">职能部门复审（本科生院）</span>
+              <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span>
+              <span class="step">入库生效</span>
+              <br><br>
+              <strong>预计审核周期</strong>：3-5 个工作日，审核结果将通过站内消息及学工 App 通知您。
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="form-footer">
+        <div class="footer-tip">
+          <i class="fa-solid fa-shield-halved"></i>
+          请务必提交真实有效的证明材料，弄虚作假将影响本人档案信用记录
+        </div>
+        <div class="footer-actions">
+          <button class="btn btn-default" onclick="showConfirm('确认取消','取消将丢失已填写的内容',function(){window.location.href='my-archive.html'})">取消</button>
+          <button class="btn btn-outline" onclick="showToast('已保存为草稿','success')">暂存草稿</button>
+          <button class="btn btn-primary" onclick="showConfirm('提交审核','提交后将进入三级审核流程，确定吗？',function(){showToast('提交成功，请在「我的申请」中追踪进度','success')})"><i class="fa-solid fa-paper-plane"></i>提交申请</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+</div>
+
+<script>
+/* Toast */
+function showToast(msg,type){type=type||'info';var t=document.createElement('div');var c={success:'#1BB975',info:'#3087CC',warning:'#F29100',error:'#DF2027'};var ic={success:'fa-circle-check',info:'fa-circle-info',warning:'fa-triangle-exclamation',error:'fa-circle-xmark'};t.innerHTML='<i class="fa-solid '+ic[type]+'"></i> '+msg;t.style.cssText='position:fixed;top:-60px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;color:#fff;background:'+(c[type]||c.info)+';box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;gap:8px;z-index:99999;transition:top 0.3s ease;white-space:nowrap;font-family:inherit';document.body.appendChild(t);requestAnimationFrame(function(){t.style.top='24px'});setTimeout(function(){t.style.top='-60px';setTimeout(function(){t.remove()},400)},2500)}
+/* 确认弹窗 */
+function showConfirm(title,msg,onOk){var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s';o.innerHTML='<div style="background:#fff;border-radius:12px;padding:28px;width:420px;max-width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2);font-family:inherit;transform:scale(0.9);transition:transform 0.2s"><h3 style="margin:0 0 8px;font-size:16px;color:#3C444F">'+title+'</h3><p style="margin:0 0 20px;font-size:14px;color:#696F7D;line-height:1.6">'+msg+'</p><div style="display:flex;gap:10px;justify-content:flex-end"><button class="_mc" style="padding:8px 20px;border-radius:8px;border:1px solid #ECEFF4;background:#F5F7FA;color:#3C444F;cursor:pointer;font-size:13px;font-family:inherit">取消</button><button class="_mo" style="padding:8px 20px;border-radius:8px;border:none;background:#3087CC;color:#fff;cursor:pointer;font-size:13px;font-family:inherit">确定</button></div></div>';document.body.appendChild(o);requestAnimationFrame(function(){o.style.opacity='1';o.firstElementChild.style.transform='scale(1)'});o.querySelector('._mo').onclick=function(){o.remove();if(onOk)onOk()};o.querySelector('._mc').onclick=function(){o.remove()};o.addEventListener('click',function(e){if(e.target===o)o.remove()})}
+
+/* ===== 动态表单模板系统 ===== */
+var currentMode = 'supplement';
+var currentCategory = 'competition';
+
+var categoryConfig = {
+  competition: { icon: 'fa-trophy', title: '竞赛获奖' },
+  'other-award': { icon: 'fa-award', title: '其他获奖' },
+  paper: { icon: 'fa-file-lines', title: '论文发表' },
+  patent: { icon: 'fa-certificate', title: '专利（软件著作权）' },
+  innovation: { icon: 'fa-lightbulb', title: '创新创业项目' },
+  scholarship: { icon: 'fa-money-bill', title: '奖学金' },
+  exchange: { icon: 'fa-globe', title: '境内外交流' },
+  practice: { icon: 'fa-handshake-angle', title: '社会实践' },
+  research: { icon: 'fa-flask', title: '科研实践' },
+  graduation: { icon: 'fa-route', title: '毕业去向' }
+};
+
+var formTemplates = {
+
+competition: `
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">竞赛名称<span class="req">*</span></label>
+    <input type="text" class="form-control" placeholder="请输入完整的竞赛全称">
+  </div>
+</div>
+<div class="form-row form-row-2">
+  <div class="form-group">
+    <label class="form-label">是否学术竞赛<span class="req">*</span></label>
+    <div class="radio-cards" style="grid-template-columns:1fr 1fr">
+      <div class="radio-card">学术竞赛</div>
+      <div class="radio-card">非学术竞赛</div>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="form-label">竞赛级别<span class="req">*</span></label>
+    <div class="radio-cards">
+      <div class="radio-card">国家级</div>
+      <div class="radio-card">省级</div>
+      <div class="radio-card">校级</div>
+      <div class="radio-card">其他</div>
+    </div>
+  </div>
+</div>
+<div class="form-row form-row-3">
+  <div class="form-group">
+    <label class="form-label">获奖等级<span class="req">*</span></label>
+    <select class="form-control"><option value="">请选择</option><option>特等奖</option><option>一等奖</option><option>二等奖</option><option>三等奖</option><option>金奖</option><option>银奖</option><option>铜奖</option><option>优秀奖</option></select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">获奖时间<span class="req">*</span></label>
+    <input type="date" class="form-control">
+  </div>
+  <div class="form-group">
+    <label class="form-label">本人排名 <span class="hint">(团体项目)</span></label>
+    <select class="form-control"><option>本人独立完成</option><option>团体项目 - 第1位</option><option>团体项目 - 第2位</option><option>团体项目 - 第3位</option><option>团体项目 - 其他</option></select>
+  </div>
+</div>
+<div class="form-row form-row-2">
+  <div class="form-group">
+    <label class="form-label">主办单位<span class="req">*</span></label>
+    <input type="text" class="form-control" placeholder="如：教育部高等教育司">
+  </div>
+  <div class="form-group">
+    <label class="form-label">角色<span class="req">*</span></label>
+    <select class="form-control"><option value="">请选择</option><option>队长/负责人</option><option>核心成员</option><option>一般参与者</option><option>个人参赛</option></select>
+  </div>
+</div>
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">指导教师 <span class="hint">(选填)</span></label>
+    <input type="text" class="form-control" placeholder="支持搜索选择">
+  </div>
+</div>
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">补充说明 <span class="hint">(可选，填写有助于审核理解)</span></label>
+    <textarea class="form-control" placeholder="例如：本项目作为团队负责人完成，研究方向为..."></textarea>
+  </div>
+</div>`,
+
+paper: `
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">论文名称<span class="req">*</span></label>
+    <input type="text" class="form-control" placeholder="请输入论文完整标题">
+  </div>
+</div>
+<div class="form-row form-row-2">
+  <div class="form-group">
+    <label class="form-label">论文类型<span class="req">*</span></label>
+    <select class="form-control"><option value="">请选择</option><option>期刊论文</option><option>会议论文</option><option>学位论文</option><option>其他</option></select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">刊物名称<span class="req">*</span></label>
+    <input type="text" class="form-control" placeholder="如：Physical Review Letters">
+  </div>
+</div>
+<div class="form-row form-row-3">
+  <div class="form-group">
+    <label class="form-label">期刊等级<span class="req">*</span></label>
+    <select class="form-control"><option value="">请选择</option><option>SCI一区</option><option>SCI二区</option><option>SCI三区</option><option>SCI四区</option><option>EI</option><option>CSSCI</option><option>核心期刊</option><option>普通期刊</option><option>会议论文</option></select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">发表时间<span class="req">*</span></label>
+    <input type="date" class="form-control">
+  </div>
+  <div class="form-group">
+    <label class="form-label">是否一作<span class="req">*</span></label>
+    <select class="form-control"><option value="">请选择</option><option>第一作者</option><option>导师一作本人二作</option><option>第二作者</option><option>第三作者</option><option>通讯作者</option><option>其他</option></select>
+  </div>
+</div>
+<div class="form-row form-row-2">
+  <div class="form-group">
+    <label class="form-label">卷数 <span class="hint">(Volume)</span></label>
+    <input type="text" class="form-control" placeholder="如：Vol.131">
+  </div>
+  <div class="form-group">
+    <label class="form-label">页码 <span class="hint">(Pages)</span></label>
+    <input type="text" class="form-control" placeholder="如：p.146801 或 23-30">
+  </div>
+</div>
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">DOI号 <span class="hint">(选填)</span></label>
+    <input type="text" class="form-control" placeholder="如：10.1103/PhysRevLett.xxx">
+  </div>
+</div>
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">补充说明 <span class="hint">(可选)</span></label>
+    <textarea class="form-control" placeholder="补充论文相关信息..."></textarea>
+  </div>
+</div>`,
+
+patent: `
+<div class="form-row form-row-2">
+  <div class="form-group">
+    <label class="form-label">类型<span class="req">*</span></label>
+    <div class="radio-cards" style="grid-template-columns:1fr 1fr">
+      <div class="radio-card">专利</div>
+      <div class="radio-card">软件著作权</div>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="form-label">专利类别 <span class="hint">(专利时填写)</span></label>
+    <select class="form-control"><option value="">请选择</option><option>发明专利</option><option>实用新型</option><option>外观设计</option></select>
+  </div>
+</div>
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">专利或软件名称<span class="req">*</span></label>
+    <input type="text" class="form-control" placeholder="请输入专利或软件著作权的完整名称">
+  </div>
+</div>
+<div class="form-row form-row-2">
+  <div class="form-group">
+    <label class="form-label">状态<span class="req">*</span></label>
+    <select class="form-control"><option value="">请选择</option><option>已授权</option><option>已受理</option><option>审查中</option><option>已公开</option></select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">获得时间<span class="req">*</span></label>
+    <input type="date" class="form-control">
+  </div>
+</div>
+<div class="form-row form-row-2">
+  <div class="form-group">
+    <label class="form-label">申请号 / 登记号</label>
+    <input type="text" class="form-control" placeholder="专利申请号或软著登记号">
+  </div>
+  <div class="form-group">
+    <label class="form-label">本人排名<span class="req">*</span></label>
+    <select class="form-control"><option value="">请选择</option><option>第一</option><option>第二</option><option>第三</option><option>其他</option></select>
+  </div>
+</div>
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">补充说明 <span class="hint">(可选)</span></label>
+    <textarea class="form-control" placeholder="补充专利或软件著作权相关信息..."></textarea>
+  </div>
+</div>`,
+
+scholarship: `
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">奖学金名称<span class="req">*</span></label>
+    <input type="text" class="form-control" placeholder="如：国家奖学金">
+  </div>
+</div>
+<div class="form-row form-row-3">
+  <div class="form-group">
+    <label class="form-label">类型<span class="req">*</span></label>
+    <select class="form-control"><option value="">请选择</option><option>学业奖学金</option><option>专项奖学金</option><option>社会捐赠奖学金</option><option>其他</option></select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">奖励级别<span class="req">*</span></label>
+    <select class="form-control"><option value="">请选择</option><option>国家级</option><option>省级</option><option>校级</option><option>院级</option></select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">等级</label>
+    <select class="form-control"><option value="">请选择</option><option>特等</option><option>一等</option><option>二等</option><option>三等</option><option>无等级</option></select>
+  </div>
+</div>
+<div class="form-row form-row-3">
+  <div class="form-group">
+    <label class="form-label">设立单位</label>
+    <input type="text" class="form-control" placeholder="如：教育部、学校、企业名称等">
+  </div>
+  <div class="form-group">
+    <label class="form-label">金额（元）<span class="req">*</span></label>
+    <input type="number" class="form-control" placeholder="如：8000">
+  </div>
+  <div class="form-group">
+    <label class="form-label">获评时间<span class="req">*</span></label>
+    <input type="date" class="form-control">
+  </div>
+</div>
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">补充说明 <span class="hint">(可选)</span></label>
+    <textarea class="form-control" placeholder="补充说明..."></textarea>
+  </div>
+</div>`,
+
+exchange: `
+<div class="form-row form-row-2">
+  <div class="form-group">
+    <label class="form-label">项目类别<span class="req">*</span></label>
+    <div class="radio-cards" style="grid-template-columns:1fr 1fr">
+      <div class="radio-card">境外交流</div>
+      <div class="radio-card">境内交流</div>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="form-label">项目类型<span class="req">*</span></label>
+    <select class="form-control"><option value="">请选择</option><option>学期交换</option><option>暑期科研</option><option>联合培养</option><option>短期访问</option><option>学术会议</option><option>其他</option></select>
+  </div>
+</div>
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">项目名称<span class="req">*</span></label>
+    <input type="text" class="form-control" placeholder="请输入交流项目名称">
+  </div>
+</div>
+<div class="form-row form-row-2">
+  <div class="form-group">
+    <label class="form-label">合作单位<span class="req">*</span></label>
+    <input type="text" class="form-control" placeholder="如：MIT、东京大学">
+  </div>
+  <div class="form-group">
+    <label class="form-label">交流地点<span class="req">*</span></label>
+    <input type="text" class="form-control" placeholder="如：美国波士顿">
+  </div>
+</div>
+<div class="form-row form-row-2">
+  <div class="form-group">
+    <label class="form-label">交流开始时间<span class="req">*</span></label>
+    <input type="date" class="form-control">
+  </div>
+  <div class="form-group">
+    <label class="form-label">交流结束时间<span class="req">*</span></label>
+    <input type="date" class="form-control">
+  </div>
+</div>
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">补充说明 <span class="hint">(可选)</span></label>
+    <textarea class="form-control" placeholder="补充交流访学相关信息..."></textarea>
+  </div>
+</div>`,
+
+practice: `
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">项目名称<span class="req">*</span></label>
+    <input type="text" class="form-control" placeholder="请输入社会实践项目名称">
+  </div>
+</div>
+<div class="form-row form-row-3">
+  <div class="form-group">
+    <label class="form-label">项目类型<span class="req">*</span></label>
+    <select class="form-control"><option value="">请选择</option><option>暑期三下乡</option><option>社会调研</option><option>志愿支教</option><option>志愿服务</option><option>专业实习</option><option>创业实践</option><option>其他</option></select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">项目级别<span class="req">*</span></label>
+    <select class="form-control"><option value="">请选择</option><option>国家级</option><option>省级</option><option>校级</option><option>院级</option><option>其他</option></select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">指导老师</label>
+    <input type="text" class="form-control" placeholder="支持搜索选择">
+  </div>
+</div>
+<div class="form-row form-row-2">
+  <div class="form-group">
+    <label class="form-label">开始时间<span class="req">*</span></label>
+    <input type="date" class="form-control">
+  </div>
+  <div class="form-group">
+    <label class="form-label">结束时间<span class="req">*</span></label>
+    <input type="date" class="form-control">
+  </div>
+</div>
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">本人工作和收获<span class="req">*</span></label>
+    <textarea class="form-control" placeholder="请描述本人在项目中的工作职责及收获体会..."></textarea>
+  </div>
+</div>
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">补充说明 <span class="hint">(可选)</span></label>
+    <textarea class="form-control" placeholder="补充实践相关信息..."></textarea>
+  </div>
+</div>`,
+
+research: `
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">项目名称<span class="req">*</span></label>
+    <input type="text" class="form-control" placeholder="请输入科研实践项目名称">
+  </div>
+</div>
+<div class="form-row form-row-3">
+  <div class="form-group">
+    <label class="form-label">项目类型<span class="req">*</span></label>
+    <select class="form-control"><option value="">请选择</option><option>大学生创新训练项目</option><option>导师课题参与</option><option>实验室研究</option><option>学术调研</option><option>其他</option></select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">项目级别<span class="req">*</span></label>
+    <select class="form-control"><option value="">请选择</option><option>国家级</option><option>省部级</option><option>校级</option><option>院级</option></select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">立项时间<span class="req">*</span></label>
+    <input type="date" class="form-control">
+  </div>
+</div>
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">指导老师<span class="req">*</span></label>
+    <input type="text" class="form-control" placeholder="支持搜索选择">
+  </div>
+</div>
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">本人工作和成果<span class="req">*</span></label>
+    <textarea class="form-control" placeholder="请描述本人在项目中承担的工作及取得的成果..."></textarea>
+  </div>
+</div>
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">补充说明 <span class="hint">(可选)</span></label>
+    <textarea class="form-control" placeholder="补充科研实践相关信息..."></textarea>
+  </div>
+</div>`,
+
+graduation: `
+<div class="form-row form-row-2">
+  <div class="form-group">
+    <label class="form-label">毕业类型<span class="req">*</span></label>
+    <select class="form-control"><option value="">请选择</option><option>本科毕业</option><option>硕士毕业</option><option>博士毕业</option></select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">毕业时间<span class="req">*</span></label>
+    <input type="date" class="form-control">
+  </div>
+</div>
+<div class="form-row form-row-2">
+  <div class="form-group">
+    <label class="form-label">毕业去向<span class="req">*</span></label>
+    <select class="form-control"><option value="">请选择</option><option>国内升学</option><option>出国/出境深造</option><option>就业</option><option>自主创业</option><option>参军入伍</option><option>暂未就业</option><option>其他</option></select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">深造领域学科</label>
+    <input type="text" class="form-control" placeholder="如：凝聚态物理">
+  </div>
+</div>
+<div class="form-row form-row-2">
+  <div class="form-group">
+    <label class="form-label">深造学校 <span class="hint">(升学时填写)</span></label>
+    <input type="text" class="form-control" placeholder="如：清华大学">
+  </div>
+  <div class="form-group">
+    <label class="form-label">深造专业</label>
+    <input type="text" class="form-control" placeholder="如：物理学">
+  </div>
+</div>
+<div class="form-row form-row-2">
+  <div class="form-group">
+    <label class="form-label">工作单位 <span class="hint">(就业时填写)</span></label>
+    <input type="text" class="form-control" placeholder="如：华为技术有限公司">
+  </div>
+  <div class="form-group">
+    <label class="form-label">邮箱</label>
+    <input type="email" class="form-control" placeholder="联系邮箱">
+  </div>
+</div>
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">补充说明 <span class="hint">(可选)</span></label>
+    <textarea class="form-control" placeholder="补充毕业去向相关信息..."></textarea>
+  </div>
+</div>`
+
+};
+
+formTemplates['other-award'] = `
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">奖项名称<span class="req">*</span></label>
+    <input type="text" class="form-control" placeholder="请输入奖项完整名称">
+  </div>
+</div>
+<div class="form-row form-row-3">
+  <div class="form-group">
+    <label class="form-label">奖项级别<span class="req">*</span></label>
+    <select class="form-control"><option value="">请选择</option><option>国家级</option><option>省级</option><option>校级</option><option>院级</option><option>其他</option></select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">奖项等级<span class="req">*</span></label>
+    <select class="form-control"><option value="">请选择</option><option>特等奖</option><option>一等奖</option><option>二等奖</option><option>三等奖</option><option>优秀奖</option><option>荣誉称号</option><option>其他</option></select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">获奖时间<span class="req">*</span></label>
+    <input type="date" class="form-control">
+  </div>
+</div>
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">补充说明 <span class="hint">(可选)</span></label>
+    <textarea class="form-control" placeholder="补充获奖相关信息..."></textarea>
+  </div>
+</div>`;
+
+formTemplates['innovation'] = `
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">项目名称<span class="req">*</span></label>
+    <input type="text" class="form-control" placeholder="请输入创新创业项目名称">
+  </div>
+</div>
+<div class="form-row form-row-3">
+  <div class="form-group">
+    <label class="form-label">项目级别<span class="req">*</span></label>
+    <select class="form-control"><option value="">请选择</option><option>国家级</option><option>省级</option><option>校级</option><option>院级</option></select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">是否主持项目<span class="req">*</span></label>
+    <div class="radio-cards" style="grid-template-columns:1fr 1fr">
+      <div class="radio-card">是（主持人）</div>
+      <div class="radio-card">否（参与者）</div>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="form-label">项目设立时间<span class="req">*</span></label>
+    <input type="date" class="form-control">
+  </div>
+</div>
+<div class="form-row form-row-2">
+  <div class="form-group">
+    <label class="form-label">项目状态<span class="req">*</span></label>
+    <select class="form-control"><option value="">请选择</option><option>进行中</option><option>已结题</option><option>已中止</option></select>
+  </div>
+  <div class="form-group">
+    <label class="form-label">项目结题结果 <span class="hint">(已结题时填写)</span></label>
+    <select class="form-control"><option value="">请选择</option><option>优秀</option><option>良好</option><option>合格</option><option>不合格</option><option>未结题</option></select>
+  </div>
+</div>
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">补充说明 <span class="hint">(可选)</span></label>
+    <textarea class="form-control" placeholder="补充创新创业项目相关信息..."></textarea>
+  </div>
+</div>`;
+
+/* 勘误模式模板 */
+var corrigendumTemplate = `
+<div class="form-row form-row-1">
+  <div class="form-group">
+    <label class="form-label">选择要勘误的数据条目<span class="req">*</span></label>
+    <select class="form-control" id="corr-select">
+      <option value="">请选择需要勘误的数据...</option>
+      <option value="1">【竞赛获奖】ACM-ICPC 亚洲区域赛 · 银奖 · 2025-05</option>
+      <option value="2">【学业成绩】量子力学 · 88分 · 2024-2025秋</option>
+      <option value="3">【奖学金】国家奖学金 · ¥8,000 · 2024-2025</option>
+      <option value="4">【科研项目】量子计算基础研究 · 校级 · 2024-06</option>
+    </select>
+  </div>
+</div>
+<div id="corr-detail"></div>`;
+
+var corrData = {
+  '1': {
+    original: [['竞赛名称','ACM-ICPC 亚洲区域赛'],['获奖等级','银奖'],['获奖日期','2025-05-12'],['级别','国际级'],['排名','团体第2位']],
+    form: '<div class="form-row form-row-2"><div class="form-group"><label class="form-label">竞赛名称</label><input type="text" class="form-control" value="ACM-ICPC 亚洲区域赛"></div><div class="form-group changed"><label class="form-label">获奖等级</label><select class="form-control"><option>银奖</option><option selected>金奖</option></select></div></div><div class="form-row form-row-2"><div class="form-group"><label class="form-label">获奖日期</label><input type="date" class="form-control" value="2025-05-12"></div><div class="form-group"><label class="form-label">级别</label><input type="text" class="form-control" value="国际级"></div></div>'
+  },
+  '2': {
+    original: [['课程名称','量子力学'],['成绩','88分'],['学期','2024-2025 秋季'],['学分','4.0'],['绩点','3.7']],
+    form: '<div class="form-row form-row-2"><div class="form-group"><label class="form-label">课程名称</label><input type="text" class="form-control" value="量子力学" readonly style="background:#F5F7FA"></div><div class="form-group changed"><label class="form-label">成绩</label><input type="text" class="form-control" value="92" style="border-color:#F29100;background:#FFFBF5"></div></div><div class="form-row form-row-2"><div class="form-group"><label class="form-label">学期</label><input type="text" class="form-control" value="2024-2025 秋季" readonly style="background:#F5F7FA"></div><div class="form-group"><label class="form-label">学分</label><input type="text" class="form-control" value="4.0" readonly style="background:#F5F7FA"></div></div>'
+  },
+  '3': {
+    original: [['奖学金名称','国家奖学金'],['金额','¥8,000'],['学年','2024-2025'],['级别','国家级']],
+    form: '<div class="form-row form-row-2"><div class="form-group"><label class="form-label">奖学金名称</label><input type="text" class="form-control" value="国家奖学金"></div><div class="form-group changed"><label class="form-label">金额</label><input type="text" class="form-control" value="10000" style="border-color:#F29100;background:#FFFBF5"></div></div><div class="form-row form-row-2"><div class="form-group"><label class="form-label">学年</label><input type="text" class="form-control" value="2024-2025"></div><div class="form-group"><label class="form-label">级别</label><input type="text" class="form-control" value="国家级"></div></div>'
+  },
+  '4': {
+    original: [['项目名称','量子计算基础研究'],['级别','校级'],['起止时间','2024-06 至今'],['角色','核心成员'],['指导教师','李教授']],
+    form: '<div class="form-row form-row-2"><div class="form-group"><label class="form-label">项目名称</label><input type="text" class="form-control" value="量子计算基础研究"></div><div class="form-group changed"><label class="form-label">级别</label><select class="form-control"><option>校级</option><option selected>省部级</option></select></div></div><div class="form-row form-row-2"><div class="form-group changed"><label class="form-label">角色</label><select class="form-control"><option>核心成员</option><option selected>主持人</option></select></div><div class="form-group"><label class="form-label">指导教师</label><input type="text" class="form-control" value="李教授"></div></div>'
+  }
+};
+
+function switchForm(cat) {
+  currentCategory = cat;
+  var cfg = categoryConfig[cat] || categoryConfig.other;
+  document.getElementById('form-title').innerHTML = '<i class="fa-solid ' + cfg.icon + '"></i>填写' + cfg.title + '信息';
+  document.getElementById('form-fields').innerHTML = formTemplates[cat] || formTemplates.other;
+  bindRadioCards();
+}
+
+function switchToCorrigendum() {
+  document.getElementById('form-title').innerHTML = '<i class="fa-solid fa-pen-to-square" style="color:#F29100"></i>勘误已有数据';
+  document.getElementById('form-fields').innerHTML = corrigendumTemplate;
+  var sel = document.getElementById('corr-select');
+  if(sel) sel.addEventListener('change', function(){ showCorrDetail(this.value); });
+}
+
+function showCorrDetail(val) {
+  var wrap = document.getElementById('corr-detail');
+  if(!val){ wrap.innerHTML = ''; return; }
+  var d = corrData[val];
+  if(!d) return;
+  var origHtml = '<div class="corr-original"><div class="co-title"><i class="fa-solid fa-database"></i> 原始数据（只读）</div>';
+  d.original.forEach(function(r){ origHtml += '<div class="co-row"><span class="co-key">' + r[0] + '</span><span class="co-val">' + r[1] + '</span></div>'; });
+  origHtml += '</div>';
+  var modHtml = '<div class="corr-modified" style="margin-top:16px"><div style="font-size:13px;font-weight:600;color:#3C444F;margin-bottom:12px;display:flex;align-items:center;gap:6px"><i class="fa-solid fa-pen" style="color:#F29100"></i> 修正信息 <span style="font-size:11px;color:#9096A2;font-weight:400;margin-left:auto">修改的字段已高亮标注</span></div>' + d.form + '</div>';
+  var reasonHtml = '<div class="form-row form-row-1" style="margin-top:16px"><div class="form-group"><label class="form-label">勘误原因<span class="req">*</span></label><textarea class="form-control" placeholder="请详细说明勘误原因，如：获奖等级录入有误，实际为金奖..." style="min-height:100px"></textarea></div></div>';
+  wrap.innerHTML = origHtml + modHtml + reasonHtml;
+}
+
+function bindRadioCards() {
+  document.querySelectorAll('#form-fields .radio-cards').forEach(function(group){
+    group.querySelectorAll('.radio-card').forEach(function(card){
+      card.addEventListener('click',function(){
+        group.querySelectorAll('.radio-card').forEach(function(c){c.classList.remove('selected')});
+        this.classList.add('selected');
+      });
+    });
+  });
+}
+
+/* 类型Tab切换（补充 / 勘误） */
+document.querySelectorAll('.type-tab').forEach(function(tab){
+  tab.addEventListener('click',function(){
+    document.querySelectorAll('.type-tab').forEach(function(t){t.classList.remove('active')});
+    this.classList.add('active');
+    if(this.classList.contains('t-supp')){
+      currentMode = 'supplement';
+      document.querySelector('.category-section').style.display = '';
+      switchForm(currentCategory);
+    } else {
+      currentMode = 'corrigendum';
+      document.querySelector('.category-section').style.display = 'none';
+      switchToCorrigendum();
+    }
+    showToast('已切换至：'+this.querySelector('.tt-title').textContent.trim(),'info');
+  });
+});
+
+/* 类目卡片切换 */
+document.querySelectorAll('.cat-block').forEach(function(b){
+  b.addEventListener('click',function(){
+    if(currentMode !== 'supplement') return;
+    document.querySelectorAll('.cat-block').forEach(function(t){t.classList.remove('selected')});
+    this.classList.add('selected');
+    var cat = this.getAttribute('data-category');
+    if(cat) switchForm(cat);
+    showToast('已选择：'+this.querySelector('.ct').textContent,'info');
+  });
+});
+
+/* 初始绑定 */
+bindRadioCards();
+</script>
+
+</body>
+</html>

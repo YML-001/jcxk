@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>补充勘误审核 · 基础学科学生成长档案</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'OPPOSans',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#F5F7FA;color:#3C444F;min-height:100vh;font-size:14px}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+.layout{display:flex;min-height:100vh}
+
+.sidebar{width:232px;background:#fff;border-right:1px solid #ECEFF4;flex-shrink:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.sidebar-brand{padding:20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #ECEFF4}
+.brand-icon{width:38px;height:38px;background:linear-gradient(135deg,#3087CC,#006DAD);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
+.brand-text h1{font-size:14px;font-weight:700;color:#3C444F}
+.brand-text p{font-size:11px;color:#9096A2;margin-top:2px}
+.sidebar-nav{flex:1;padding:14px 12px;overflow-y:auto}
+.nav-group{margin-bottom:18px}
+.nav-group-title{font-size:11px;color:#9096A2;font-weight:600;padding:0 10px;margin-bottom:6px;letter-spacing:0.5px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;color:#696F7D;cursor:pointer;transition:all .15s;margin-bottom:2px}
+.nav-item i{font-size:15px;width:18px}
+.nav-item:hover{background:#F5F7FA;color:#3087CC}
+.nav-item.active{background:#E3F1F9;color:#3087CC;font-weight:600}
+.nav-item .badge{margin-left:auto;font-size:11px;background:#DF2027;color:#fff;padding:1px 6px;border-radius:8px;font-weight:600}
+.sidebar-footer{padding:14px 16px;border-top:1px solid #ECEFF4;display:flex;align-items:center;gap:10px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3087CC,#006DAD);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.user-info .name{font-size:13px;font-weight:600;color:#3C444F}
+.user-info .role{font-size:11px;color:#9096A2;margin-top:1px}
+
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{background:#fff;border-bottom:1px solid #ECEFF4;padding:14px 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10}
+.breadcrumb{font-size:13px;color:#9096A2}
+.breadcrumb .current{color:#3C444F;font-weight:600}
+.breadcrumb i{font-size:10px;margin:0 6px}
+.topbar-actions{margin-left:auto;display:flex;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid transparent;line-height:1.2}
+.btn-primary{background:#3087CC;color:#fff}
+.btn-primary:hover{background:#006DAD}
+.btn-outline{background:#fff;color:#3087CC;border-color:#3087CC}
+.btn-outline:hover{background:#E3F1F9}
+.btn-default{background:#fff;color:#696F7D;border-color:#C8CAD1}
+.btn-default:hover{border-color:#3087CC;color:#3087CC}
+.btn-success{background:#1BB975;color:#fff}
+.btn-success:hover{background:#16a164}
+.btn-danger{background:#fff;color:#DF2027;border-color:#F6BCBE}
+.btn-danger:hover{background:#FCE8EA}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+.content{padding:24px 28px;flex:1;overflow-y:auto}
+.page-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.page-title h2{font-size:22px;font-weight:700;color:#3C444F}
+.page-title .desc{font-size:13px;color:#9096A2;margin-top:6px}
+
+/* Stats row */
+.stats-mini{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-mini{background:#fff;border:1px solid #ECEFF4;border-radius:10px;padding:16px 18px}
+.stat-mini-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.stat-mini-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.sm-blue{background:#E3F1F9;color:#3087CC}
+.sm-orange{background:#FFF5E5;color:#F29100}
+.sm-red{background:#FCE8EA;color:#DF2027}
+.sm-green{background:#E8FCF4;color:#1BB975}
+.stat-mini .label{font-size:12px;color:#9096A2}
+.stat-mini .num{font-size:24px;font-weight:700;color:#3C444F;line-height:1.2}
+.stat-mini .sub{font-size:11px;color:#9096A2;margin-top:6px}
+
+/* Tabs */
+.tabs-bar{background:#fff;border:1px solid #ECEFF4;border-radius:12px;padding:0 20px;margin-bottom:16px;display:flex;border-bottom:none}
+.tab{padding:16px 18px;font-size:14px;color:#696F7D;cursor:pointer;border-bottom:2px solid transparent;display:flex;align-items:center;gap:8px;transition:all .15s}
+.tab:hover{color:#3087CC}
+.tab.active{color:#3087CC;border-bottom-color:#3087CC;font-weight:600}
+.tab .count{background:#F1F2F3;color:#696F7D;font-size:11px;padding:1px 8px;border-radius:10px;font-weight:600}
+.tab.active .count{background:#3087CC;color:#fff}
+.tab.urgent .count{background:#DF2027;color:#fff}
+
+/* Filter Bar */
+.filter-bar{background:#fff;border:1px solid #ECEFF4;border-radius:12px;padding:14px 20px;margin-bottom:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.filter-bar select,.filter-bar input{height:34px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none;background:#fff}
+.filter-bar input{min-width:200px}
+.filter-bar select:focus,.filter-bar input:focus{border-color:#3087CC}
+
+/* Card List */
+.review-list{display:flex;flex-direction:column;gap:14px}
+.review-card{background:#fff;border:1px solid #ECEFF4;border-radius:12px;padding:20px;transition:all .2s}
+.review-card:hover{border-color:#3087CC;box-shadow:0 4px 14px rgba(48,135,204,0.08)}
+.review-card.urgent{border-left:4px solid #DF2027}
+.review-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px}
+.r-type-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.rti-blue{background:#E3F1F9;color:#3087CC}
+.rti-orange{background:#FFF5E5;color:#F29100}
+.rti-green{background:#E8FCF4;color:#1BB975}
+.r-main{flex:1;min-width:0}
+.r-title{font-size:15px;font-weight:600;color:#3C444F;margin-bottom:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.r-meta{font-size:12px;color:#9096A2;display:flex;gap:14px;flex-wrap:wrap}
+.r-meta span{display:inline-flex;align-items:center;gap:4px}
+
+.r-tag{display:inline-flex;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.rt-supplement{background:#E3F1F9;color:#3087CC}
+.rt-correction{background:#FFF5E5;color:#F29100}
+.rt-urgent{background:#FCE8EA;color:#DF2027}
+.rt-stage{background:#F1F2F3;color:#696F7D}
+
+.r-body{background:#F8FAFC;border-radius:8px;padding:14px 16px;margin-bottom:14px}
+.r-body-title{font-size:12px;color:#9096A2;margin-bottom:8px;font-weight:500}
+.r-body-content{font-size:13px;color:#3C444F;line-height:1.7}
+.r-body-content strong{color:#3087CC;font-weight:600}
+.r-attachments{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.r-attach{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:#fff;border:1px solid #ECEFF4;border-radius:4px;font-size:11px;color:#3087CC;cursor:pointer}
+.r-attach:hover{background:#E3F1F9}
+
+.r-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-top:14px;border-top:1px solid #F5F7FA}
+.r-progress{flex:1;display:flex;align-items:center;gap:8px;font-size:12px;color:#696F7D}
+.progress-steps{display:flex;align-items:center;gap:6px}
+.p-step{display:inline-flex;align-items:center;gap:4px;font-size:11px}
+.p-step.done{color:#1BB975}
+.p-step.current{color:#3087CC;font-weight:600}
+.p-step.todo{color:#9096A2}
+.p-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.p-arrow{color:#C8CAD1;font-size:9px}
+.r-actions{display:flex;gap:6px}
+
+@media(max-width:1400px){.stats-mini{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+    <div class="brand-text"><h1>成长档案</h1><p>基础学科 · 管理端</p></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-group">
+      <div class="nav-group-title">概览</div>
+      <a class="nav-item" href="dashboard.html"><i class="fa-solid fa-gauge-high"></i>工作台</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">档案管理</div>
+      <a class="nav-item" href="student-list.html"><i class="fa-solid fa-users"></i>学生档案<span class="badge">1180</span></a>
+      <a class="nav-item" href="student-detail.html"><i class="fa-solid fa-folder-open"></i>档案详情</a>
+      <a class="nav-item" href="data-entry.html"><i class="fa-solid fa-pen-to-square"></i>直接录入</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">审核中心</div>
+      <div class="nav-item active"><i class="fa-solid fa-clipboard-check"></i>补充勘误审核<span class="badge">12</span></div>
+      <a class="nav-item" href="review-detail.html"><i class="fa-solid fa-eye"></i>审核详情</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">学年鉴定</div>
+      <a class="nav-item" href="annual-review.html"><i class="fa-solid fa-file-signature"></i>鉴定管理</a>
+      <a class="nav-item" href="annual-review-committee.html"><i class="fa-solid fa-user-group"></i>考核小组配置</a>
+      <a class="nav-item" href="annual-review-detail.html"><i class="fa-solid fa-pen-to-square"></i>考核录入</a>
+      <a class="nav-item" href="annual-review-export.html"><i class="fa-solid fa-file-export"></i>导出模板</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">数据分析</div>
+      <a class="nav-item" href="statistics.html"><i class="fa-solid fa-chart-column"></i>查询与统计</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">系统</div>
+      <a class="nav-item" href="base-config.html"><i class="fa-solid fa-sliders"></i>系统配置</a>
+      <a class="nav-item" href="../index.html"><i class="fa-solid fa-arrow-right-from-bracket"></i>返回导航</a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-avatar">李</div>
+    <div class="user-info"><div class="name">李振华</div><div class="role">本科生院 · 管理员</div></div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="breadcrumb">
+      <i class="fa-solid fa-house"></i> 首页 <i class="fa-solid fa-chevron-right"></i>
+      审核中心 <i class="fa-solid fa-chevron-right"></i>
+      <span class="current">补充勘误审核</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-default btn-sm" onclick="showToast('正在生成导出数据…','info')"><i class="fa-solid fa-file-export"></i>导出</button>
+      <button class="btn btn-outline btn-sm" onclick="showToast('正在加载审核规则…','info')"><i class="fa-solid fa-circle-info"></i>审核规则</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="page-title">
+      <div>
+        <h2>补充勘误审核</h2>
+        <div class="desc">三级审核流：学生/导师提交 → 学院初审 → 职能部门复审 → 入库</div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-mini">
+      <div class="stat-mini">
+        <div class="stat-mini-head">
+          <div class="stat-mini-icon sm-blue"><i class="fa-solid fa-clipboard-list"></i></div>
+          <div class="label">待您审核</div>
+        </div>
+        <div class="num">15</div>
+        <div class="sub">补充申请 8 · 勘误申请 7</div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-head">
+          <div class="stat-mini-icon sm-red"><i class="fa-solid fa-clock"></i></div>
+          <div class="label">超时未审</div>
+        </div>
+        <div class="num" style="color:#DF2027">2</div>
+        <div class="sub">超过 5 个工作日</div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-head">
+          <div class="stat-mini-icon sm-green"><i class="fa-solid fa-check-double"></i></div>
+          <div class="label">本月已通过</div>
+        </div>
+        <div class="num">48</div>
+        <div class="sub">通过率 89.5%</div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-head">
+          <div class="stat-mini-icon sm-orange"><i class="fa-solid fa-rotate-left"></i></div>
+          <div class="label">本月已退回</div>
+        </div>
+        <div class="num">6</div>
+        <div class="sub">主要原因：材料不全</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs-bar" id="reviewTabs">
+      <div class="tab active"><i class="fa-solid fa-list"></i>全部<span class="count">15</span></div>
+      <div class="tab urgent"><i class="fa-solid fa-exclamation"></i>超时<span class="count">2</span></div>
+      <div class="tab"><i class="fa-solid fa-plus-circle"></i>补充<span class="count">8</span></div>
+      <div class="tab"><i class="fa-solid fa-pen-to-square"></i>勘误<span class="count">7</span></div>
+      <div class="tab"><i class="fa-solid fa-arrow-up"></i>学院初审<span class="count">9</span></div>
+      <div class="tab"><i class="fa-solid fa-arrow-up-right-from-square"></i>部门复审<span class="count">6</span></div>
+      <div class="tab"><i class="fa-solid fa-check"></i>已通过<span class="count">48</span></div>
+      <div class="tab"><i class="fa-solid fa-rotate-left"></i>已退回<span class="count">6</span></div>
+    </div>
+
+    <!-- Filter -->
+    <div class="filter-bar">
+      <input type="text" placeholder="搜索学生姓名/学号">
+      <select>
+        <option>全部类目</option>
+        <option>竞赛获奖</option>
+        <option>论文发表</option>
+        <option>专利软著</option>
+        <option>奖学金</option>
+        <option>境内外交流</option>
+        <option>社会实践</option>
+      </select>
+      <select>
+        <option>全部基地</option>
+        <option>物理学拔尖</option>
+        <option>计算机科学拔尖</option>
+        <option>数学拔尖</option>
+      </select>
+      <select>
+        <option>提交时间-倒序</option>
+        <option>提交时间-正序</option>
+        <option>等待天数-降序</option>
+      </select>
+      <button class="btn btn-primary btn-sm" onclick="showToast('查询结果已更新','success')"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
+    </div>
+
+    <!-- Review Cards -->
+    <div class="review-list">
+
+      <!-- 超时申请 -->
+      <div class="review-card urgent">
+        <div class="review-head">
+          <div class="r-type-icon rti-blue"><i class="fa-solid fa-plus-circle"></i></div>
+          <div class="r-main">
+            <div class="r-title">
+              王明 提交了「竞赛获奖」补充申请
+              <span class="r-tag rt-supplement">补充</span>
+              <span class="r-tag rt-urgent"><i class="fa-solid fa-clock"></i> 超时 1 天</span>
+              <span class="r-tag rt-stage">部门复审</span>
+            </div>
+            <div class="r-meta">
+              <span><i class="fa-solid fa-id-card"></i>2022100123</span>
+              <span><i class="fa-solid fa-atom"></i>物理学拔尖</span>
+              <span><i class="fa-solid fa-chalkboard-user"></i>导师：张教授</span>
+              <span><i class="fa-regular fa-clock"></i>提交：2026-05-05 14:23 (6 天前)</span>
+              <span><i class="fa-solid fa-check"></i>学院已通过：张老师 · 2026-05-06</span>
+            </div>
+          </div>
+        </div>
+        <div class="r-body">
+          <div class="r-body-title">申请数据：</div>
+          <div class="r-body-content">
+            <strong>竞赛名称</strong>：ACM-ICPC 国际大学生程序设计竞赛 亚洲区域赛<br>
+            <strong>竞赛级别</strong>：国家级　<strong>获奖等级</strong>：银奖　<strong>是否学术竞赛</strong>：是　<strong>获奖时间</strong>：2025-11-15
+          </div>
+          <div class="r-attachments">
+            <span class="r-attach" onclick="showToast('正在预览附件…','info')"><i class="fa-regular fa-file-pdf"></i> 获奖证书.pdf</span>
+            <span class="r-attach" onclick="showToast('正在预览附件…','info')"><i class="fa-regular fa-image"></i> 颁奖现场.jpg</span>
+          </div>
+        </div>
+        <div class="r-footer">
+          <div class="r-progress">
+            <div class="progress-steps">
+              <span class="p-step done"><span class="p-dot"></span>已提交</span>
+              <span class="p-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+              <span class="p-step done"><span class="p-dot"></span>学院初审</span>
+              <span class="p-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+              <span class="p-step current"><span class="p-dot"></span>部门复审 (本科生院)</span>
+              <span class="p-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+              <span class="p-step todo"><span class="p-dot"></span>入库</span>
+            </div>
+          </div>
+          <div class="r-actions">
+            <a class="btn btn-default btn-sm" href="review-detail.html"><i class="fa-solid fa-eye"></i>查看详情</a>
+            <button class="btn btn-danger btn-sm" onclick="showConfirm('确认退回','确定要退回该申请吗？',function(){showToast('已退回','warning')})"><i class="fa-solid fa-rotate-left"></i>退回</button>
+            <button class="btn btn-success btn-sm" onclick="showConfirm('确认通过','确定要通过该申请吗？',function(){showToast('已通过','success')})"><i class="fa-solid fa-check"></i>通过</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 勘误申请 -->
+      <div class="review-card">
+        <div class="review-head">
+          <div class="r-type-icon rti-orange"><i class="fa-solid fa-pen-to-square"></i></div>
+          <div class="r-main">
+            <div class="r-title">
+              张梓萱 提交了「奖学金」勘误申请
+              <span class="r-tag rt-correction">勘误</span>
+              <span class="r-tag rt-stage">学院初审</span>
+            </div>
+            <div class="r-meta">
+              <span><i class="fa-solid fa-id-card"></i>2022100456</span>
+              <span><i class="fa-solid fa-laptop-code"></i>计算机科学拔尖</span>
+              <span><i class="fa-solid fa-chalkboard-user"></i>导师：刘教授</span>
+              <span><i class="fa-regular fa-clock"></i>提交：2026-05-09 09:15 (2 天前)</span>
+            </div>
+          </div>
+        </div>
+        <div class="r-body">
+          <div class="r-body-title">勘误对比：</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div style="padding:10px 12px;background:#fff;border:1px solid #ECEFF4;border-radius:6px">
+              <div style="font-size:11px;color:#DF2027;font-weight:600;margin-bottom:6px"><i class="fa-solid fa-xmark"></i> 原值（系统同步）</div>
+              <div style="font-size:12px;color:#696F7D;line-height:1.6">奖学金名称：校级奖学金<br>奖励级别：校级　等级：三等<br>金额：500 元</div>
+            </div>
+            <div style="padding:10px 12px;background:#E8FCF4;border:1px solid #A7F3D0;border-radius:6px">
+              <div style="font-size:11px;color:#1BB975;font-weight:600;margin-bottom:6px"><i class="fa-solid fa-check"></i> 勘误值</div>
+              <div style="font-size:12px;color:#3C444F;line-height:1.6"><strong style="color:#1BB975">国家奖学金</strong><br>奖励级别：<strong style="color:#1BB975">国家级</strong>　等级：<strong style="color:#1BB975">特等</strong><br>金额：<strong style="color:#1BB975">8,000 元</strong></div>
+            </div>
+          </div>
+          <div class="r-attachments">
+            <span class="r-attach" onclick="showToast('正在预览附件…','info')"><i class="fa-regular fa-file-pdf"></i> 国奖证书.pdf</span>
+            <span class="r-attach" onclick="showToast('正在预览附件…','info')"><i class="fa-regular fa-file-pdf"></i> 学校公示文件.pdf</span>
+          </div>
+        </div>
+        <div class="r-footer">
+          <div class="r-progress">
+            <div class="progress-steps">
+              <span class="p-step done"><span class="p-dot"></span>已提交</span>
+              <span class="p-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+              <span class="p-step current"><span class="p-dot"></span>学院初审 (辅导员)</span>
+              <span class="p-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+              <span class="p-step todo"><span class="p-dot"></span>部门复审</span>
+              <span class="p-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+              <span class="p-step todo"><span class="p-dot"></span>入库</span>
+            </div>
+          </div>
+          <div class="r-actions">
+            <a class="btn btn-default btn-sm" href="review-detail.html"><i class="fa-solid fa-eye"></i>查看详情</a>
+            <button class="btn btn-danger btn-sm" onclick="showConfirm('确认退回','确定要退回该申请吗？',function(){showToast('已退回','warning')})"><i class="fa-solid fa-rotate-left"></i>退回</button>
+            <button class="btn btn-success btn-sm" onclick="showConfirm('确认通过','确定要通过该申请吗？',function(){showToast('已通过','success')})"><i class="fa-solid fa-check"></i>通过</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 论文补充 -->
+      <div class="review-card">
+        <div class="review-head">
+          <div class="r-type-icon rti-blue"><i class="fa-solid fa-plus-circle"></i></div>
+          <div class="r-main">
+            <div class="r-title">
+              陈思源 提交了「境内外交流」补充申请
+              <span class="r-tag rt-supplement">补充</span>
+              <span class="r-tag rt-stage">部门复审</span>
+            </div>
+            <div class="r-meta">
+              <span><i class="fa-solid fa-id-card"></i>2023100789</span>
+              <span><i class="fa-solid fa-square-root-variable"></i>数学拔尖</span>
+              <span><i class="fa-solid fa-chalkboard-user"></i>导师：赵教授</span>
+              <span><i class="fa-regular fa-clock"></i>提交：2026-05-10 16:48 (1 天前)</span>
+              <span><i class="fa-solid fa-check"></i>学院已通过：李老师 · 2026-05-11 09:00</span>
+            </div>
+          </div>
+        </div>
+        <div class="r-body">
+          <div class="r-body-title">申请数据：</div>
+          <div class="r-body-content">
+            <strong>项目类别</strong>：境外　<strong>项目类型</strong>：暑期项目<br>
+            <strong>项目名称</strong>：斯坦福大学数学暑期学校 (Stanford Mathematics Summer School)<br>
+            <strong>合作单位</strong>：Stanford University　<strong>交流地点</strong>：美国加州<br>
+            <strong>起止时间</strong>：2025-06-15 至 2025-08-15
+          </div>
+          <div class="r-attachments">
+            <span class="r-attach" onclick="showToast('正在预览附件…','info')"><i class="fa-regular fa-file-pdf"></i> 录取通知书.pdf</span>
+            <span class="r-attach" onclick="showToast('正在预览附件…','info')"><i class="fa-regular fa-file-pdf"></i> 结业证书.pdf</span>
+            <span class="r-attach" onclick="showToast('正在预览附件…','info')"><i class="fa-regular fa-image"></i> 项目合影.jpg</span>
+          </div>
+        </div>
+        <div class="r-footer">
+          <div class="r-progress">
+            <div class="progress-steps">
+              <span class="p-step done"><span class="p-dot"></span>已提交</span>
+              <span class="p-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+              <span class="p-step done"><span class="p-dot"></span>学院初审</span>
+              <span class="p-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+              <span class="p-step current"><span class="p-dot"></span>部门复审 (本科生院)</span>
+              <span class="p-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+              <span class="p-step todo"><span class="p-dot"></span>入库</span>
+            </div>
+          </div>
+          <div class="r-actions">
+            <a class="btn btn-default btn-sm" href="review-detail.html"><i class="fa-solid fa-eye"></i>查看详情</a>
+            <button class="btn btn-danger btn-sm" onclick="showConfirm('确认退回','确定要退回该申请吗？',function(){showToast('已退回','warning')})"><i class="fa-solid fa-rotate-left"></i>退回</button>
+            <button class="btn btn-success btn-sm" onclick="showConfirm('确认通过','确定要通过该申请吗？',function(){showToast('已通过','success')})"><i class="fa-solid fa-check"></i>通过</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 论文补充 -->
+      <div class="review-card">
+        <div class="review-head">
+          <div class="r-type-icon rti-blue"><i class="fa-solid fa-plus-circle"></i></div>
+          <div class="r-main">
+            <div class="r-title">
+              林雨晴 提交了「发表论文」补充申请
+              <span class="r-tag rt-supplement">补充</span>
+              <span class="r-tag rt-stage">学院初审</span>
+            </div>
+            <div class="r-meta">
+              <span><i class="fa-solid fa-id-card"></i>2022100234</span>
+              <span><i class="fa-solid fa-dna"></i>生物科学</span>
+              <span><i class="fa-solid fa-chalkboard-user"></i>导师：孙教授</span>
+              <span><i class="fa-regular fa-clock"></i>提交：今天 10:30</span>
+            </div>
+          </div>
+        </div>
+        <div class="r-body">
+          <div class="r-body-title">申请数据：</div>
+          <div class="r-body-content">
+            <strong>论文类型</strong>：期刊论文　<strong>是否一作</strong>：导师一作本人二作<br>
+            <strong>论文名称</strong>：CRISPR-Cas9 介导的水稻抗病基因编辑研究<br>
+            <strong>刊物</strong>：Nature Plants　<strong>期刊等级</strong>：SCI 一区<br>
+            <strong>发表时间</strong>：2026-04-20
+          </div>
+        </div>
+        <div class="r-footer">
+          <div class="r-progress">
+            <div class="progress-steps">
+              <span class="p-step done"><span class="p-dot"></span>已提交</span>
+              <span class="p-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+              <span class="p-step current"><span class="p-dot"></span>学院初审</span>
+              <span class="p-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+              <span class="p-step todo"><span class="p-dot"></span>部门复审</span>
+              <span class="p-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+              <span class="p-step todo"><span class="p-dot"></span>入库</span>
+            </div>
+          </div>
+          <div class="r-actions">
+            <a class="btn btn-default btn-sm" href="review-detail.html"><i class="fa-solid fa-eye"></i>查看详情</a>
+            <button class="btn btn-danger btn-sm" onclick="showConfirm('确认退回','确定要退回该申请吗？',function(){showToast('已退回','warning')})"><i class="fa-solid fa-rotate-left"></i>退回</button>
+            <button class="btn btn-success btn-sm" onclick="showConfirm('确认通过','确定要通过该申请吗？',function(){showToast('已通过','success')})"><i class="fa-solid fa-check"></i>通过</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="text-align:center;padding:20px;color:#9096A2;font-size:13px">
+      显示前 4 条 · 共 15 条 · <a href="#" onclick="showToast('正在加载更多…','info');return false" style="color:#3087CC">加载更多</a>
+    </div>
+
+  </div>
+</main>
+
+</div>
+
+<script>
+/* Toast 提示 */
+function showToast(msg,type){type=type||'info';var t=document.createElement('div');var c={success:'#1BB975',info:'#3087CC',warning:'#F29100',error:'#DF2027'};var ic={success:'fa-circle-check',info:'fa-circle-info',warning:'fa-triangle-exclamation',error:'fa-circle-xmark'};t.innerHTML='<i class="fa-solid '+ic[type]+'"></i> '+msg;t.style.cssText='position:fixed;top:-60px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;color:#fff;background:'+(c[type]||c.info)+';box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;gap:8px;z-index:99999;transition:top 0.3s ease;white-space:nowrap;font-family:inherit';document.body.appendChild(t);requestAnimationFrame(function(){t.style.top='24px'});setTimeout(function(){t.style.top='-60px';setTimeout(function(){t.remove()},400)},2500)}
+
+/* 确认弹窗 */
+function showConfirm(title,msg,onOk){var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s';o.innerHTML='<div style="background:#fff;border-radius:12px;padding:28px;width:420px;max-width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2);font-family:inherit;transform:scale(0.9);transition:transform 0.2s"><h3 style="margin:0 0 8px;font-size:16px;color:#3C444F">'+title+'</h3><p style="margin:0 0 20px;font-size:14px;color:#696F7D;line-height:1.6">'+msg+'</p><div style="display:flex;gap:10px;justify-content:flex-end"><button class="_mc" style="padding:8px 20px;border-radius:8px;border:1px solid #ECEFF4;background:#F5F7FA;color:#3C444F;cursor:pointer;font-size:13px;font-family:inherit">取消</button><button class="_mo" style="padding:8px 20px;border-radius:8px;border:none;background:#3087CC;color:#fff;cursor:pointer;font-size:13px;font-family:inherit">确定</button></div></div>';document.body.appendChild(o);requestAnimationFrame(function(){o.style.opacity='1';o.firstElementChild.style.transform='scale(1)'});o.querySelector('._mo').onclick=function(){o.remove();if(onOk)onOk()};o.querySelector('._mc').onclick=function(){o.remove()};o.addEventListener('click',function(e){if(e.target===o)o.remove()})}
+
+/* Tab 切换 */
+document.getElementById('reviewTabs').addEventListener('click',function(e){var tab=e.target.closest('.tab');if(!tab)return;this.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});tab.classList.add('active')})
+</script>
+</body>
+</html>

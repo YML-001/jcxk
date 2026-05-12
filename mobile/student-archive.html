@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>我的档案</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'OPPOSans',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#F5F7FA;color:#3C444F;min-height:100vh;max-width:428px;margin:0 auto;font-size:14px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+
+.top-bar{position:sticky;top:0;z-index:100;background:#fff;height:44px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #ECEFF4;font-size:16px;font-weight:600}
+
+.page-body{padding:0 0 80px}
+
+.year-selector{padding:12px 16px;background:#fff;border-bottom:1px solid #ECEFF4}
+.year-select{width:100%;padding:10px 14px;border:1px solid #ECEFF4;border-radius:10px;font-size:14px;font-family:inherit;color:#3C444F;background:#F5F7FA;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239096A2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;cursor:pointer}
+
+.category-tabs{background:#fff;padding:0 16px;border-bottom:1px solid #ECEFF4;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.category-tabs::-webkit-scrollbar{display:none}
+.cat-tab{display:inline-block;padding:12px 14px;font-size:13px;color:#9096A2;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-weight:500}
+.cat-tab.active{color:#1BB975;border-bottom-color:#1BB975;font-weight:600}
+
+.tab-content{padding:16px}
+
+.stats-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.summary-item{background:#fff;border-radius:12px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.03)}
+.summary-val{font-size:22px;font-weight:700;color:#1BB975}
+.summary-lab{font-size:12px;color:#9096A2;margin-top:2px}
+
+.course-card{background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.03);cursor:pointer;transition:box-shadow .2s}
+.course-card:active{box-shadow:0 2px 4px rgba(0,0,0,0.06)}
+.course-main{display:flex;align-items:center;justify-content:space-between}
+.course-info{flex:1;min-width:0}
+.course-name{font-size:14px;font-weight:600;margin-bottom:4px}
+.course-meta{font-size:12px;color:#9096A2;display:flex;gap:8px;flex-wrap:wrap}
+.course-meta span{display:inline-flex;align-items:center;gap:3px}
+.course-score{font-size:22px;font-weight:700;color:#1BB975;flex-shrink:0;margin-left:12px}
+.course-score-unit{font-size:12px;color:#9096A2;font-weight:400}
+.course-detail{max-height:0;overflow:hidden;transition:max-height .3s ease,opacity .3s;opacity:0}
+.course-detail.open{max-height:120px;opacity:1}
+.course-detail-inner{padding-top:12px;margin-top:12px;border-top:1px dashed #ECEFF4;font-size:12px;color:#9096A2;line-height:2}
+
+.award-card{background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.03);position:relative}
+.award-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+.award-name{font-size:14px;font-weight:600;flex:1;padding-right:8px}
+.award-btn{font-size:12px;color:#F29100;background:#FFF5E5;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:inherit;font-weight:500;flex-shrink:0}
+.award-btn:active{opacity:0.7}
+.award-tags{display:flex;gap:6px;flex-wrap:wrap}
+.a-tag{font-size:11px;padding:3px 8px;border-radius:4px;font-weight:500}
+.a-tag.level{background:#E3F1F9;color:#3087CC}
+.a-tag.rank{background:#E8FCF4;color:#1BB975}
+.a-tag.date{background:#F5F7FA;color:#9096A2}
+
+.empty-state{text-align:center;padding:60px 20px;color:#C8CAD1}
+.empty-state i{font-size:48px;margin-bottom:12px}
+.empty-state p{font-size:14px;margin-bottom:16px}
+.empty-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:#1BB975;color:#fff;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:inherit}
+.empty-btn:active{opacity:0.8}
+
+.text-block{background:#fff;border-radius:12px;padding:20px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.03);line-height:1.8;font-size:14px;color:#3C444F}
+.text-block-title{font-size:13px;color:#9096A2;margin-bottom:8px;font-weight:500}
+
+.result-card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.03);margin-bottom:10px}
+.result-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;background:linear-gradient(135deg,#FFF7E6,#FFECB3);border-radius:8px;font-size:18px;font-weight:700;color:#E6A700;margin-bottom:14px;border:1px solid #FFD54F}
+.result-steps{display:flex;flex-direction:column;gap:10px}
+.result-step{display:flex;align-items:center;gap:10px;font-size:13px}
+.result-step-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.result-step-dot.done{background:#1BB975}
+.result-step-dot.pending{background:#F29100}
+.result-step-dot.wait{background:#E0E0E0}
+.result-step-label{color:#3C444F}
+.result-step-status{margin-left:auto;font-size:12px;font-weight:500}
+.result-step-status.done{color:#1BB975}
+.result-step-status.pending{color:#F29100}
+.result-step-status.wait{color:#C8CAD1}
+
+.scholarship-card{background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.03);display:flex;align-items:center;justify-content:space-between}
+.scholarship-info{flex:1}
+.scholarship-name{font-size:14px;font-weight:600;margin-bottom:4px}
+.scholarship-meta{font-size:12px;color:#9096A2;display:flex;gap:8px}
+.scholarship-amount{font-size:20px;font-weight:700;color:#F29100}
+
+.innovation-card{background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.03)}
+.innovation-name{font-size:14px;font-weight:600;margin-bottom:6px}
+.innovation-tags{display:flex;gap:6px;flex-wrap:wrap}
+
+.paper-card{background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.03)}
+.paper-name{font-size:14px;font-weight:600;margin-bottom:6px}
+.paper-tags{display:flex;gap:6px;flex-wrap:wrap}
+
+.tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:428px;height:56px;background:#fff;border-top:1px solid #ECEFF4;display:flex;align-items:center;z-index:100}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;color:#9096A2;cursor:pointer;padding:6px 0;transition:color .15s;text-decoration:none}
+.tab-item i{font-size:20px}
+.tab-item.active{color:#1BB975}
+.tab-item:active{opacity:0.7}
+
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.8);background:rgba(0,0,0,0.75);color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;z-index:999;opacity:0;transition:all .3s;pointer-events:none;max-width:300px;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+
+.drawer-mask{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;opacity:0;pointer-events:none;transition:opacity .3s}
+.drawer-mask.show{opacity:1;pointer-events:auto}
+.drawer{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:428px;max-height:80vh;background:#fff;border-radius:20px 20px 0 0;z-index:201;transition:transform .35s cubic-bezier(0.32,0.72,0,1);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.drawer.show{transform:translateX(-50%) translateY(0)}
+.drawer-handle{width:36px;height:4px;background:#E0E0E0;border-radius:2px;margin:10px auto 0;cursor:pointer}
+.drawer-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;border-bottom:1px solid #F2F3F5}
+.drawer-title{font-size:16px;font-weight:700}
+.drawer-close{width:28px;height:28px;border-radius:50%;background:#F5F7FA;display:flex;align-items:center;justify-content:center;font-size:14px;color:#9096A2;cursor:pointer;border:none}
+.drawer-body{padding:20px}
+.errata-readonly{background:#F5F7FA;border-radius:10px;padding:14px;font-size:13px;color:#696F7D;line-height:1.8;margin-bottom:16px}
+.errata-textarea{width:100%;min-height:80px;padding:12px 14px;border:1px solid #E0E3E8;border-radius:10px;font-size:14px;font-family:inherit;color:#3C444F;resize:vertical;outline:none;transition:border-color .2s}
+.errata-textarea:focus{border-color:#1BB975}
+.errata-upload{border:2px dashed #D4D8DF;border-radius:10px;padding:20px;text-align:center;margin:12px 0;cursor:pointer;color:#9096A2;font-size:13px;transition:border-color .2s}
+.errata-upload:active{border-color:#1BB975}
+.errata-upload i{font-size:24px;margin-bottom:6px;display:block}
+.errata-actions{display:flex;gap:10px;margin-top:16px}
+.errata-actions button{flex:1;height:44px;border-radius:10px;font-size:14px;font-weight:600;border:none;cursor:pointer;font-family:inherit}
+.errata-cancel{background:#F0F2F5;color:#696F7D}
+.errata-submit{background:#1BB975;color:#fff}
+.errata-cancel:active,.errata-submit:active{opacity:0.8}
+.form-label{font-size:13px;color:#696F7D;margin-bottom:6px;font-weight:500;display:block}
+</style>
+</head>
+<body>
+<div class="top-bar">我的档案</div>
+
+<div class="page-body">
+  <div class="year-selector">
+    <select class="year-select" id="yearSelect" onchange="switchYear(this.value)">
+      <option value="2025">2025-2026学年</option>
+      <option value="2024">2024-2025学年</option>
+      <option value="2023">2023-2024学年</option>
+    </select>
+  </div>
+
+  <div class="category-tabs" id="categoryTabs">
+    <span class="cat-tab active" data-tab="grades">学业成绩</span>
+    <span class="cat-tab" data-tab="awards">竞赛获奖</span>
+    <span class="cat-tab" data-tab="papers">论文</span>
+    <span class="cat-tab" data-tab="patents">专利</span>
+    <span class="cat-tab" data-tab="innovation">创新创业</span>
+    <span class="cat-tab" data-tab="exchange">交流</span>
+    <span class="cat-tab" data-tab="otheraward">其他获奖</span>
+    <span class="cat-tab" data-tab="scholarship">奖学金</span>
+    <span class="cat-tab" data-tab="research">科研</span>
+    <span class="cat-tab" data-tab="social">社会实践</span>
+    <span class="cat-tab" data-tab="graduation">毕业去向</span>
+    <span class="cat-tab" data-tab="moral">思想品德</span>
+    <span class="cat-tab" data-tab="selfreview">自我鉴定</span>
+    <span class="cat-tab" data-tab="tutorreview">导师评价</span>
+    <span class="cat-tab" data-tab="annualreview">学年鉴定</span>
+  </div>
+
+  <div class="tab-content" id="tabContent"></div>
+</div>
+
+<div class="tab-bar">
+  <a class="tab-item" href="student-home.html"><i class="fas fa-home"></i><span>首页</span></a>
+  <a class="tab-item active" href="student-archive.html"><i class="fas fa-archive"></i><span>档案</span></a>
+  <a class="tab-item" href="student-requests.html"><i class="fas fa-paper-plane"></i><span>申请</span></a>
+  <a class="tab-item" href="student-confirm.html"><i class="fas fa-clipboard-check"></i><span>鉴定</span></a>
+</div>
+
+<div class="drawer-mask" id="drawerMask" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-handle" onclick="closeDrawer()"></div>
+  <div class="drawer-header">
+    <div class="drawer-title" id="drawerTitle">勘误申请</div>
+    <button class="drawer-close" onclick="closeDrawer()"><i class="fas fa-xmark"></i></button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._timer);t._timer=setTimeout(function(){t.classList.remove('show')},2000)}
+
+var yearData={
+  '2025':{credits:'45',gpa:'3.85',count:'12',courses:[
+    {name:'高等数学A(一)',code:'MATH1001',type:'必修',credit:'5',score:'95',teacher:'张教授',nature:'通识必修课',term:'2025秋'},
+    {name:'大学物理',code:'PHYS1002',type:'必修',credit:'4',score:'90',teacher:'王教授',nature:'通识必修课',term:'2025秋'},
+    {name:'数据结构与算法',code:'CS2001',type:'必修',credit:'4',score:'92',teacher:'赵教授',nature:'专业核心课',term:'2025秋'},
+    {name:'线性代数',code:'MATH1003',type:'必修',credit:'3',score:'88',teacher:'刘教授',nature:'通识必修课',term:'2025秋'},
+    {name:'概率论与数理统计',code:'MATH2002',type:'必修',credit:'3',score:'91',teacher:'陈教授',nature:'通识必修课',term:'2025秋'}
+  ]},
+  '2024':{credits:'42',gpa:'3.72',count:'11',courses:[
+    {name:'C语言程序设计',type:'必修',credit:'4',score:'89',teacher:'周教授',nature:'专业基础课'},
+    {name:'离散数学',type:'必修',credit:'3',score:'85',teacher:'吴教授',nature:'专业基础课'},
+    {name:'大学英语(三)',type:'必修',credit:'2',score:'82',teacher:'李老师',nature:'通识必修课'},
+    {name:'计算机组成原理',type:'必修',credit:'4',score:'87',teacher:'孙教授',nature:'专业核心课'}
+  ]},
+  '2023':{credits:'38',gpa:'3.60',count:'10',courses:[
+    {name:'高等数学A(二)',type:'必修',credit:'5',score:'86',teacher:'张教授',nature:'通识必修课'},
+    {name:'大学英语(一)',type:'必修',credit:'2',score:'80',teacher:'李老师',nature:'通识必修课'},
+    {name:'思想道德与法治',type:'必修',credit:'3',score:'90',teacher:'马老师',nature:'通识必修课'}
+  ]}
+};
+
+var currentYear='2025';
+var currentTab='grades';
+
+function switchYear(y){
+  currentYear=y;
+  renderTab(currentTab);
+  showToast('已切换到 '+y+'-'+(parseInt(y)+1)+'学年');
+}
+
+function renderTab(key){
+  currentTab=key;
+  var c=document.getElementById('tabContent');
+  var html='';
+  var yd=yearData[currentYear];
+
+  if(key==='grades'){
+    html+='<div class="stats-summary">';
+    html+='<div class="summary-item"><div class="summary-val">'+yd.credits+'</div><div class="summary-lab">总学分</div></div>';
+    html+='<div class="summary-item"><div class="summary-val">'+yd.gpa+'</div><div class="summary-lab">GPA</div></div>';
+    html+='<div class="summary-item"><div class="summary-val">'+yd.count+'</div><div class="summary-lab">课程数</div></div>';
+    html+='</div>';
+    yd.courses.forEach(function(course,i){
+      html+='<div class="course-card" onclick="toggleCourse(this)">';
+      html+='<div class="course-main"><div class="course-info">';
+      html+='<div class="course-name">'+course.name+'</div>';
+      html+='<div class="course-meta"><span><i class="fas fa-tag"></i> '+course.type+'</span><span><i class="fas fa-coins"></i> '+course.credit+'学分</span></div>';
+      html+='</div><div class="course-score">'+course.score+'<span class="course-score-unit">分</span></div></div>';
+      html+='<div class="course-detail"><div class="course-detail-inner">';
+      html+='课程编号：'+(course.code||'—')+'<br>课程性质：'+course.nature+'<br>任课教师：'+course.teacher+'<br>学分：'+course.credit+' · 成绩：'+course.score+'分 · 获得学期：'+((course.term)||'—')+'</div></div></div>';
+    });
+  }else if(key==='awards'){
+    var awards=[
+      {name:'ACM-ICPC 亚洲区域赛',level:'国家级',rank:'银奖',date:'2025-11'},
+      {name:'全国大学生数学建模竞赛',level:'国家级',rank:'一等奖',date:'2025-09'},
+      {name:'蓝桥杯程序设计大赛',level:'省级',rank:'一等奖',date:'2025-05'}
+    ];
+    awards.forEach(function(a){
+      html+='<div class="award-card"><div class="award-header">';
+      html+='<div class="award-name">'+a.name+'</div>';
+      html+='<button class="award-btn" onclick="event.stopPropagation();openErrata(\''+a.name+'\',\''+a.level+'\',\''+a.rank+'\',\''+a.date+'\',\'awards\')"><i class="fas fa-pen"></i> 勘误</button>';
+      html+='</div><div class="award-tags">';
+      html+='<span class="a-tag level">'+a.level+'</span>';
+      html+='<span class="a-tag rank">'+a.rank+'</span>';
+      html+='<span class="a-tag date">'+a.date+'</span>';
+      html+='</div></div>';
+    });
+  }else if(key==='papers'){
+    html+='<div class="paper-card"><div class="paper-name">基于深度学习的图像识别研究</div>';
+    html+='<div class="paper-tags">';
+    html+='<span class="a-tag level">期刊论文</span>';
+    html+='<span class="a-tag rank">SCI二区</span>';
+    html+='<span class="a-tag date">第一作者</span>';
+    html+='<span class="a-tag date">2025-12</span>';
+    html+='</div><div style="font-size:12px;color:#9096A2;margin-top:8px;line-height:1.6">刊物：IEEE Transactions on×× · 卷/页：Vol.12, pp.45-52</div></div>';
+  }else if(key==='patents'){
+    html+='<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无专利记录</p>';
+    html+='<button class="empty-btn" onclick="location.href=\'student-supplement.html\'"><i class="fas fa-plus"></i> 去补充</button></div>';
+  }else if(key==='innovation'){
+    html+='<div class="innovation-card"><div class="innovation-name">互联网+大学生创新创业大赛</div>';
+    html+='<div class="innovation-tags"><span class="a-tag level">省赛</span><span class="a-tag rank">金奖</span><span class="a-tag date">2025-10</span></div></div>';
+    html+='<div class="innovation-card"><div class="innovation-name">大学生创新创业训练计划</div>';
+    html+='<div class="innovation-tags"><span class="a-tag level">国家级</span><span class="a-tag rank">结题优秀</span><span class="a-tag date">2025-06</span></div></div>';
+  }else if(key==='exchange'){
+    html+='<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无交流记录</p>';
+    html+='<button class="empty-btn" onclick="location.href=\'student-supplement.html\'"><i class="fas fa-plus"></i> 去补充</button></div>';
+  }else if(key==='otheraward'){
+    html+='<div class="award-card"><div class="award-header">';
+    html+='<div class="award-name">校三好学生</div>';
+    html+='<button class="award-btn" onclick="event.stopPropagation();openErrata(\'校三好学生\',\'校级\',\'荣誉称号\',\'2025-11\',\'otheraward\')"><i class="fas fa-pen"></i> 勘误</button>';
+    html+='</div><div class="award-tags">';
+    html+='<span class="a-tag level">校级</span><span class="a-tag rank">荣誉称号</span><span class="a-tag date">2025-11</span>';
+    html+='</div></div>';
+  }else if(key==='scholarship'){
+    html+='<div class="scholarship-card"><div class="scholarship-info">';
+    html+='<div class="scholarship-name">国家奖学金</div>';
+    html+='<div class="scholarship-meta"><span>类型：学业</span><span>级别：国家级</span><span>设立：教育部</span><span>获评：2025-11</span></div>';
+    html+='<div class="scholarship-meta" style="margin-top:6px"><span>等级：一等</span><span>金额已核对</span></div>';
+    html+='</div><div class="scholarship-amount">¥8,000</div></div>';
+  }else if(key==='research'){
+    html+='<div class="innovation-card"><div class="innovation-name">二维材料低温量子相干性研究</div>';
+    html+='<div class="innovation-tags"><span class="a-tag level">校级</span><span class="a-tag rank">导师课题参与</span><span class="a-tag date">立项 2024-09</span></div>';
+    html+='<div style="font-size:12px;color:#9096A2;margin-top:8px">指导老师：张教授 · 本人工作和成果：实验与数据分析，投稿 SCI 1 篇</div></div>';
+  }else if(key==='social'){
+    html+='<div class="paper-card"><div class="paper-name">暑期「三下乡」科技支农</div>';
+    html+='<div class="paper-tags"><span class="a-tag level">校级</span><span class="a-tag rank">暑期三下乡</span><span class="a-tag date">2025-07</span></div>';
+    html+='<div style="font-size:12px;color:#9096A2;margin-top:8px">起止时间 · 项目级别 · 指导老师 · 本人工作和收获（与需求字段一致）</div></div>';
+  }else if(key==='graduation'){
+    html+='<div class="text-block"><div class="text-block-title">毕业去向</div>';
+    html+='当前为非毕业展示样例：毕业类型、毕业时间、毕业去向、深造学校/专业/领域学科、工作单位、邮箱 等待毕业年级填写。</div>';
+  }else if(key==='moral'){
+    html+='<div class="text-block"><div class="text-block-title">辅导员评语</div>';
+    html+='该生思想积极上进，政治立场坚定，能够认真学习政治理论课程。在日常生活中，团结同学、乐于助人，积极参与班级和学院组织的各项集体活动。该生担任班级学习委员期间，工作认真负责，得到了同学们的一致好评。希望在未来的学习和工作中继续保持良好的品德修养，不断提升自我。</div>';
+  }else if(key==='selfreview'){
+    html+='<div class="text-block"><div class="text-block-title">自我鉴定 · 2025-2026学年</div>';
+    html+='本学年在专业学习上取得了显著进步，GPA从3.60提升至3.85，多门核心课程成绩优异。在科研方面，以第一作者身份发表SCI二区论文一篇，参加ACM-ICPC亚洲区域赛获银奖。积极参与创新创业活动，在互联网+大赛中获省赛金奖。同时担任班级学习委员，组织学习交流活动，获得国家奖学金。未来将继续深耕专业领域，争取在学术研究上取得更大突破。</div>';
+  }else if(key==='tutorreview'){
+    html+='<div class="text-block"><div class="text-block-title">导师评价 · 李教授</div>';
+    html+='该生学习态度端正，具有较强的科研潜力和创新意识。在课题组中表现突出，能够独立开展实验并撰写高质量论文。编程能力扎实，多次在学科竞赛中获奖。该生自律性强，善于时间管理，能够较好地平衡学业与科研。建议进一步拓宽学术视野，加强国际学术交流，为后续深造打下坚实基础。</div>';
+  }else if(key==='annualreview'){
+    html+='<div class="result-card">';
+    html+='<div class="result-badge"><i class="fas fa-medal"></i> 优秀</div>';
+    html+='<div class="result-steps">';
+    html+='<div class="result-step"><div class="result-step-dot done"></div><div class="result-step-label">数据确认</div><div class="result-step-status done">已完成</div></div>';
+    html+='<div class="result-step"><div class="result-step-dot done"></div><div class="result-step-label">自我鉴定</div><div class="result-step-status done">已提交</div></div>';
+    html+='<div class="result-step"><div class="result-step-dot done"></div><div class="result-step-label">导师评价</div><div class="result-step-status done">已评价</div></div>';
+    html+='<div class="result-step"><div class="result-step-dot done"></div><div class="result-step-label">学院审定</div><div class="result-step-status done">已审定</div></div>';
+    html+='<div class="result-step"><div class="result-step-dot pending"></div><div class="result-step-label">学校备案</div><div class="result-step-status pending">进行中</div></div>';
+    html+='</div></div>';
+  }else{
+    html+='<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无数据</p>';
+    html+='<button class="empty-btn" onclick="location.href=\'student-supplement.html\'"><i class="fas fa-plus"></i> 去补充</button></div>';
+  }
+
+  c.innerHTML=html;
+}
+
+function toggleCourse(el){
+  var detail=el.querySelector('.course-detail');
+  if(detail) detail.classList.toggle('open');
+}
+
+function openErrata(name,level,rank,date,cat){
+  var catMap={'awards':'competition','otheraward':'other-award','papers':'paper','patents':'patent','innovation':'innovation','exchange':'exchange','scholarship':'scholarship','research':'research','social':'social'};
+  var targetCat=catMap[cat]||'competition';
+  location.href='student-correction.html?cat='+targetCat;
+}
+
+function closeDrawer(){
+  document.getElementById('drawerMask').classList.remove('show');
+  document.getElementById('drawer').classList.remove('show');
+  document.body.style.overflow='';
+}
+
+var tabs=document.querySelectorAll('.cat-tab');
+tabs.forEach(function(tab){
+  tab.addEventListener('click',function(){
+    tabs.forEach(function(t){t.classList.remove('active')});
+    tab.classList.add('active');
+    renderTab(tab.getAttribute('data-tab'));
+  });
+});
+
+(function(){
+  var hash=location.hash.replace('#','');
+  if(hash){
+    var target=document.querySelector('.cat-tab[data-tab="'+hash+'"]');
+    if(target){
+      tabs.forEach(function(t){t.classList.remove('active')});
+      target.classList.add('active');
+      target.scrollIntoView({inline:'center',behavior:'smooth'});
+      renderTab(hash);
+      return;
+    }
+  }
+  renderTab('grades');
+})();
+</script>
+</body>
+</html>

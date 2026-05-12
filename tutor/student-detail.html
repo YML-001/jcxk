@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学生档案查看 · 导师视角</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'OPPOSans',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#F5F7FA;color:#3C444F;min-height:100vh;font-size:14px}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+.layout{display:flex;min-height:100vh}
+
+.sidebar{width:232px;background:#fff;border-right:1px solid #ECEFF4;flex-shrink:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.sidebar-brand{padding:20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #ECEFF4}
+.brand-icon{width:38px;height:38px;background:linear-gradient(135deg,#F29100,#cc7a00);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
+.brand-text h1{font-size:14px;font-weight:700;color:#3C444F}
+.brand-text p{font-size:11px;color:#9096A2;margin-top:2px}
+.sidebar-nav{flex:1;padding:14px 12px;overflow-y:auto}
+.nav-group{margin-bottom:18px}
+.nav-group-title{font-size:11px;color:#9096A2;font-weight:600;padding:0 10px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;color:#696F7D;cursor:pointer;transition:all .15s;margin-bottom:2px}
+.nav-item i{font-size:15px;width:18px}
+.nav-item:hover{background:#F5F7FA;color:#F29100}
+.nav-item.active{background:#FFF5E5;color:#F29100;font-weight:600}
+.nav-item .badge{margin-left:auto;font-size:11px;background:#DF2027;color:#fff;padding:1px 6px;border-radius:8px;font-weight:600}
+.sidebar-footer{padding:14px 16px;border-top:1px solid #ECEFF4;display:flex;align-items:center;gap:10px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#F29100,#cc7a00);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.user-info .name{font-size:13px;font-weight:600;color:#3C444F}
+.user-info .role{font-size:11px;color:#9096A2;margin-top:1px}
+
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{background:#fff;border-bottom:1px solid #ECEFF4;padding:14px 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10}
+.breadcrumb{font-size:13px;color:#9096A2}
+.breadcrumb .current{color:#3C444F;font-weight:600}
+.breadcrumb i{font-size:10px;margin:0 6px}
+.breadcrumb a:hover{color:#F29100}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid transparent;line-height:1.2}
+.btn-primary{background:#F29100;color:#fff}
+.btn-primary:hover{background:#cc7a00}
+.btn-outline{background:#fff;color:#F29100;border-color:#F29100}
+.btn-outline:hover{background:#FFF5E5}
+.btn-default{background:#fff;color:#696F7D;border-color:#C8CAD1}
+.btn-default:hover{border-color:#F29100;color:#F29100}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+.content{padding:24px 28px;flex:1;overflow-y:auto;max-width:1280px;margin:0 auto;width:100%}
+
+/* Profile card */
+.profile-card{background:linear-gradient(135deg,#fff,#FFFBF0);border:1px solid #FFE0B3;border-radius:14px;padding:22px 26px;margin-bottom:16px;display:flex;gap:20px;align-items:flex-start}
+.p-avatar{width:84px;height:84px;border-radius:20px;background:linear-gradient(135deg,#F29100,#cc7a00);color:#fff;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:600;flex-shrink:0;box-shadow:0 6px 18px rgba(242,145,0,0.2)}
+.p-info{flex:1}
+.p-name{font-size:22px;font-weight:700;color:#3C444F;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.p-tags{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.p-tag{padding:3px 10px;border-radius:4px;font-size:11px;font-weight:500}
+.pt-base{background:#FFF5E5;color:#F29100;border:1px solid #FFE0B3}
+.pt-status{background:#E8FCF4;color:#1BB975;border:1px solid #A7F3D0}
+.pt-class{background:#E3F1F9;color:#3087CC;border:1px solid #BADEF3}
+.p-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;font-size:12px}
+.p-meta .it .lab{color:#9096A2;margin-bottom:2px}
+.p-meta .it .val{color:#3C444F;font-weight:600;font-size:13px}
+.p-divider{border-top:1px dashed #FFE0B3;margin:12px 0}
+.p-actions{display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+
+/* KPIs */
+.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid #ECEFF4;border-radius:12px;padding:16px}
+.kpi-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.kpi-i{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.k-g{background:#E8FCF4;color:#1BB975}
+.k-b{background:#E3F1F9;color:#3087CC}
+.k-o{background:#FFF5E5;color:#F29100}
+.k-r{background:#FCE8EA;color:#DF2027}
+.k-p{background:#F0E5FF;color:#8A4FE0}
+.k-t{background:#E0F5F1;color:#0d8d56}
+.kpi-lab{font-size:11px;color:#9096A2}
+.kpi-val{font-size:22px;font-weight:700;color:#3C444F;line-height:1}
+.kpi-sub{font-size:11px;color:#9096A2;margin-top:4px}
+
+/* Year tabs */
+.year-tabs{background:#fff;border:1px solid #ECEFF4;border-radius:12px;padding:6px;margin-bottom:16px;display:inline-flex;gap:4px}
+.year-tab{padding:8px 18px;border-radius:8px;font-size:13px;color:#696F7D;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.year-tab:hover{background:#F5F7FA}
+.year-tab.active{background:#F29100;color:#fff;font-weight:600}
+.year-tab.locked{opacity:0.6}
+
+/* Action banner */
+.action-banner{background:linear-gradient(90deg,#FFF5E5,#fff);border:1px solid #FFE0B3;border-radius:12px;padding:14px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.ab-icon{width:40px;height:40px;border-radius:10px;background:#FFF5E5;color:#F29100;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ab-text{flex:1}
+.ab-title{font-size:14px;font-weight:700;color:#3C444F;margin-bottom:2px}
+.ab-desc{font-size:12px;color:#696F7D}
+
+/* Detail layout */
+.detail-layout{display:grid;grid-template-columns:200px 1fr;gap:16px}
+
+/* Category nav */
+.category-nav{background:#fff;border:1px solid #ECEFF4;border-radius:12px;padding:12px;position:sticky;top:72px;max-height:calc(100vh - 100px);overflow-y:auto;align-self:start}
+.cat-group{margin-bottom:14px}
+.cat-group-title{font-size:11px;color:#9096A2;font-weight:600;padding:0 8px;margin-bottom:6px}
+.cat-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;font-size:13px;color:#696F7D;cursor:pointer;transition:all .15s;margin-bottom:2px}
+.cat-item i{font-size:12px;width:14px}
+.cat-item:hover{background:#FFF5E5;color:#F29100}
+.cat-item.active{background:#FFF5E5;color:#F29100;font-weight:600}
+.cat-item .num{margin-left:auto;font-size:11px;color:#9096A2;background:#F1F2F3;padding:1px 5px;border-radius:8px;font-weight:500}
+.cat-item.active .num{background:#F29100;color:#fff}
+
+/* Section cards */
+.detail-main{display:flex;flex-direction:column;gap:14px}
+.section{background:#fff;border:1px solid #ECEFF4;border-radius:12px;overflow:hidden}
+.section-header{padding:14px 20px;border-bottom:1px solid #ECEFF4;display:flex;align-items:center;justify-content:space-between}
+.section-header h3{font-size:15px;font-weight:700;color:#3C444F;display:flex;align-items:center;gap:8px}
+.section-header h3 i{color:#F29100;font-size:15px}
+.section-header .count{font-size:12px;color:#9096A2;font-weight:400;margin-left:6px;background:#F5F7FA;padding:2px 8px;border-radius:10px}
+
+/* Item list */
+.item-list{padding:0}
+.item-row{padding:14px 20px;border-bottom:1px solid #F5F7FA;display:flex;align-items:flex-start;gap:14px}
+.item-row:last-child{border-bottom:none}
+.item-row:hover{background:#FAFBFC}
+.item-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.item-content{flex:1;min-width:0}
+.item-title{font-size:14px;font-weight:600;color:#3C444F;margin-bottom:5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.item-meta{font-size:12px;color:#696F7D;display:flex;gap:12px;flex-wrap:wrap}
+.item-meta span{display:inline-flex;align-items:center;gap:4px}
+.lv-tag{display:inline-flex;padding:1px 8px;border-radius:3px;font-size:11px;font-weight:600}
+.lv-nat{background:#FCE8EA;color:#DF2027}
+.lv-prov{background:#FFF5E5;color:#F29100}
+.lv-sch{background:#E3F1F9;color:#3087CC}
+.lv-award{background:#FFF7E0;color:#B8860B}
+.source-tag{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:3px;font-size:11px;font-weight:500}
+.src-sync{background:#F1F2F3;color:#696F7D}
+.src-manual{background:#E3F1F9;color:#3087CC}
+.src-correction{background:#E8FCF4;color:#1BB975}
+.src-pending{background:#FFF5E5;color:#F29100;border:1px solid #FFE0B3}
+
+/* Grade table */
+.grade-table{width:100%;border-collapse:collapse;font-size:13px}
+.grade-table th{background:#F5F7FA;padding:11px 16px;text-align:left;font-size:12px;font-weight:600;color:#3C444F;border-bottom:1px solid #ECEFF4}
+.grade-table td{padding:12px 16px;border-bottom:1px solid #F5F7FA;color:#3C444F}
+.grade-table tr:last-child td{border-bottom:none}
+.grade-table tr:hover td{background:#FAFBFC}
+.grade-score{display:inline-block;padding:2px 8px;border-radius:4px;font-weight:600;background:#F5F7FA}
+.grade-score.high{background:#E8FCF4;color:#0d8d56}
+
+/* Text block */
+.text-block{padding:16px 20px;font-size:13px;line-height:1.8;color:#3C444F;background:#F8FAFC;margin:16px 20px;border-radius:8px;border-left:3px solid #F29100}
+.text-block.empty{color:#9096A2;border-left-color:#C8CAD1;background:#FAFBFC}
+
+/* Info grid */
+.info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0;margin:16px 20px}
+.info-row{display:grid;grid-template-columns:130px 1fr;border-bottom:1px solid #F5F7FA;padding:10px 0}
+.info-row:last-child{border-bottom:none}
+.info-label{font-size:12px;color:#9096A2;font-weight:500;align-self:start;padding-top:1px}
+.info-value{font-size:13px;color:#3C444F;font-weight:500}
+.info-section-title{grid-column:1/-1;font-size:12px;font-weight:700;color:#F29100;padding:12px 0 6px;border-bottom:1px solid #ECEFF4;margin-bottom:4px}
+
+/* 学年鉴定 */
+.review-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:16px 20px}
+.review-cell .lab{font-size:11px;color:#9096A2;margin-bottom:4px}
+.review-cell .val{font-size:14px;font-weight:600;color:#3C444F}
+.review-cell .val.excellent{color:#F29100}
+.review-cell .val.pass{color:#1BB975}
+.rc-item{padding:10px 0;border-bottom:1px solid #F5F7FA;font-size:13px}
+.rc-item:last-child{border-bottom:none}
+.rc-role{margin-left:6px;padding:2px 8px;border-radius:4px;background:#FFF5E5;color:#F29100;font-size:11px;font-weight:600}
+.rc-meta{font-size:12px;color:#9096A2;margin-top:3px}
+
+@media(max-width:1100px){.detail-layout{grid-template-columns:1fr}.category-nav{position:static;max-height:none}.kpi-row{grid-template-columns:repeat(3,1fr)}.p-meta{grid-template-columns:repeat(2,1fr)}.p-actions{flex-direction:row}}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="fa-solid fa-chalkboard-user"></i></div>
+    <div class="brand-text"><h1>成长档案</h1><p>基础学科 · 导师端</p></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-group">
+      <div class="nav-group-title">我的工作</div>
+      <a class="nav-item" href="my-students.html"><i class="fa-solid fa-users-rectangle"></i>我的指导学生<span class="badge">8</span></a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">学生档案</div>
+      <div class="nav-item active"><i class="fa-solid fa-folder-open"></i>档案查看</div>
+      <a class="nav-item" href="tutor-evaluation.html"><i class="fa-solid fa-comment-dots"></i>导师评价<span class="badge">5</span></a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">审核</div>
+      <a class="nav-item" href="tutor-review.html"><i class="fa-solid fa-check-double"></i>导师审核<span class="badge">2</span></a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">系统</div>
+      <a class="nav-item" href="../index.html"><i class="fa-solid fa-arrow-right-from-bracket"></i>返回导航</a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-avatar">张</div>
+    <div class="user-info"><div class="name">张教授</div><div class="role">物理学院 · 凝聚态物理</div></div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="breadcrumb">
+      <i class="fa-solid fa-house"></i> 首页 <i class="fa-solid fa-chevron-right"></i>
+      <a href="my-students.html">我的学生</a> <i class="fa-solid fa-chevron-right"></i>
+      <span class="current">王明 · 档案查看</span>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:10px">
+      <button class="btn btn-default btn-sm" onclick="showToast('已切换学生（原型）','info')"><i class="fa-solid fa-chevron-left"></i> 上一位</button>
+      <button class="btn btn-default btn-sm" onclick="showToast('已切换学生（原型）','info')">下一位 <i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Profile -->
+    <div class="profile-card">
+      <div class="p-avatar">王</div>
+      <div class="p-info">
+        <div class="p-name">王明 <span style="font-size:14px;color:#9096A2;font-weight:500">2022100123</span></div>
+        <div class="p-tags">
+          <span class="p-tag pt-base"><i class="fa-solid fa-atom"></i> 物理学拔尖（国家级·强基）</span>
+          <span class="p-tag pt-class"><i class="fa-solid fa-people-group"></i> 物理2201 · 2022级</span>
+          <span class="p-tag pt-status"><i class="fa-solid fa-circle-check"></i> 在籍</span>
+        </div>
+        <div class="p-meta">
+          <div class="it"><div class="lab">性别 / 民族</div><div class="val">男 / 汉族</div></div>
+          <div class="it"><div class="lab">出生年月</div><div class="val">2004 年 3 月</div></div>
+          <div class="it"><div class="lab">毕业中学</div><div class="val">长沙市第一中学</div></div>
+          <div class="it"><div class="lab">联系方式</div><div class="val">138****1234</div></div>
+        </div>
+        <div class="p-divider"></div>
+        <div class="p-meta">
+          <div class="it"><div class="lab">本科入学 / 学号</div><div class="val">2022-09 · 2022100123</div></div>
+          <div class="it"><div class="lab">本科学院 / 专业</div><div class="val">物理学院 · 应用物理学</div></div>
+          <div class="it"><div class="lab">本科班级</div><div class="val">物理2201</div></div>
+          <div class="it"><div class="lab">本学年 GPA</div><div class="val">3.85 · 排名 3/45</div></div>
+        </div>
+        <div class="p-meta" style="margin-top:8px">
+          <div class="it"><div class="lab">硕士入学 / 学号</div><div class="val" style="color:#9096A2">— 暂未转段</div></div>
+          <div class="it"><div class="lab">硕士学科 / 班级</div><div class="val" style="color:#9096A2">—</div></div>
+          <div class="it"><div class="lab">博士入学 / 学号</div><div class="val" style="color:#9096A2">—</div></div>
+          <div class="it"><div class="lab">博士学科 / 班级</div><div class="val" style="color:#9096A2">—</div></div>
+        </div>
+        <div class="p-meta" style="margin-top:8px">
+          <div class="it" style="grid-column:1/-1"><div class="lab">导师（本人 · 确定时间）</div><div class="val">张教授 · 物理学院 · 凝聚态物理 · 2023年9月</div></div>
+        </div>
+      </div>
+      <div class="p-actions">
+        <a href="tutor-evaluation.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-comment-dots"></i>填写学年评价</a>
+        <button class="btn btn-outline btn-sm" onclick="showToast('已复制学生联系方式','success')"><i class="fa-solid fa-comment"></i>联系学生</button>
+      </div>
+    </div>
+
+    <!-- 评价提示 -->
+    <div class="action-banner">
+      <div class="ab-icon"><i class="fa-solid fa-pen-fancy"></i></div>
+      <div class="ab-text">
+        <div class="ab-title">本学年导师评价待填写</div>
+        <div class="ab-desc">王明同学已完成自我鉴定，正在等待您的导师评价。建议结合学生本学年学业表现、科研参与情况客观评价</div>
+      </div>
+      <a href="tutor-evaluation.html" class="btn btn-primary btn-sm">立即填写</a>
+    </div>
+
+    <!-- KPI -->
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="kpi-head"><div class="kpi-i k-g"><i class="fa-solid fa-graduation-cap"></i></div><div class="kpi-lab">本学年 GPA</div></div>
+        <div class="kpi-val">3.85</div><div class="kpi-sub">排名 3/45</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-head"><div class="kpi-i k-r"><i class="fa-solid fa-trophy"></i></div><div class="kpi-lab">竞赛获奖</div></div>
+        <div class="kpi-val">5</div><div class="kpi-sub">国家级 2 · 省级 2</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-head"><div class="kpi-i k-b"><i class="fa-solid fa-file-lines"></i></div><div class="kpi-lab">发表论文</div></div>
+        <div class="kpi-val">2</div><div class="kpi-sub">SCI 一区 1 · EI 1</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-head"><div class="kpi-i k-o"><i class="fa-solid fa-certificate"></i></div><div class="kpi-lab">专利软著</div></div>
+        <div class="kpi-val">1</div><div class="kpi-sub">实用新型 · 已授权</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-head"><div class="kpi-i k-t"><i class="fa-solid fa-money-bill"></i></div><div class="kpi-lab">奖学金</div></div>
+        <div class="kpi-val">3</div><div class="kpi-sub">国奖 1 · 校奖 2</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-head"><div class="kpi-i k-p"><i class="fa-solid fa-globe"></i></div><div class="kpi-lab">交流实践</div></div>
+        <div class="kpi-val">3</div><div class="kpi-sub">境外 1 · 境内 1 · 社会 1</div>
+      </div>
+    </div>
+
+    <!-- Year tabs -->
+    <div class="year-tabs">
+      <div class="year-tab"><i class="fa-solid fa-infinity"></i>累计</div>
+      <div class="year-tab locked">2022-2023</div>
+      <div class="year-tab locked">2023-2024</div>
+      <div class="year-tab">2024-2025</div>
+      <div class="year-tab active">2025-2026</div>
+    </div>
+
+    <div class="detail-layout">
+
+      <!-- Left Category Nav -->
+      <nav class="category-nav">
+        <div class="cat-group">
+          <div class="cat-group-title">基本信息</div>
+          <div class="cat-item"><i class="fa-solid fa-id-card"></i>个人信息</div>
+          <div class="cat-item"><i class="fa-solid fa-chalkboard-user"></i>导师信息</div>
+        </div>
+        <div class="cat-group">
+          <div class="cat-group-title">学业发展</div>
+          <div class="cat-item active"><i class="fa-solid fa-graduation-cap"></i>学业成绩<span class="num">32</span></div>
+          <div class="cat-item"><i class="fa-solid fa-trophy"></i>竞赛获奖<span class="num">5</span></div>
+          <div class="cat-item"><i class="fa-solid fa-award"></i>其他获奖<span class="num">2</span></div>
+          <div class="cat-item"><i class="fa-solid fa-money-bill"></i>奖学金<span class="num">3</span></div>
+        </div>
+        <div class="cat-group">
+          <div class="cat-group-title">科研创新</div>
+          <div class="cat-item"><i class="fa-solid fa-lightbulb"></i>创新创业<span class="num">2</span></div>
+          <div class="cat-item"><i class="fa-solid fa-file-lines"></i>发表论文<span class="num">2</span></div>
+          <div class="cat-item"><i class="fa-solid fa-certificate"></i>专利软著<span class="num">1</span></div>
+          <div class="cat-item"><i class="fa-solid fa-flask"></i>科研实践<span class="num">1</span></div>
+        </div>
+        <div class="cat-group">
+          <div class="cat-group-title">社会实践</div>
+          <div class="cat-item"><i class="fa-solid fa-globe"></i>境内外交流<span class="num">1</span></div>
+          <div class="cat-item"><i class="fa-solid fa-handshake-angle"></i>社会实践<span class="num">2</span></div>
+        </div>
+        <div class="cat-group">
+          <div class="cat-group-title">学年鉴定</div>
+          <div class="cat-item"><i class="fa-solid fa-shield-halved"></i>思想品德</div>
+          <div class="cat-item"><i class="fa-solid fa-pen-fancy"></i>自我鉴定</div>
+          <div class="cat-item"><i class="fa-solid fa-comment-dots"></i>导师评价</div>
+          <div class="cat-item"><i class="fa-solid fa-stamp"></i>学年鉴定</div>
+        </div>
+        <div class="cat-group">
+          <div class="cat-group-title">未来发展</div>
+          <div class="cat-item"><i class="fa-solid fa-route"></i>毕业去向</div>
+        </div>
+      </nav>
+
+      <!-- Detail Sections -->
+      <div class="detail-main">
+
+        <!-- 个人信息 -->
+        <div class="section">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-id-card"></i>个人信息</h3>
+          </div>
+          <div class="info-grid">
+            <div class="info-section-title">基础信息</div>
+            <div class="info-row"><div class="info-label">姓名</div><div class="info-value">王明</div></div>
+            <div class="info-row"><div class="info-label">性别</div><div class="info-value">男</div></div>
+            <div class="info-row"><div class="info-label">民族</div><div class="info-value">汉族</div></div>
+            <div class="info-row"><div class="info-label">出生年月</div><div class="info-value">2004 年 3 月</div></div>
+            <div class="info-row"><div class="info-label">毕业中学</div><div class="info-value">长沙市第一中学</div></div>
+            <div class="info-row"><div class="info-label">联系方式</div><div class="info-value">138****1234</div></div>
+            <div class="info-section-title">本科学段</div>
+            <div class="info-row"><div class="info-label">学号</div><div class="info-value">2022100123</div></div>
+            <div class="info-row"><div class="info-label">入学时间</div><div class="info-value">2022年9月</div></div>
+            <div class="info-row"><div class="info-label">学院</div><div class="info-value">物理学院</div></div>
+            <div class="info-row"><div class="info-label">专业</div><div class="info-value">应用物理学</div></div>
+            <div class="info-row"><div class="info-label">班级</div><div class="info-value">物理2201</div></div>
+            <div class="info-row"><div class="info-label">培养项目</div><div class="info-value">物理学拔尖基地（强基计划）</div></div>
+            <div class="info-section-title">硕士学段</div>
+            <div class="info-row"><div class="info-label">学号</div><div class="info-value" style="color:#9096A2">— 暂未转段</div></div>
+            <div class="info-row"><div class="info-label">入学时间</div><div class="info-value" style="color:#9096A2">—</div></div>
+            <div class="info-row"><div class="info-label">学科 / 专业</div><div class="info-value" style="color:#9096A2">—</div></div>
+            <div class="info-row"><div class="info-label">班级</div><div class="info-value" style="color:#9096A2">—</div></div>
+            <div class="info-section-title">博士学段</div>
+            <div class="info-row"><div class="info-label">学号</div><div class="info-value" style="color:#9096A2">—</div></div>
+            <div class="info-row"><div class="info-label">入学时间</div><div class="info-value" style="color:#9096A2">—</div></div>
+            <div class="info-row"><div class="info-label">学科 / 专业</div><div class="info-value" style="color:#9096A2">—</div></div>
+            <div class="info-row"><div class="info-label">班级</div><div class="info-value" style="color:#9096A2">—</div></div>
+          </div>
+        </div>
+
+        <!-- 导师信息 -->
+        <div class="section">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-chalkboard-user"></i>导师信息</h3>
+          </div>
+          <div class="info-grid">
+            <div class="info-row"><div class="info-label">导师姓名</div><div class="info-value">张教授（本人）</div></div>
+            <div class="info-row"><div class="info-label">导师单位</div><div class="info-value">物理学院</div></div>
+            <div class="info-row"><div class="info-label">导师学科方向</div><div class="info-value">凝聚态物理</div></div>
+            <div class="info-row"><div class="info-label">确定导师时间</div><div class="info-value">2023年9月</div></div>
+          </div>
+        </div>
+
+        <!-- 学业成绩 -->
+        <div class="section">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-graduation-cap"></i>学业成绩 · 本学年 <span class="count">32 门</span></h3>
+            <div style="display:flex;gap:14px;align-items:center;font-size:12px;color:#696F7D">
+              <span>GPA：<strong style="color:#1BB975;font-size:15px">3.85</strong></span>
+              <span>学分：<strong style="color:#3087CC;font-size:15px">28</strong></span>
+              <span>排名：<strong style="color:#3087CC;font-size:15px">3/45</strong></span>
+            </div>
+          </div>
+          <div>
+            <table class="grade-table">
+              <thead>
+                <tr><th>课程编号</th><th>课程名称</th><th>课程性质</th><th>学期</th><th style="text-align:center">学分</th><th style="text-align:center">成绩</th><th>来源</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>PHYS3001</td><td>量子力学</td><td>专业必修</td><td>2025秋</td><td style="text-align:center">4</td><td style="text-align:center"><span class="grade-score high">95</span></td><td><span class="source-tag src-sync">系统同步</span></td></tr>
+                <tr><td>PHYS3002</td><td>电动力学</td><td>专业必修</td><td>2025秋</td><td style="text-align:center">4</td><td style="text-align:center"><span class="grade-score high">92</span></td><td><span class="source-tag src-sync">系统同步</span></td></tr>
+                <tr><td>PHYS3003</td><td>固体物理学</td><td>专业必修</td><td>2025秋</td><td style="text-align:center">3</td><td style="text-align:center"><span class="grade-score">88</span></td><td><span class="source-tag src-sync">系统同步</span></td></tr>
+                <tr><td>MATH2001</td><td>数学物理方法</td><td>专业基础</td><td>2025秋</td><td style="text-align:center">4</td><td style="text-align:center"><span class="grade-score high">94</span></td><td><span class="source-tag src-sync">系统同步</span></td></tr>
+                <tr><td>CS1001</td><td>程序设计基础</td><td>学科基础</td><td>2025秋</td><td style="text-align:center">3</td><td style="text-align:center"><span class="grade-score high">91</span></td><td><span class="source-tag src-sync">系统同步</span></td></tr>
+                <tr><td>ENG2001</td><td>大学英语 III</td><td>通识必修</td><td>2025秋</td><td style="text-align:center">2</td><td style="text-align:center"><span class="grade-score">85</span></td><td><span class="source-tag src-sync">系统同步</span></td></tr>
+                <tr><td>PE2001</td><td>体育 III</td><td>通识必修</td><td>2025秋</td><td style="text-align:center">1</td><td style="text-align:center"><span class="grade-score">87</span></td><td><span class="source-tag src-sync">系统同步</span></td></tr>
+              </tbody>
+            </table>
+            <div style="padding:10px 20px;background:#F8FAFC;font-size:12px;color:#9096A2;text-align:center">显示前 7 门 · <a href="#" onclick="showToast('展开全部成绩（原型）','info');return false" style="color:#F29100">查看全部 32 门</a></div>
+            <div style="padding:14px 20px;border-top:2px dashed #ECEFF4">
+              <div style="font-size:13px;font-weight:600;color:#3C444F;margin-bottom:8px"><i class="fa-solid fa-scroll" style="color:#F29100;margin-right:6px"></i>毕业论文</div>
+              <div style="display:grid;grid-template-columns:100px 1fr 100px 1fr;gap:8px;font-size:13px">
+                <div style="color:#9096A2">论文题目</div><div style="color:#9096A2;font-style:italic">暂未填写（非毕业年级）</div>
+                <div style="color:#9096A2">论文成绩</div><div style="color:#9096A2">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 竞赛获奖 -->
+        <div class="section">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-trophy"></i>竞赛获奖 <span class="count">5 项</span></h3>
+          </div>
+          <div class="item-list">
+            <div class="item-row">
+              <div class="item-icon" style="background:#FCE8EA;color:#DF2027"><i class="fa-solid fa-medal"></i></div>
+              <div class="item-content">
+                <div class="item-title">ACM-ICPC 国际大学生程序设计竞赛 亚洲区域赛 <span class="lv-tag lv-nat">国家级</span> <span class="lv-tag lv-award">银奖</span></div>
+                <div class="item-meta">
+                  <span><i class="fa-regular fa-calendar"></i>2025-11-15</span>
+                  <span><i class="fa-solid fa-tag"></i>学术竞赛</span>
+                  <span><i class="fa-solid fa-people-group"></i>团队第 1 位</span>
+                  <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="item-row">
+              <div class="item-icon" style="background:#FFF5E5;color:#F29100"><i class="fa-solid fa-medal"></i></div>
+              <div class="item-content">
+                <div class="item-title">全国大学生数学建模竞赛 <span class="lv-tag lv-nat">国家级</span> <span class="lv-tag lv-award">一等奖</span></div>
+                <div class="item-meta">
+                  <span><i class="fa-regular fa-calendar"></i>2025-09-20</span>
+                  <span><i class="fa-solid fa-tag"></i>学术竞赛</span>
+                  <span><i class="fa-solid fa-people-group"></i>团队第 1 位</span>
+                  <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="item-row">
+              <div class="item-icon" style="background:#E3F1F9;color:#3087CC"><i class="fa-solid fa-medal"></i></div>
+              <div class="item-content">
+                <div class="item-title">"挑战杯"全国大学生课外学术科技作品竞赛 <span class="lv-tag lv-prov">省级</span> <span class="lv-tag lv-award">一等奖</span></div>
+                <div class="item-meta">
+                  <span><i class="fa-regular fa-calendar"></i>2025-07-08</span>
+                  <span><i class="fa-solid fa-tag"></i>学术竞赛</span>
+                  <span><i class="fa-solid fa-database"></i><span class="source-tag src-correction">勘误修改</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 其他获奖 -->
+        <div class="section">
+          <div class="section-header"><h3><i class="fa-solid fa-award"></i>其他获奖 <span class="count">2 项</span></h3></div>
+          <div class="item-list">
+            <div class="item-row">
+              <div class="item-icon" style="background:#FFF5E5;color:#F29100"><i class="fa-solid fa-award"></i></div>
+              <div class="item-content">
+                <div class="item-title">校三好学生 <span class="lv-tag lv-sch">校级</span> <span class="lv-tag lv-award">荣誉称号</span></div>
+                <div class="item-meta"><span><i class="fa-regular fa-calendar"></i>2025-11-20</span><span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span></div>
+              </div>
+            </div>
+            <div class="item-row">
+              <div class="item-icon" style="background:#E8FCF4;color:#1BB975"><i class="fa-solid fa-award"></i></div>
+              <div class="item-content">
+                <div class="item-title">优秀学生干部 <span class="lv-tag lv-sch">校级</span> <span class="lv-tag lv-award">荣誉称号</span></div>
+                <div class="item-meta"><span><i class="fa-regular fa-calendar"></i>2025-11-20</span><span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 奖学金 -->
+        <div class="section">
+          <div class="section-header"><h3><i class="fa-solid fa-money-bill"></i>奖学金 <span class="count">3 项</span></h3></div>
+          <div class="item-list">
+            <div class="item-row">
+              <div class="item-icon" style="background:#FCE8EA;color:#DF2027"><i class="fa-solid fa-money-bill"></i></div>
+              <div class="item-content">
+                <div class="item-title">国家奖学金 <span class="lv-tag lv-nat">国家级</span> <span class="lv-tag lv-award">¥8,000</span></div>
+                <div class="item-meta">
+                  <span><i class="fa-solid fa-tag"></i>学业奖学金 · 一等</span>
+                  <span><i class="fa-solid fa-building-columns"></i>教育部</span>
+                  <span><i class="fa-regular fa-calendar"></i>获评：2025-11</span>
+                  <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="item-row">
+              <div class="item-icon" style="background:#E3F1F9;color:#3087CC"><i class="fa-solid fa-money-bill"></i></div>
+              <div class="item-content">
+                <div class="item-title">优秀学生奖学金 <span class="lv-tag lv-sch">校级</span> <span class="lv-tag lv-award">¥3,000</span></div>
+                <div class="item-meta">
+                  <span><i class="fa-solid fa-tag"></i>学业奖学金 · 一等</span>
+                  <span><i class="fa-solid fa-building-columns"></i>中南大学</span>
+                  <span><i class="fa-regular fa-calendar"></i>获评：2025-11</span>
+                  <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 创新创业项目 -->
+        <div class="section">
+          <div class="section-header"><h3><i class="fa-solid fa-lightbulb"></i>创新创业项目 <span class="count">2 项</span></h3></div>
+          <div class="item-list">
+            <div class="item-row">
+              <div class="item-icon" style="background:#FCE8EA;color:#DF2027"><i class="fa-solid fa-lightbulb"></i></div>
+              <div class="item-content">
+                <div class="item-title">量子传感器微型化关键技术研究 <span class="lv-tag lv-nat">国家级</span></div>
+                <div class="item-meta">
+                  <span><i class="fa-solid fa-user"></i>主持人</span>
+                  <span><i class="fa-regular fa-calendar"></i>设立：2025-06</span>
+                  <span><i class="fa-solid fa-circle-check" style="color:#1BB975"></i>进行中</span>
+                  <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="item-row">
+              <div class="item-icon" style="background:#E3F1F9;color:#3087CC"><i class="fa-solid fa-lightbulb"></i></div>
+              <div class="item-content">
+                <div class="item-title">基于AI的物理实验智能分析平台 <span class="lv-tag lv-sch">校级</span></div>
+                <div class="item-meta">
+                  <span><i class="fa-solid fa-user"></i>参与者</span>
+                  <span><i class="fa-regular fa-calendar"></i>设立：2024-12</span>
+                  <span><i class="fa-solid fa-circle-check" style="color:#1BB975"></i>已结题 · 优秀</span>
+                  <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 发表论文 -->
+        <div class="section">
+          <div class="section-header"><h3><i class="fa-solid fa-file-lines"></i>发表论文 <span class="count">2 篇</span></h3></div>
+          <div class="item-list">
+            <div class="item-row">
+              <div class="item-icon" style="background:#FCE8EA;color:#DF2027"><i class="fa-solid fa-bookmark"></i></div>
+              <div class="item-content">
+                <div class="item-title">Quantum Coherence in Two-Dimensional Materials at Low Temperatures <span class="lv-tag lv-award">SCI 一区</span></div>
+                <div class="item-meta">
+                  <span><i class="fa-solid fa-tag"></i>论文类型：学术期刊</span>
+                  <span><i class="fa-solid fa-newspaper"></i>Physical Review Letters · Vol.131, p.146801</span>
+                  <span><i class="fa-regular fa-calendar"></i>2025-10-12</span>
+                  <span><i class="fa-solid fa-user"></i>本人第二作者 <strong style="color:#F29100">（您一作）</strong></span>
+                  <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="item-row">
+              <div class="item-icon" style="background:#FFF5E5;color:#F29100"><i class="fa-solid fa-bookmark"></i></div>
+              <div class="item-content">
+                <div class="item-title">基于深度学习的凝聚态物理相变研究 <span class="lv-tag lv-award">EI</span></div>
+                <div class="item-meta">
+                  <span><i class="fa-solid fa-tag"></i>论文类型：学术期刊</span>
+                  <span><i class="fa-solid fa-newspaper"></i>物理学报 · Vol.74, p.23-30</span>
+                  <span><i class="fa-regular fa-calendar"></i>2025-08-25</span>
+                  <span><i class="fa-solid fa-user"></i>本人第一作者</span>
+                  <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 专利软著 -->
+        <div class="section">
+          <div class="section-header"><h3><i class="fa-solid fa-certificate"></i>专利软著 <span class="count">1 项</span></h3></div>
+          <div class="item-list">
+            <div class="item-row">
+              <div class="item-icon" style="background:#F0E5FF;color:#8A4FE0"><i class="fa-solid fa-certificate"></i></div>
+              <div class="item-content">
+                <div class="item-title">一种基于量子效应的低温传感装置 <span class="lv-tag lv-award">实用新型 · 已授权</span></div>
+                <div class="item-meta">
+                  <span><i class="fa-solid fa-tag"></i>类型：专利</span>
+                  <span><i class="fa-solid fa-layer-group"></i>类别：实用新型</span>
+                  <span><i class="fa-solid fa-circle-check" style="color:#1BB975"></i>已授权</span>
+                  <span><i class="fa-regular fa-calendar"></i>获得：2025-09-10</span>
+                  <span><i class="fa-solid fa-user"></i>本人排名：第二</span>
+                  <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 科研实践 -->
+        <div class="section">
+          <div class="section-header"><h3><i class="fa-solid fa-flask"></i>科研实践 <span class="count">1 项</span></h3></div>
+          <div class="item-list">
+            <div class="item-row">
+              <div class="item-icon" style="background:#E8FCF4;color:#1BB975"><i class="fa-solid fa-flask"></i></div>
+              <div class="item-content">
+                <div class="item-title">二维材料低温量子相干性研究 <span class="lv-tag lv-sch">校级</span></div>
+                <div class="item-meta">
+                  <span><i class="fa-solid fa-tag"></i>类型：导师课题参与</span>
+                  <span><i class="fa-regular fa-calendar"></i>立项：2024-09</span>
+                  <span><i class="fa-solid fa-chalkboard-user"></i>指导：本人（张教授）</span>
+                  <span><i class="fa-solid fa-file-lines"></i>成果：SCI 论文 1 篇</span>
+                  <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 境内外交流 -->
+        <div class="section">
+          <div class="section-header"><h3><i class="fa-solid fa-globe"></i>境内外交流 <span class="count">1 项</span></h3></div>
+          <div class="item-list">
+            <div class="item-row">
+              <div class="item-icon" style="background:#F0E5FF;color:#8A4FE0"><i class="fa-solid fa-plane-departure"></i></div>
+              <div class="item-content">
+                <div class="item-title">东京大学暑期研究项目 <span class="lv-tag lv-award">境外交流</span></div>
+                <div class="item-meta">
+                  <span><i class="fa-solid fa-tag"></i>项目类型：暑期科研</span>
+                  <span><i class="fa-solid fa-building-columns"></i>东京大学物理工学系</span>
+                  <span><i class="fa-solid fa-map-marker-alt"></i>日本东京</span>
+                  <span><i class="fa-regular fa-calendar"></i>2025-07-15 至 2025-08-25</span>
+                  <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 社会实践 -->
+        <div class="section">
+          <div class="section-header"><h3><i class="fa-solid fa-handshake-angle"></i>社会实践 <span class="count">2 项</span></h3></div>
+          <div class="item-list">
+            <div class="item-row">
+              <div class="item-icon" style="background:#FFF5E5;color:#F29100"><i class="fa-solid fa-handshake-angle"></i></div>
+              <div class="item-content">
+                <div class="item-title">暑期"三下乡"科技支农 <span class="lv-tag lv-sch">校级</span></div>
+                <div class="item-meta">
+                  <span><i class="fa-solid fa-tag"></i>类型：暑期三下乡</span>
+                  <span><i class="fa-regular fa-calendar"></i>2025-07-10 至 2025-07-24</span>
+                  <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="item-row">
+              <div class="item-icon" style="background:#E8FCF4;color:#1BB975"><i class="fa-solid fa-handshake-angle"></i></div>
+              <div class="item-content">
+                <div class="item-title">校史馆志愿讲解员 <span class="lv-tag lv-sch">校级</span></div>
+                <div class="item-meta">
+                  <span><i class="fa-solid fa-tag"></i>类型：志愿服务</span>
+                  <span><i class="fa-regular fa-calendar"></i>2025-09 至 2026-01</span>
+                  <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 思想品德 -->
+        <div class="section">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-shield-halved"></i>思想品德</h3>
+            <span class="source-tag src-manual"><i class="fa-solid fa-user-pen"></i> 辅导员 王老师 · 2026-05-09</span>
+          </div>
+          <div class="text-block">该生政治立场坚定，思想积极向上，认真学习马克思主义理论和习近平新时代中国特色社会主义思想，自觉践行社会主义核心价值观。在班集体中能起到模范带头作用，担任班级学习委员，工作认真负责，热心服务同学。在新生入学教育、校史馆志愿讲解等活动中表现突出。</div>
+        </div>
+
+        <!-- 自我鉴定 -->
+        <div class="section">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-pen-fancy"></i>学生自我鉴定</h3>
+            <span style="font-size:12px;color:#9096A2">王明本人 · 2026-05-10</span>
+          </div>
+          <div class="text-block">本学年我在专业学习上取得了显著进步，量子力学（95分）、电动力学（92分）等核心课程均取得优秀成绩，整体 GPA 达到 3.85，专业排名 3/45。在科研方面，我加入您课题组的二维材料量子相干性研究方向，作为第二作者在 Physical Review Letters（SCI 一区）发表论文 1 篇，并以第一作者在物理学报（EI）发表论文 1 篇。在学科竞赛方面，获得 ACM-ICPC 亚洲区域赛银奖、全国大学生数学建模竞赛国家一等奖、"挑战杯"省一等奖。<br><br><strong>下学年计划：</strong>深入凝聚态物理课题研究，争取以第一作者身份发表 SCI 二区以上论文 1 篇；申报国家级大学生创新创业项目。</div>
+        </div>
+
+        <!-- 导师评价 -->
+        <div class="section">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-comment-dots"></i>导师评价</h3>
+            <a href="tutor-evaluation.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-pen-to-square"></i>填写/修改评价</a>
+          </div>
+          <div class="text-block">王明同学学习刻苦认真，专业基础扎实，具备良好的科研思维和动手能力。在我课题组期间，能够独立完成实验设计和数据分析，并在论文撰写中表现出较强的学术写作能力。建议下学年在拓宽研究视野的同时，加强国际学术交流，争取参加国际学术会议。</div>
+        </div>
+
+        <!-- 学年鉴定 -->
+        <div class="section">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-stamp"></i>学年鉴定 · 2025-2026</h3>
+            <span class="source-tag src-manual" style="background:#E8FCF4;color:#1BB975;border:1px solid #A7F3D0"><i class="fa-solid fa-circle-check"></i> 鉴定已完成</span>
+          </div>
+          <div class="review-grid">
+            <div class="review-cell"><div class="lab">考核时间</div><div class="val">2026-06-15</div></div>
+            <div class="review-cell"><div class="lab">考核小组评审结果</div><div class="val excellent">优秀</div></div>
+            <div class="review-cell"><div class="lab">学年鉴定最终结果</div><div class="val excellent">优秀</div></div>
+          </div>
+          <div style="padding:0 20px 16px">
+            <div style="font-size:12px;color:#9096A2;margin-bottom:8px;font-weight:600">考核小组成员</div>
+            <div style="padding:0 0 10px">
+              <div class="rc-item"><strong>陈志远</strong> · 教授<span class="rc-role">组长</span><div class="rc-meta">物理学院 · 凝聚态物理</div></div>
+              <div class="rc-item"><strong>张洪</strong> · 副教授<div class="rc-meta">物理学院 · 量子光学</div></div>
+              <div class="rc-item"><strong>刘思</strong> · 副教授<div class="rc-meta">物理学院 · 理论物理</div></div>
+              <div class="rc-item"><strong>赵燕</strong> · 讲师<div class="rc-meta">物理学院 · 实验物理</div></div>
+            </div>
+            <div style="font-size:12px;color:#9096A2;margin-bottom:8px;font-weight:600;padding-top:10px;border-top:1px solid #F5F7FA">考核小组意见</div>
+            <div style="font-size:13px;color:#3C444F;line-height:1.7;padding:12px 16px;background:#F8FAFC;border-radius:8px;border-left:3px solid #F29100">王明同学本学年在专业学习、科研创新、学科竞赛等方面均表现优秀。GPA 3.85 排名专业前列，参与导师课题组完成 SCI 一区论文 1 篇，在 ACM-ICPC 亚洲区域赛获银奖、全国大学生数学建模竞赛获国家一等奖。综合表现突出，符合"优秀"学年鉴定标准。</div>
+            <div style="font-size:12px;color:#9096A2;margin:10px 0 8px;font-weight:600">学院意见</div>
+            <div style="font-size:13px;color:#3C444F;line-height:1.7;padding:12px 16px;background:#F8FAFC;border-radius:8px;border-left:3px solid #F29100">学院同意考核小组评审结果，认定王明同学本学年综合表现优秀，符合"基础学科拔尖学生培养基地"优秀学生标准，准予通过学年鉴定并评定为"优秀"。</div>
+          </div>
+        </div>
+
+        <!-- 毕业去向 -->
+        <div class="section">
+          <div class="section-header"><h3><i class="fa-solid fa-route"></i>毕业去向</h3></div>
+          <div class="text-block empty">该学段尚未毕业，暂无毕业去向数据。毕业年级时将展示：毕业类型、毕业时间、毕业去向、深造学校/专业/领域学科、工作单位等信息。</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</main>
+
+</div>
+
+<script>
+function showToast(msg,type){type=type||'info';var t=document.createElement('div');var c={success:'#1BB975',info:'#3087CC',warning:'#F29100',error:'#DF2027'};var ic={success:'fa-circle-check',info:'fa-circle-info',warning:'fa-triangle-exclamation',error:'fa-circle-xmark'};t.innerHTML='<i class="fa-solid '+ic[type]+'"></i> '+msg;t.style.cssText='position:fixed;top:-60px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;color:#fff;background:'+(c[type]||c.info)+';box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;gap:8px;z-index:99999;transition:top 0.3s ease;white-space:nowrap;font-family:inherit';document.body.appendChild(t);requestAnimationFrame(function(){t.style.top='24px'});setTimeout(function(){t.style.top='-60px';setTimeout(function(){t.remove()},400)},2500)}
+
+document.querySelectorAll('.year-tab').forEach(function(tab){tab.addEventListener('click',function(){document.querySelectorAll('.year-tab').forEach(function(t){t.classList.remove('active')});this.classList.add('active');showToast('已切换至 '+this.textContent.trim()+' 学年','info')})});
+
+document.querySelector('.category-nav').addEventListener('click',function(e){var item=e.target.closest('.cat-item');if(!item)return;this.querySelectorAll('.cat-item').forEach(function(i){i.classList.remove('active')});item.classList.add('active');showToast('已切换：'+item.textContent.trim(),'info')});
+</script>
+</body>
+</html>

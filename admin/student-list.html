@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学生档案管理 · 基础学科学生成长档案</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'OPPOSans',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#F5F7FA;color:#3C444F;min-height:100vh;font-size:14px}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+.layout{display:flex;min-height:100vh}
+
+/* Sidebar */
+.sidebar{width:232px;background:#fff;border-right:1px solid #ECEFF4;flex-shrink:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.sidebar-brand{padding:20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #ECEFF4}
+.brand-icon{width:38px;height:38px;background:linear-gradient(135deg,#3087CC,#006DAD);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
+.brand-text h1{font-size:14px;font-weight:700;color:#3C444F;line-height:1.3}
+.brand-text p{font-size:11px;color:#9096A2;margin-top:2px}
+.sidebar-nav{flex:1;padding:14px 12px;overflow-y:auto}
+.nav-group{margin-bottom:18px}
+.nav-group-title{font-size:11px;color:#9096A2;font-weight:600;padding:0 10px;margin-bottom:6px;letter-spacing:0.5px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;color:#696F7D;cursor:pointer;transition:all .15s;margin-bottom:2px}
+.nav-item i{font-size:15px;width:18px;text-align:center}
+.nav-item:hover{background:#F5F7FA;color:#3087CC}
+.nav-item.active{background:#E3F1F9;color:#3087CC;font-weight:600}
+.nav-item .badge{margin-left:auto;font-size:11px;background:#DF2027;color:#fff;padding:1px 6px;border-radius:8px;font-weight:600}
+.sidebar-footer{padding:14px 16px;border-top:1px solid #ECEFF4;display:flex;align-items:center;gap:10px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3087CC,#006DAD);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.user-info .name{font-size:13px;font-weight:600;color:#3C444F}
+.user-info .role{font-size:11px;color:#9096A2;margin-top:1px}
+
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{background:#fff;border-bottom:1px solid #ECEFF4;padding:14px 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10}
+.breadcrumb{font-size:13px;color:#9096A2}
+.breadcrumb .current{color:#3C444F;font-weight:600}
+.breadcrumb i{font-size:10px;margin:0 6px}
+.topbar-actions{margin-left:auto;display:flex;align-items:center;gap:16px}
+.search-box{position:relative}
+.search-box input{width:240px;height:36px;padding:0 12px 0 36px;border:1px solid #C8CAD1;border-radius:8px;font-size:13px;outline:none;transition:all .15s}
+.search-box input:focus{border-color:#3087CC;box-shadow:0 0 0 3px rgba(48,135,204,0.12)}
+.search-box i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#9096A2;font-size:14px}
+.icon-btn{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#696F7D;font-size:16px;background:#F5F7FA;transition:all .15s;position:relative}
+.icon-btn:hover{background:#E3F1F9;color:#3087CC}
+.icon-btn .dot{position:absolute;top:8px;right:8px;width:8px;height:8px;background:#DF2027;border-radius:50%;border:2px solid #fff}
+
+/* Content */
+.content{padding:24px 28px;flex:1;overflow-y:auto}
+.page-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.page-title h2{font-size:22px;font-weight:700;color:#3C444F}
+.page-title .desc{font-size:13px;color:#9096A2;margin-top:6px}
+.page-actions{display:flex;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid transparent;line-height:1.2}
+.btn-primary{background:#3087CC;color:#fff}
+.btn-primary:hover{background:#006DAD}
+.btn-outline{background:#fff;color:#3087CC;border-color:#3087CC}
+.btn-outline:hover{background:#E3F1F9}
+.btn-default{background:#fff;color:#696F7D;border-color:#C8CAD1}
+.btn-default:hover{border-color:#3087CC;color:#3087CC}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+/* Stats row */
+.stats-mini{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px}
+.stat-mini{background:#fff;border:1px solid #ECEFF4;border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.stat-mini-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.sm-blue{background:#E3F1F9;color:#3087CC}
+.sm-green{background:#E8FCF4;color:#1BB975}
+.sm-orange{background:#FFF5E5;color:#F29100}
+.sm-red{background:#FCE8EA;color:#DF2027}
+.sm-gray{background:#F1F2F3;color:#696F7D}
+.stat-mini .label{font-size:11px;color:#9096A2}
+.stat-mini .num{font-size:20px;font-weight:700;color:#3C444F;line-height:1.2}
+
+/* Filter Bar */
+.filter-bar{background:#fff;border:1px solid #ECEFF4;border-radius:12px;padding:16px 20px;margin-bottom:16px}
+.filter-row{display:grid;grid-template-columns:repeat(5,1fr) auto;gap:12px;align-items:end}
+.filter-item label{display:block;font-size:12px;color:#696F7D;margin-bottom:6px;font-weight:500}
+.filter-item select,.filter-item input{width:100%;height:36px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none;background:#fff;transition:all .15s}
+.filter-item select:focus,.filter-item input:focus{border-color:#3087CC}
+.filter-actions{display:flex;gap:8px}
+
+/* Table */
+.table-card{background:#fff;border:1px solid #ECEFF4;border-radius:12px;overflow:hidden}
+.table-toolbar{padding:14px 20px;border-bottom:1px solid #ECEFF4;display:flex;align-items:center;gap:12px}
+.table-toolbar .count{font-size:13px;color:#696F7D}
+.table-toolbar .count strong{color:#3087CC;font-weight:700;margin:0 3px}
+.table-actions{margin-left:auto;display:flex;gap:8px}
+.col-toggle{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:12px;color:#696F7D;cursor:pointer;transition:all .15s}
+.col-toggle:hover{border-color:#3087CC;color:#3087CC}
+
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#F5F7FA;padding:12px 14px;text-align:left;color:#3C444F;font-weight:600;border-bottom:1px solid #ECEFF4;white-space:nowrap;font-size:12px}
+th.sortable{cursor:pointer}
+th.sortable i{margin-left:4px;color:#9096A2;font-size:10px}
+td{padding:14px;border-bottom:1px solid #F5F7FA;color:#3C444F;vertical-align:middle}
+tr:hover td{background:#F8FAFC}
+.checkbox{width:16px;height:16px;border:1px solid #C8CAD1;border-radius:3px;cursor:pointer;position:relative;display:inline-block;vertical-align:middle}
+.checkbox.checked{background:#3087CC;border-color:#3087CC}
+.checkbox.checked::after{content:'';position:absolute;left:4px;top:1px;width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+
+.student-cell{display:flex;align-items:center;gap:10px}
+.s-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#3087CC,#006DAD);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.s-avatar.green{background:linear-gradient(135deg,#1BB975,#16a164)}
+.s-avatar.orange{background:linear-gradient(135deg,#F29100,#cc7a00)}
+.s-avatar.red{background:linear-gradient(135deg,#DF2027,#b51b21)}
+.s-info .name{font-size:13px;font-weight:600;color:#3C444F}
+.s-info .sid{font-size:11px;color:#9096A2;margin-top:1px}
+
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.tag-base{background:#E3F1F9;color:#3087CC}
+.tag-success{background:#E8FCF4;color:#1BB975;border:1px solid #A7F3D0}
+.tag-warning{background:#FFF5E5;color:#F29100;border:1px solid #FFE0B3}
+.tag-danger{background:#FCE8EA;color:#DF2027;border:1px solid #F6BCBE}
+.tag-gray{background:#F1F2F3;color:#696F7D}
+
+.row-actions{display:flex;gap:4px;align-items:center}
+.row-actions a{padding:5px 10px;font-size:12px;color:#3087CC;border-radius:4px;transition:all .15s}
+.row-actions a:hover{background:#E3F1F9}
+.row-actions a.danger{color:#DF2027}
+.row-actions a.danger:hover{background:#FCE8EA}
+
+/* Pagination */
+.pagination{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #ECEFF4}
+.pag-info{font-size:13px;color:#696F7D}
+.pag-info select{margin:0 6px;height:30px;padding:0 22px 0 8px;border:1px solid #C8CAD1;border-radius:4px;font-size:12px;background:#fff}
+.pag-pages{display:flex;gap:4px;align-items:center}
+.pag-btn{min-width:32px;height:32px;border:1px solid #C8CAD1;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:#696F7D;cursor:pointer;transition:all .15s;padding:0 8px}
+.pag-btn:hover{border-color:#3087CC;color:#3087CC}
+.pag-btn.active{background:#3087CC;color:#fff;border-color:#3087CC}
+.pag-btn:disabled{opacity:0.4;cursor:not-allowed}
+
+@media(max-width:1400px){.stats-mini{grid-template-columns:repeat(3,1fr)}.filter-row{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+    <div class="brand-text"><h1>成长档案</h1><p>基础学科 · 管理端</p></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-group">
+      <div class="nav-group-title">概览</div>
+      <a class="nav-item" href="dashboard.html"><i class="fa-solid fa-gauge-high"></i>工作台</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">档案管理</div>
+      <div class="nav-item active"><i class="fa-solid fa-users"></i>学生档案<span class="badge">1180</span></div>
+      <a class="nav-item" href="student-detail.html"><i class="fa-solid fa-folder-open"></i>档案详情</a>
+      <a class="nav-item" href="data-entry.html"><i class="fa-solid fa-pen-to-square"></i>直接录入</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">审核中心</div>
+      <a class="nav-item" href="review-list.html"><i class="fa-solid fa-clipboard-check"></i>补充勘误审核<span class="badge">12</span></a>
+      <a class="nav-item" href="review-detail.html"><i class="fa-solid fa-eye"></i>审核详情</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">学年鉴定</div>
+      <a class="nav-item" href="annual-review.html"><i class="fa-solid fa-file-signature"></i>鉴定管理</a>
+      <a class="nav-item" href="annual-review-committee.html"><i class="fa-solid fa-user-group"></i>考核小组配置</a>
+      <a class="nav-item" href="annual-review-detail.html"><i class="fa-solid fa-pen-to-square"></i>考核录入</a>
+      <a class="nav-item" href="annual-review-export.html"><i class="fa-solid fa-file-export"></i>导出模板</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">数据分析</div>
+      <a class="nav-item" href="statistics.html"><i class="fa-solid fa-chart-column"></i>查询与统计</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">系统</div>
+      <a class="nav-item" href="base-config.html"><i class="fa-solid fa-sliders"></i>系统配置</a>
+      <a class="nav-item" href="../index.html"><i class="fa-solid fa-arrow-right-from-bracket"></i>返回导航</a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-avatar">李</div>
+    <div class="user-info">
+      <div class="name">李振华</div>
+      <div class="role">本科生院 · 管理员</div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="breadcrumb">
+      <i class="fa-solid fa-house"></i> 首页 <i class="fa-solid fa-chevron-right"></i>
+      档案管理 <i class="fa-solid fa-chevron-right"></i>
+      <span class="current">学生档案</span>
+    </div>
+    <div class="topbar-actions">
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="搜索学号 / 姓名">
+      </div>
+      <button class="icon-btn" onclick="showToast('暂无新消息','info')"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="page-title">
+      <div>
+        <h2>学生档案管理</h2>
+        <div class="desc">共 1,180 名基地学生 · 一期覆盖 10 个基础学科基地的本科生</div>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-default" onclick="window.location.href='student-add.html'"><i class="fa-solid fa-file-arrow-up"></i>批量导入</button>
+        <button class="btn btn-default" onclick="showToast('正在生成导出文件…','info')"><i class="fa-solid fa-file-export"></i>导出</button>
+        <button class="btn btn-primary" onclick="window.location.href='student-add.html'"><i class="fa-solid fa-user-plus"></i>添加学生</button>
+      </div>
+    </div>
+
+    <!-- Stats Mini -->
+    <div class="stats-mini">
+      <div class="stat-mini">
+        <div class="stat-mini-icon sm-blue"><i class="fa-solid fa-users"></i></div>
+        <div><div class="label">在籍学生</div><div class="num">1,180</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-icon sm-green"><i class="fa-solid fa-user-graduate"></i></div>
+        <div><div class="label">强基计划</div><div class="num">685</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-icon sm-orange"><i class="fa-solid fa-star"></i></div>
+        <div><div class="label">拔尖计划</div><div class="num">495</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-icon sm-red"><i class="fa-solid fa-user-xmark"></i></div>
+        <div><div class="label">已退出</div><div class="num">23</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-icon sm-gray"><i class="fa-solid fa-circle-question"></i></div>
+        <div><div class="label">待确认</div><div class="num">8</div></div>
+      </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="filter-bar">
+      <div class="filter-row">
+        <div class="filter-item">
+          <label>基地</label>
+          <select>
+            <option>全部基地</option>
+            <option>计算机科学</option>
+            <option>物理学</option>
+            <option>生物科学</option>
+            <option>数学</option>
+            <option>化学</option>
+            <option>基础医学</option>
+            <option>地球物理学</option>
+            <option>哲学</option>
+            <option>中国语言文学</option>
+            <option>材料强基</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>学院</label>
+          <select>
+            <option>全部学院</option>
+            <option>计算机学院</option>
+            <option>物理学院</option>
+            <option>生命科学学院</option>
+            <option>数学与统计学院</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>年级</label>
+          <select>
+            <option>全部年级</option>
+            <option>2022级</option>
+            <option>2023级</option>
+            <option>2024级</option>
+            <option>2025级</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>学生状态</label>
+          <select>
+            <option>全部</option>
+            <option>在籍</option>
+            <option>已退出</option>
+            <option>已毕业</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>学年鉴定状态</label>
+          <select>
+            <option>全部状态</option>
+            <option>未开始</option>
+            <option>数据确认中</option>
+            <option>鉴定填报中</option>
+            <option>考核评审中</option>
+            <option>已完成</option>
+          </select>
+        </div>
+        <div class="filter-actions">
+          <button class="btn btn-primary" onclick="showToast('查询结果已更新','success')"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
+          <button class="btn btn-default" onclick="showToast('筛选条件已重置','info')"><i class="fa-solid fa-rotate-left"></i>重置</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+      <div class="table-toolbar">
+        <span class="count">共 <strong>1,180</strong> 条记录 · 已选 <strong>0</strong> 项</span>
+        <div class="table-actions">
+          <button class="col-toggle" onclick="openColModal()"><i class="fa-solid fa-table-columns"></i>自定义列</button>
+          <button class="col-toggle" onclick="openFilterModal()"><i class="fa-solid fa-filter"></i>更多筛选</button>
+          <button class="col-toggle" onclick="showToast('数据已刷新','success')"><i class="fa-solid fa-rotate"></i>刷新</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:40px"><span class="checkbox"></span></th>
+              <th>学生信息</th>
+              <th>性别</th>
+              <th>专业</th>
+              <th>班级</th>
+              <th>基地</th>
+              <th>导师</th>
+              <th class="sortable">竞赛<i class="fa-solid fa-sort"></i></th>
+              <th class="sortable">论文<i class="fa-solid fa-sort"></i></th>
+              <th class="sortable">专利<i class="fa-solid fa-sort"></i></th>
+              <th>本学年状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="checkbox"></span></td>
+              <td>
+                <div class="student-cell">
+                  <div class="s-avatar">王</div>
+                  <div class="s-info"><div class="name">王明</div><div class="sid">2022100123</div></div>
+                </div>
+              </td>
+              <td>男</td>
+              <td>应用物理学</td>
+              <td>物理2201</td>
+              <td><span class="tag tag-base">物理学拔尖</span></td>
+              <td>张教授</td>
+              <td><strong style="color:#3087CC">5</strong></td>
+              <td><strong style="color:#3087CC">2</strong></td>
+              <td>1</td>
+              <td><span class="tag tag-warning">鉴定填报中</span></td>
+              <td><div class="row-actions"><a href="student-detail.html">详情</a><a href="#" onclick="window.location.href='data-entry.html';return false">编辑</a></div></td>
+            </tr>
+            <tr>
+              <td><span class="checkbox checked"></span></td>
+              <td>
+                <div class="student-cell">
+                  <div class="s-avatar green">张</div>
+                  <div class="s-info"><div class="name">张梓萱</div><div class="sid">2022100456</div></div>
+                </div>
+              </td>
+              <td>女</td>
+              <td>计算机科学与技术</td>
+              <td>计科2202</td>
+              <td><span class="tag tag-base">计算机科学</span></td>
+              <td>刘教授</td>
+              <td><strong style="color:#3087CC">8</strong></td>
+              <td><strong style="color:#3087CC">3</strong></td>
+              <td>2</td>
+              <td><span class="tag tag-success">已完成</span></td>
+              <td><div class="row-actions"><a href="student-detail.html">详情</a><a href="#" onclick="window.location.href='data-entry.html';return false">编辑</a></div></td>
+            </tr>
+            <tr>
+              <td><span class="checkbox"></span></td>
+              <td>
+                <div class="student-cell">
+                  <div class="s-avatar orange">陈</div>
+                  <div class="s-info"><div class="name">陈思源</div><div class="sid">2023100789</div></div>
+                </div>
+              </td>
+              <td>男</td>
+              <td>数学与应用数学</td>
+              <td>数学2301</td>
+              <td><span class="tag tag-base">数学拔尖</span></td>
+              <td>赵教授</td>
+              <td><strong style="color:#3087CC">3</strong></td>
+              <td>0</td>
+              <td>0</td>
+              <td><span class="tag tag-warning">数据确认中</span></td>
+              <td><div class="row-actions"><a href="student-detail.html">详情</a><a href="#" onclick="window.location.href='data-entry.html';return false">编辑</a></div></td>
+            </tr>
+            <tr>
+              <td><span class="checkbox"></span></td>
+              <td>
+                <div class="student-cell">
+                  <div class="s-avatar red">林</div>
+                  <div class="s-info"><div class="name">林雨晴</div><div class="sid">2022100234</div></div>
+                </div>
+              </td>
+              <td>女</td>
+              <td>生物科学</td>
+              <td>生物2201</td>
+              <td><span class="tag tag-base">生物科学</span></td>
+              <td>孙教授</td>
+              <td><strong style="color:#3087CC">4</strong></td>
+              <td><strong style="color:#3087CC">2</strong></td>
+              <td>0</td>
+              <td><span class="tag tag-success">已完成</span></td>
+              <td><div class="row-actions"><a href="student-detail.html">详情</a><a href="#" onclick="window.location.href='data-entry.html';return false">编辑</a></div></td>
+            </tr>
+            <tr>
+              <td><span class="checkbox"></span></td>
+              <td>
+                <div class="student-cell">
+                  <div class="s-avatar">李</div>
+                  <div class="s-info"><div class="name">李博文</div><div class="sid">2022100345</div></div>
+                </div>
+              </td>
+              <td>男</td>
+              <td>应用化学</td>
+              <td>化学2202</td>
+              <td><span class="tag tag-base">化学拔尖</span></td>
+              <td>陈教授</td>
+              <td><strong style="color:#3087CC">6</strong></td>
+              <td><strong style="color:#3087CC">1</strong></td>
+              <td>0</td>
+              <td><span class="tag tag-warning">考核评审中</span></td>
+              <td><div class="row-actions"><a href="student-detail.html">详情</a><a href="#" onclick="window.location.href='data-entry.html';return false">编辑</a></div></td>
+            </tr>
+            <tr>
+              <td><span class="checkbox"></span></td>
+              <td>
+                <div class="student-cell">
+                  <div class="s-avatar green">韩</div>
+                  <div class="s-info"><div class="name">韩雪</div><div class="sid">2023100567</div></div>
+                </div>
+              </td>
+              <td>女</td>
+              <td>基础医学</td>
+              <td>基医2301</td>
+              <td><span class="tag tag-base">基础医学</span></td>
+              <td>周教授</td>
+              <td><strong style="color:#3087CC">2</strong></td>
+              <td>0</td>
+              <td>0</td>
+              <td><span class="tag tag-warning">数据确认中</span></td>
+              <td><div class="row-actions"><a href="student-detail.html">详情</a><a href="#" onclick="window.location.href='data-entry.html';return false">编辑</a></div></td>
+            </tr>
+            <tr>
+              <td><span class="checkbox"></span></td>
+              <td>
+                <div class="student-cell">
+                  <div class="s-avatar orange">郑</div>
+                  <div class="s-info"><div class="name">郑文康</div><div class="sid">2024100789</div></div>
+                </div>
+              </td>
+              <td>男</td>
+              <td>汉语言文学</td>
+              <td>中文2401</td>
+              <td><span class="tag tag-base">中文拔尖</span></td>
+              <td>吴教授</td>
+              <td><strong style="color:#3087CC">1</strong></td>
+              <td>0</td>
+              <td>0</td>
+              <td><span class="tag tag-gray">未开始</span></td>
+              <td><div class="row-actions"><a href="student-detail.html">详情</a><a href="#" onclick="window.location.href='data-entry.html';return false">编辑</a></div></td>
+            </tr>
+            <tr>
+              <td><span class="checkbox"></span></td>
+              <td>
+                <div class="student-cell">
+                  <div class="s-avatar red">徐</div>
+                  <div class="s-info"><div class="name">徐昊然</div><div class="sid">2022100678</div></div>
+                </div>
+              </td>
+              <td>男</td>
+              <td>材料科学与工程</td>
+              <td>材料2202</td>
+              <td><span class="tag tag-base">材料强基</span></td>
+              <td>钱教授</td>
+              <td><strong style="color:#3087CC">3</strong></td>
+              <td><strong style="color:#3087CC">1</strong></td>
+              <td><strong style="color:#3087CC">2</strong></td>
+              <td><span class="tag tag-success">已完成</span></td>
+              <td><div class="row-actions"><a href="student-detail.html">详情</a><a href="#" onclick="window.location.href='data-entry.html';return false">编辑</a></div></td>
+            </tr>
+            <tr>
+              <td><span class="checkbox"></span></td>
+              <td>
+                <div class="student-cell">
+                  <div class="s-avatar">秦</div>
+                  <div class="s-info"><div class="name">秦怡然</div><div class="sid">2023100890</div></div>
+                </div>
+              </td>
+              <td>女</td>
+              <td>地球物理学</td>
+              <td>地物2301</td>
+              <td><span class="tag tag-base">地球物理学</span></td>
+              <td>胡教授</td>
+              <td><strong style="color:#3087CC">2</strong></td>
+              <td>0</td>
+              <td>0</td>
+              <td><span class="tag tag-warning">鉴定填报中</span></td>
+              <td><div class="row-actions"><a href="student-detail.html">详情</a><a href="#" onclick="window.location.href='data-entry.html';return false">编辑</a></div></td>
+            </tr>
+            <tr>
+              <td><span class="checkbox"></span></td>
+              <td>
+                <div class="student-cell">
+                  <div class="s-avatar green">魏</div>
+                  <div class="s-info"><div class="name">魏子轩</div><div class="sid">2022100901</div></div>
+                </div>
+              </td>
+              <td>男</td>
+              <td>哲学</td>
+              <td>哲学2201</td>
+              <td><span class="tag tag-base">哲学拔尖</span></td>
+              <td>谢教授</td>
+              <td>0</td>
+              <td><strong style="color:#3087CC">1</strong></td>
+              <td>0</td>
+              <td><span class="tag tag-success">已完成</span></td>
+              <td><div class="row-actions"><a href="student-detail.html">详情</a><a href="#" onclick="window.location.href='data-entry.html';return false">编辑</a></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <div class="pag-info">
+          每页显示
+          <select><option>10</option><option>20</option><option>50</option></select>
+          条 · 共 1,180 条 · 当前第 1-10 条
+        </div>
+        <div class="pag-pages">
+          <button class="pag-btn" disabled><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="pag-btn active">1</button>
+          <button class="pag-btn" onclick="showToast('已切换页码','info')">2</button>
+          <button class="pag-btn" onclick="showToast('已切换页码','info')">3</button>
+          <button class="pag-btn" onclick="showToast('已切换页码','info')">4</button>
+          <button class="pag-btn" onclick="showToast('已切换页码','info')">...</button>
+          <button class="pag-btn" onclick="showToast('已切换页码','info')">118</button>
+          <button class="pag-btn" onclick="showToast('已切换页码','info')"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+</div>
+
+<script>
+/* Toast 提示 */
+function showToast(msg,type){type=type||'info';var t=document.createElement('div');var c={success:'#1BB975',info:'#3087CC',warning:'#F29100',error:'#DF2027'};var ic={success:'fa-circle-check',info:'fa-circle-info',warning:'fa-triangle-exclamation',error:'fa-circle-xmark'};t.innerHTML='<i class="fa-solid '+ic[type]+'"></i> '+msg;t.style.cssText='position:fixed;top:-60px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;color:#fff;background:'+(c[type]||c.info)+';box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;gap:8px;z-index:99999;transition:top 0.3s ease;white-space:nowrap;font-family:inherit';document.body.appendChild(t);requestAnimationFrame(function(){t.style.top='24px'});setTimeout(function(){t.style.top='-60px';setTimeout(function(){t.remove()},400)},2500)}
+
+/* 确认弹窗 */
+function showConfirm(title,msg,onOk){var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s';o.innerHTML='<div style="background:#fff;border-radius:12px;padding:28px;width:420px;max-width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2);font-family:inherit;transform:scale(0.9);transition:transform 0.2s"><h3 style="margin:0 0 8px;font-size:16px;color:#3C444F">'+title+'</h3><p style="margin:0 0 20px;font-size:14px;color:#696F7D;line-height:1.6">'+msg+'</p><div style="display:flex;gap:10px;justify-content:flex-end"><button class="_mc" style="padding:8px 20px;border-radius:8px;border:1px solid #ECEFF4;background:#F5F7FA;color:#3C444F;cursor:pointer;font-size:13px;font-family:inherit">取消</button><button class="_mo" style="padding:8px 20px;border-radius:8px;border:none;background:#3087CC;color:#fff;cursor:pointer;font-size:13px;font-family:inherit">确定</button></div></div>';document.body.appendChild(o);requestAnimationFrame(function(){o.style.opacity='1';o.firstElementChild.style.transform='scale(1)'});o.querySelector('._mo').onclick=function(){o.remove();if(onOk)onOk()};o.querySelector('._mc').onclick=function(){o.remove()};o.addEventListener('click',function(e){if(e.target===o)o.remove()})}
+
+/* 自定义列弹窗 */
+function openColModal(){
+  var o=document.createElement('div');o.className='_overlay';o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s';
+  var cols=[{n:'学生信息',c:true},{n:'性别',c:true},{n:'专业',c:true},{n:'班级',c:true},{n:'基地',c:true},{n:'导师',c:true},{n:'竞赛',c:true},{n:'论文',c:true},{n:'专利',c:true},{n:'本学年状态',c:true},{n:'GPA',c:false},{n:'排名',c:false},{n:'奖学金数',c:false},{n:'交流次数',c:false},{n:'入学年份',c:false},{n:'联系方式',c:false}];
+  var html='<div style="background:#fff;border-radius:12px;padding:0;width:520px;max-width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2);font-family:inherit;transform:scale(0.9);transition:transform 0.2s;max-height:80vh;display:flex;flex-direction:column"><div style="padding:18px 24px;border-bottom:1px solid #ECEFF4;display:flex;align-items:center;justify-content:space-between"><h3 style="font-size:16px;color:#3C444F;margin:0">自定义列配置</h3><button class="_close" style="width:32px;height:32px;border-radius:8px;background:#F5F7FA;border:none;cursor:pointer;font-size:14px;color:#696F7D">✕</button></div><div style="padding:20px 24px;overflow-y:auto;flex:1"><p style="font-size:12px;color:#9096A2;margin-bottom:14px">勾选需要显示的列，拖拽可调整顺序</p><div style="display:flex;flex-direction:column;gap:8px">';
+  cols.forEach(function(c){html+='<label style="display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid #ECEFF4;border-radius:6px;cursor:pointer;transition:all .15s"><input type="checkbox" '+(c.c?'checked':'')+' style="accent-color:#3087CC;width:16px;height:16px"><span style="flex:1;font-size:13px;color:#3C444F">'+c.n+'</span><i class="fa-solid fa-grip-vertical" style="color:#C8CAD1;font-size:12px"></i></label>'});
+  html+='</div></div><div style="padding:14px 24px;border-top:1px solid #ECEFF4;display:flex;gap:10px;justify-content:flex-end"><button class="_mc" style="padding:8px 20px;border-radius:8px;border:1px solid #ECEFF4;background:#F5F7FA;color:#3C444F;cursor:pointer;font-size:13px;font-family:inherit">取消</button><button class="_mo" style="padding:8px 20px;border-radius:8px;border:none;background:#3087CC;color:#fff;cursor:pointer;font-size:13px;font-family:inherit">应用</button></div></div>';
+  o.innerHTML=html;document.body.appendChild(o);requestAnimationFrame(function(){o.style.opacity='1';o.firstElementChild.style.transform='scale(1)'});
+  o.querySelector('._mo').onclick=function(){o.remove();showToast('列配置已更新','success')};
+  o.querySelector('._mc').onclick=o.querySelector('._close').onclick=function(){o.remove()};
+  o.addEventListener('click',function(e){if(e.target===o)o.remove()});
+}
+
+/* 更多筛选弹窗 */
+function openFilterModal(){
+  var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s';
+  o.innerHTML='<div style="background:#fff;border-radius:12px;padding:0;width:600px;max-width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2);font-family:inherit;transform:scale(0.9);transition:transform 0.2s"><div style="padding:18px 24px;border-bottom:1px solid #ECEFF4;display:flex;align-items:center;justify-content:space-between"><h3 style="font-size:16px;color:#3C444F;margin:0"><i class="fa-solid fa-filter" style="color:#3087CC;margin-right:8px"></i>高级筛选</h3><button class="_close" style="width:32px;height:32px;border-radius:8px;background:#F5F7FA;border:none;cursor:pointer;font-size:14px;color:#696F7D">✕</button></div><div style="padding:20px 24px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px"><div><label style="display:block;font-size:12px;color:#696F7D;margin-bottom:6px;font-weight:500">GPA 范围</label><div style="display:flex;gap:8px;align-items:center"><input type="number" placeholder="最低" step="0.01" min="0" max="5" style="flex:1;height:36px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none"><span style="color:#9096A2">—</span><input type="number" placeholder="最高" step="0.01" min="0" max="5" style="flex:1;height:36px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none"></div></div><div><label style="display:block;font-size:12px;color:#696F7D;margin-bottom:6px;font-weight:500">竞赛获奖数</label><div style="display:flex;gap:8px;align-items:center"><input type="number" placeholder="≥" min="0" style="flex:1;height:36px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none"><span style="color:#9096A2">—</span><input type="number" placeholder="≤" min="0" style="flex:1;height:36px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none"></div></div><div><label style="display:block;font-size:12px;color:#696F7D;margin-bottom:6px;font-weight:500">论文发表数</label><select style="width:100%;height:36px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none;background:#fff"><option>不限</option><option>≥1</option><option>≥3</option><option>≥5</option></select></div><div><label style="display:block;font-size:12px;color:#696F7D;margin-bottom:6px;font-weight:500">导师评价状态</label><select style="width:100%;height:36px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none;background:#fff"><option>全部</option><option>已评价</option><option>未评价</option></select></div><div><label style="display:block;font-size:12px;color:#696F7D;margin-bottom:6px;font-weight:500">数据确认状态</label><select style="width:100%;height:36px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none;background:#fff"><option>全部</option><option>已确认</option><option>未确认</option><option>有异议</option></select></div><div><label style="display:block;font-size:12px;color:#696F7D;margin-bottom:6px;font-weight:500">入学时间</label><div style="display:flex;gap:8px;align-items:center"><input type="date" style="flex:1;height:36px;padding:0 8px;border:1px solid #C8CAD1;border-radius:6px;font-size:12px;outline:none"><span style="color:#9096A2">—</span><input type="date" style="flex:1;height:36px;padding:0 8px;border:1px solid #C8CAD1;border-radius:6px;font-size:12px;outline:none"></div></div></div></div><div style="padding:14px 24px;border-top:1px solid #ECEFF4;display:flex;gap:10px;justify-content:flex-end"><button class="_rst" style="padding:8px 20px;border-radius:8px;border:1px solid #ECEFF4;background:#F5F7FA;color:#3C444F;cursor:pointer;font-size:13px;font-family:inherit">重置</button><button class="_mc" style="padding:8px 20px;border-radius:8px;border:1px solid #ECEFF4;background:#F5F7FA;color:#3C444F;cursor:pointer;font-size:13px;font-family:inherit">取消</button><button class="_mo" style="padding:8px 20px;border-radius:8px;border:none;background:#3087CC;color:#fff;cursor:pointer;font-size:13px;font-family:inherit"><i class="fa-solid fa-magnifying-glass"></i> 应用筛选</button></div></div>';
+  document.body.appendChild(o);requestAnimationFrame(function(){o.style.opacity='1';o.firstElementChild.style.transform='scale(1)'});
+  o.querySelector('._mo').onclick=function(){o.remove();showToast('高级筛选已应用','success')};
+  o.querySelector('._mc').onclick=o.querySelector('._close').onclick=function(){o.remove()};
+  o.querySelector('._rst').onclick=function(){o.querySelectorAll('input,select').forEach(function(el){if(el.type==='checkbox')el.checked=false;else el.value=''});showToast('筛选条件已重置','info')};
+  o.addEventListener('click',function(e){if(e.target===o)o.remove()});
+}
+
+/* 分页按钮点击 */
+document.querySelectorAll('.pag-btn').forEach(function(b){if(!b.disabled && !b.classList.contains('active')){b.addEventListener('click',function(){document.querySelectorAll('.pag-btn.active').forEach(function(a){a.classList.remove('active')});if(this.textContent.trim().match(/^\d+$/))this.classList.add('active');showToast('已切换页码','info')})}})
+</script>
+</body>
+</html>

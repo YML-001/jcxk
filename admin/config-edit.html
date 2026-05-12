@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>配置编辑 · 基础学科学生成长档案</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'OPPOSans',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#F5F7FA;color:#3C444F;min-height:100vh;font-size:14px}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+.layout{display:flex;min-height:100vh}
+
+.sidebar{width:232px;background:#fff;border-right:1px solid #ECEFF4;flex-shrink:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.sidebar-brand{padding:20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #ECEFF4}
+.brand-icon{width:38px;height:38px;background:linear-gradient(135deg,#3087CC,#006DAD);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
+.brand-text h1{font-size:14px;font-weight:700;color:#3C444F;line-height:1.3}
+.brand-text p{font-size:11px;color:#9096A2;margin-top:2px}
+.sidebar-nav{flex:1;padding:14px 12px;overflow-y:auto}
+.nav-group{margin-bottom:18px}
+.nav-group-title{font-size:11px;color:#9096A2;font-weight:600;padding:0 10px;margin-bottom:6px;letter-spacing:0.5px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;color:#696F7D;cursor:pointer;transition:all .15s;margin-bottom:2px}
+.nav-item i{font-size:15px;width:18px;text-align:center}
+.nav-item:hover{background:#F5F7FA;color:#3087CC}
+.nav-item.active{background:#E3F1F9;color:#3087CC;font-weight:600}
+.sidebar-footer{padding:14px 16px;border-top:1px solid #ECEFF4;display:flex;align-items:center;gap:10px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3087CC,#006DAD);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.user-info .name{font-size:13px;font-weight:600;color:#3C444F}
+.user-info .role{font-size:11px;color:#9096A2;margin-top:1px}
+
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{background:#fff;border-bottom:1px solid #ECEFF4;padding:14px 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10}
+.breadcrumb{font-size:13px;color:#9096A2}
+.breadcrumb .current{color:#3C444F;font-weight:600}
+.breadcrumb i{font-size:10px;margin:0 6px}
+.breadcrumb a:hover{color:#3087CC}
+
+.content{padding:24px 28px;flex:1;overflow-y:auto}
+.page-title{margin-bottom:20px}
+.page-title h2{font-size:22px;font-weight:700;color:#3C444F}
+.page-title .desc{font-size:13px;color:#9096A2;margin-top:6px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid transparent;line-height:1.2}
+.btn-primary{background:#3087CC;color:#fff}
+.btn-primary:hover{background:#006DAD}
+.btn-outline{background:#fff;color:#3087CC;border-color:#3087CC}
+.btn-outline:hover{background:#E3F1F9}
+.btn-default{background:#fff;color:#696F7D;border-color:#C8CAD1}
+.btn-default:hover{border-color:#3087CC;color:#3087CC}
+.btn-danger-text{color:#DF2027;background:none;border:none;padding:6px 10px;font-size:12px}
+.btn-danger-text:hover{background:#FCE8EA}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-lg{padding:12px 28px;font-size:14px}
+
+/* Tab 切换 */
+.tab-bar{display:flex;gap:0;margin-bottom:20px;background:#fff;border:1px solid #ECEFF4;border-radius:12px;overflow:hidden}
+.tab-item{flex:1;padding:16px 20px;text-align:center;font-size:14px;font-weight:600;color:#696F7D;cursor:pointer;transition:all .15s;border-bottom:3px solid transparent;display:flex;align-items:center;justify-content:center;gap:8px}
+.tab-item:hover{color:#3087CC;background:#F5FBFF}
+.tab-item.active{color:#3087CC;border-bottom-color:#3087CC;background:#F5FBFF}
+.tab-item i{font-size:16px}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* 区块 */
+.section{background:#fff;border:1px solid #ECEFF4;border-radius:12px;margin-bottom:16px;overflow:hidden}
+.section-head{padding:16px 20px;border-bottom:1px solid #ECEFF4;display:flex;align-items:center;justify-content:space-between}
+.section-head h3{font-size:15px;font-weight:700;color:#3C444F;display:flex;align-items:center;gap:8px}
+.section-head h3 i{color:#3087CC}
+.section-body{padding:20px}
+
+/* 表单 */
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.form-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.form-group{margin-bottom:0}
+.form-group.full{grid-column:1/-1}
+.form-label{display:block;font-size:12px;color:#3C444F;font-weight:500;margin-bottom:6px}
+.form-label .req{color:#DF2027;margin-left:2px}
+.form-label .hint{color:#9096A2;font-weight:400;margin-left:4px}
+.form-control{width:100%;padding:10px 12px;border:1px solid #C8CAD1;border-radius:8px;font-size:13px;outline:none;font-family:inherit;resize:vertical;transition:all .15s;background:#fff}
+.form-control:focus{border-color:#3087CC;box-shadow:0 0 0 3px rgba(48,135,204,0.12)}
+.form-control:disabled,.form-control[readonly]{background:#F5F7FA;color:#9096A2;cursor:not-allowed}
+select.form-control{appearance:auto}
+textarea.form-control{min-height:100px}
+
+/* Tag 输入 */
+.tag-input-wrap{display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px;border:1px solid #C8CAD1;border-radius:8px;min-height:42px;align-items:center;cursor:text;transition:all .15s;background:#fff}
+.tag-input-wrap:focus-within{border-color:#3087CC;box-shadow:0 0 0 3px rgba(48,135,204,0.12)}
+.tag-input-wrap .tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:#E3F1F9;color:#3087CC;border-radius:5px;font-size:12px;font-weight:500}
+.tag-input-wrap .tag .del{cursor:pointer;opacity:0.6;font-size:10px}
+.tag-input-wrap .tag .del:hover{opacity:1}
+.tag-input-wrap input{border:none;outline:none;font-size:13px;font-family:inherit;flex:1;min-width:80px;padding:2px 0;background:transparent}
+
+/* 成员表格 */
+.member-table{width:100%;border-collapse:collapse;font-size:13px}
+.member-table th{background:#F5F7FA;padding:10px 14px;text-align:left;color:#3C444F;font-weight:600;font-size:12px;border-bottom:1px solid #ECEFF4}
+.member-table td{padding:10px 14px;border-bottom:1px solid #F5F7FA;vertical-align:middle}
+.member-table tr:hover td{background:#FAFBFC}
+.member-table input,.member-table select{width:100%;padding:7px 10px;border:1px solid #C8CAD1;border-radius:6px;font-size:12px;outline:none;font-family:inherit;background:#fff}
+.member-table input:focus,.member-table select:focus{border-color:#3087CC}
+
+/* 字典表格 */
+.dict-table{width:100%;border-collapse:collapse;font-size:13px}
+.dict-table th{background:#F5F7FA;padding:10px 14px;text-align:left;color:#3C444F;font-weight:600;font-size:12px;border-bottom:1px solid #ECEFF4}
+.dict-table td{padding:8px 14px;border-bottom:1px solid #F5F7FA;vertical-align:middle}
+.dict-table tr:hover td{background:#FAFBFC}
+.dict-table input,.dict-table select{width:100%;padding:7px 10px;border:1px solid #C8CAD1;border-radius:6px;font-size:12px;outline:none;font-family:inherit;background:#fff}
+.dict-table input:focus,.dict-table select:focus{border-color:#3087CC}
+.dict-table input[readonly]{background:#F5F7FA;color:#9096A2;cursor:not-allowed}
+
+/* 状态切换 */
+.status-toggle{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:12px}
+.toggle-switch{width:36px;height:20px;background:#C8CAD1;border-radius:10px;position:relative;transition:background .2s}
+.toggle-switch.on{background:#1BB975}
+.toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,0.15)}
+.toggle-switch.on::after{left:18px}
+
+/* 操作栏 */
+.action-bar{background:#fff;border:1px solid #ECEFF4;border-radius:12px;padding:16px 20px;display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:16px;position:sticky;bottom:16px;box-shadow:0 -4px 12px rgba(0,0,0,0.04)}
+
+@media(max-width:1200px){.form-grid,.form-grid-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+    <div class="brand-text"><h1>成长档案</h1><p>基础学科 · 管理端</p></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-group">
+      <div class="nav-group-title">概览</div>
+      <a class="nav-item" href="dashboard.html"><i class="fa-solid fa-gauge-high"></i>工作台</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">档案管理</div>
+      <a class="nav-item" href="student-list.html"><i class="fa-solid fa-users"></i>学生档案</a>
+      <a class="nav-item" href="student-detail.html"><i class="fa-solid fa-folder-open"></i>档案详情</a>
+      <a class="nav-item" href="data-entry.html"><i class="fa-solid fa-pen-to-square"></i>直接录入</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">审核中心</div>
+      <a class="nav-item" href="review-list.html"><i class="fa-solid fa-clipboard-check"></i>补充勘误审核</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">学年鉴定</div>
+      <a class="nav-item" href="annual-review.html"><i class="fa-solid fa-file-signature"></i>鉴定管理</a>
+      <a class="nav-item" href="annual-review-committee.html"><i class="fa-solid fa-user-group"></i>考核小组配置</a>
+      <a class="nav-item" href="annual-review-detail.html"><i class="fa-solid fa-pen-to-square"></i>考核录入</a>
+      <a class="nav-item" href="annual-review-export.html"><i class="fa-solid fa-file-export"></i>导出模板</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">数据分析</div>
+      <a class="nav-item" href="statistics.html"><i class="fa-solid fa-chart-column"></i>查询与统计</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">系统</div>
+      <div class="nav-item active"><i class="fa-solid fa-sliders"></i>系统配置</div>
+      <a class="nav-item" href="../index.html"><i class="fa-solid fa-arrow-right-from-bracket"></i>返回导航</a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-avatar">李</div>
+    <div class="user-info"><div class="name">李教务</div><div class="role">本科生院教务员</div></div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="breadcrumb">
+      <i class="fa-solid fa-house"></i> <a href="dashboard.html">工作台</a> <i class="fa-solid fa-chevron-right"></i>
+      <a href="base-config.html">系统配置</a> <i class="fa-solid fa-chevron-right"></i>
+      <span class="current">编辑</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="page-title">
+      <h2>配置编辑</h2>
+      <div class="desc">编辑基地信息或管理系统字典数据</div>
+    </div>
+
+    <!-- 顶部 Tab -->
+    <div class="tab-bar">
+      <div class="tab-item active" onclick="switchTab('base',this)"><i class="fa-solid fa-people-roof"></i>基地管理</div>
+      <div class="tab-item" onclick="switchTab('dict',this)"><i class="fa-solid fa-book"></i>字典管理</div>
+    </div>
+
+    <!-- 基地管理面板 -->
+    <div class="tab-panel active" id="panel-base">
+
+      <!-- 基地基本信息 -->
+      <div class="section">
+        <div class="section-head">
+          <h3><i class="fa-solid fa-info-circle"></i>基地基本信息</h3>
+        </div>
+        <div class="section-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">基地名称<span class="req">*</span></label>
+              <input class="form-control" type="text" value="计算机科学拔尖基地">
+            </div>
+            <div class="form-group">
+              <label class="form-label">级别<span class="req">*</span></label>
+              <select class="form-control">
+                <option selected>国家级</option>
+                <option>省级</option>
+                <option>强基计划</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">依托学院<span class="req">*</span></label>
+              <select class="form-control">
+                <option selected>计算机学院</option>
+                <option>物理学院</option>
+                <option>数学与统计学院</option>
+                <option>化学化工学院</option>
+                <option>生命科学学院</option>
+                <option>基础医学院</option>
+                <option>人文学院</option>
+                <option>地球科学与信息物理学院</option>
+                <option>材料科学与工程学院</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">涉及本科专业<span class="req">*</span></label>
+              <div class="tag-input-wrap" id="majorTags" onclick="this.querySelector('input').focus()">
+                <span class="tag">计算机科学与技术 <span class="del" onclick="event.stopPropagation();this.parentElement.remove()"><i class="fa-solid fa-xmark"></i></span></span>
+                <span class="tag">软件工程 <span class="del" onclick="event.stopPropagation();this.parentElement.remove()"><i class="fa-solid fa-xmark"></i></span></span>
+                <span class="tag">人工智能 <span class="del" onclick="event.stopPropagation();this.parentElement.remove()"><i class="fa-solid fa-xmark"></i></span></span>
+                <input type="text" placeholder="输入后回车添加…" onkeydown="addTag(event,this)">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">基地负责人<span class="req">*</span></label>
+              <input class="form-control" type="text" value="张院长">
+            </div>
+            <div class="form-group">
+              <label class="form-label">联系电话</label>
+              <input class="form-control" type="text" value="0731-88888001">
+            </div>
+            <div class="form-group">
+              <label class="form-label">成立时间</label>
+              <input class="form-control" type="date" value="2020-09-01">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 基地成员管理 -->
+      <div class="section">
+        <div class="section-head">
+          <h3><i class="fa-solid fa-users-gear"></i>基地成员管理</h3>
+          <button class="btn btn-outline btn-sm" onclick="addMember()"><i class="fa-solid fa-plus"></i>添加成员</button>
+        </div>
+        <div class="section-body" style="padding:0;overflow-x:auto">
+          <table class="member-table" id="memberTable">
+            <thead>
+              <tr>
+                <th style="width:40px">序号</th>
+                <th>姓名</th>
+                <th>职务</th>
+                <th>角色</th>
+                <th style="width:80px;text-align:center">操作</th>
+              </tr>
+            </thead>
+            <tbody id="memberBody">
+              <tr>
+                <td>1</td>
+                <td><input type="text" value="张院长"></td>
+                <td><input type="text" value="院长"></td>
+                <td>
+                  <select>
+                    <option selected>基地负责人</option>
+                    <option>教务员</option>
+                    <option>学业导师</option>
+                    <option>科研导师</option>
+                    <option>其他</option>
+                  </select>
+                </td>
+                <td style="text-align:center"><button class="btn-danger-text" onclick="removeMember(this)"><i class="fa-solid fa-trash-can"></i></button></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td><input type="text" value="李教务"></td>
+                <td><input type="text" value="教务办主任"></td>
+                <td>
+                  <select>
+                    <option>基地负责人</option>
+                    <option selected>教务员</option>
+                    <option>学业导师</option>
+                    <option>科研导师</option>
+                    <option>其他</option>
+                  </select>
+                </td>
+                <td style="text-align:center"><button class="btn-danger-text" onclick="removeMember(this)"><i class="fa-solid fa-trash-can"></i></button></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td><input type="text" value="刘教授"></td>
+                <td><input type="text" value="教授"></td>
+                <td>
+                  <select>
+                    <option>基地负责人</option>
+                    <option>教务员</option>
+                    <option selected>学业导师</option>
+                    <option>科研导师</option>
+                    <option>其他</option>
+                  </select>
+                </td>
+                <td style="text-align:center"><button class="btn-danger-text" onclick="removeMember(this)"><i class="fa-solid fa-trash-can"></i></button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 基地介绍 -->
+      <div class="section">
+        <div class="section-head">
+          <h3><i class="fa-solid fa-file-lines"></i>基地介绍</h3>
+        </div>
+        <div class="section-body">
+          <textarea class="form-control" style="min-height:120px" placeholder="请输入基地简介…">计算机科学拔尖基地是国家基础学科拔尖学生培养计划2.0基地，依托计算机学院优质师资与科研平台，培养具有国际竞争力的计算机科学拔尖创新人才。基地实行"一生一案"个性化培养方案，配备学业导师与科研导师双导师制，注重理论基础与科研创新能力的全方位发展。</textarea>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 字典管理面板 -->
+    <div class="tab-panel" id="panel-dict">
+
+      <!-- 字典信息 -->
+      <div class="section">
+        <div class="section-head">
+          <h3><i class="fa-solid fa-info-circle"></i>字典信息</h3>
+          <div style="display:flex;gap:8px;align-items:center">
+            <label style="font-size:12px;color:#696F7D">常用模板：</label>
+            <select class="form-control" style="width:auto;padding:6px 12px;font-size:12px" onchange="loadDictTemplate(this.value)">
+              <option value="">选择模板快速填充…</option>
+              <option value="level">奖励级别（国家/省/校/院）</option>
+              <option value="status">审核状态（待审/通过/驳回）</option>
+              <option value="yesno">是否（是/否）</option>
+            </select>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">字典名称<span class="req">*</span></label>
+              <input class="form-control" type="text" value="竞赛等级" id="dictName">
+            </div>
+            <div class="form-group">
+              <label class="form-label">字典编码<span class="hint">（不可编辑）</span></label>
+              <input class="form-control" type="text" value="competition_level" readonly style="background:#F5F7FA;color:#9096A2">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 字典值列表 -->
+      <div class="section">
+        <div class="section-head">
+          <h3><i class="fa-solid fa-list-ol"></i>字典值列表</h3>
+          <button class="btn btn-outline btn-sm" onclick="addDictRow()"><i class="fa-solid fa-plus"></i>添加字典值</button>
+        </div>
+        <div class="section-body" style="padding:0;overflow-x:auto">
+          <table class="dict-table" id="dictTable">
+            <thead>
+              <tr>
+                <th style="width:40px">序号</th>
+                <th>编码</th>
+                <th>名称</th>
+                <th style="width:100px">排序</th>
+                <th style="width:100px;text-align:center">状态</th>
+                <th style="width:80px;text-align:center">操作</th>
+              </tr>
+            </thead>
+            <tbody id="dictBody">
+              <tr>
+                <td>1</td>
+                <td><input type="text" value="national" readonly></td>
+                <td><input type="text" value="国家级"></td>
+                <td><input type="number" value="1" style="width:70px"></td>
+                <td style="text-align:center"><span class="status-toggle" onclick="toggleStatus(this)"><span class="toggle-switch on"></span> <span class="st-label">启用</span></span></td>
+                <td style="text-align:center"><button class="btn-danger-text" onclick="removeDictRow(this)"><i class="fa-solid fa-trash-can"></i></button></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td><input type="text" value="provincial" readonly></td>
+                <td><input type="text" value="省部级"></td>
+                <td><input type="number" value="2" style="width:70px"></td>
+                <td style="text-align:center"><span class="status-toggle" onclick="toggleStatus(this)"><span class="toggle-switch on"></span> <span class="st-label">启用</span></span></td>
+                <td style="text-align:center"><button class="btn-danger-text" onclick="removeDictRow(this)"><i class="fa-solid fa-trash-can"></i></button></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td><input type="text" value="school" readonly></td>
+                <td><input type="text" value="校级"></td>
+                <td><input type="number" value="3" style="width:70px"></td>
+                <td style="text-align:center"><span class="status-toggle" onclick="toggleStatus(this)"><span class="toggle-switch on"></span> <span class="st-label">启用</span></span></td>
+                <td style="text-align:center"><button class="btn-danger-text" onclick="removeDictRow(this)"><i class="fa-solid fa-trash-can"></i></button></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td><input type="text" value="college" readonly></td>
+                <td><input type="text" value="院级"></td>
+                <td><input type="number" value="4" style="width:70px"></td>
+                <td style="text-align:center"><span class="status-toggle" onclick="toggleStatus(this)"><span class="toggle-switch on"></span> <span class="st-label">启用</span></span></td>
+                <td style="text-align:center"><button class="btn-danger-text" onclick="removeDictRow(this)"><i class="fa-solid fa-trash-can"></i></button></td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td><input type="text" value="special" readonly></td>
+                <td><input type="text" value="特等奖"></td>
+                <td><input type="number" value="5" style="width:70px"></td>
+                <td style="text-align:center"><span class="status-toggle" onclick="toggleStatus(this)"><span class="toggle-switch on"></span> <span class="st-label">启用</span></span></td>
+                <td style="text-align:center"><button class="btn-danger-text" onclick="removeDictRow(this)"><i class="fa-solid fa-trash-can"></i></button></td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td><input type="text" value="first" readonly></td>
+                <td><input type="text" value="一等奖"></td>
+                <td><input type="number" value="6" style="width:70px"></td>
+                <td style="text-align:center"><span class="status-toggle" onclick="toggleStatus(this)"><span class="toggle-switch on"></span> <span class="st-label">启用</span></span></td>
+                <td style="text-align:center"><button class="btn-danger-text" onclick="removeDictRow(this)"><i class="fa-solid fa-trash-can"></i></button></td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td><input type="text" value="second" readonly></td>
+                <td><input type="text" value="二等奖"></td>
+                <td><input type="number" value="7" style="width:70px"></td>
+                <td style="text-align:center"><span class="status-toggle" onclick="toggleStatus(this)"><span class="toggle-switch on"></span> <span class="st-label">启用</span></span></td>
+                <td style="text-align:center"><button class="btn-danger-text" onclick="removeDictRow(this)"><i class="fa-solid fa-trash-can"></i></button></td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td><input type="text" value="third" readonly></td>
+                <td><input type="text" value="三等奖"></td>
+                <td><input type="number" value="8" style="width:70px"></td>
+                <td style="text-align:center"><span class="status-toggle" onclick="toggleStatus(this)"><span class="toggle-switch" style="background:#C8CAD1"></span> <span class="st-label" style="color:#9096A2">禁用</span></span></td>
+                <td style="text-align:center"><button class="btn-danger-text" onclick="removeDictRow(this)"><i class="fa-solid fa-trash-can"></i></button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 操作栏 -->
+    <div class="action-bar">
+      <button class="btn btn-default btn-lg" onclick="cancelEdit()"><i class="fa-solid fa-arrow-left"></i>取消</button>
+      <button class="btn btn-primary btn-lg" onclick="saveConfig()"><i class="fa-solid fa-check"></i>保存</button>
+    </div>
+
+  </div>
+</main>
+
+</div>
+
+<script>
+/* Toast 提示 */
+function showToast(msg,type){type=type||'info';var t=document.createElement('div');var c={success:'#1BB975',info:'#3087CC',warning:'#F29100',error:'#DF2027'};var ic={success:'fa-circle-check',info:'fa-circle-info',warning:'fa-triangle-exclamation',error:'fa-circle-xmark'};t.innerHTML='<i class="fa-solid '+ic[type]+'"></i> '+msg;t.style.cssText='position:fixed;top:-60px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;color:#fff;background:'+(c[type]||c.info)+';box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;gap:8px;z-index:99999;transition:top 0.3s ease;white-space:nowrap;font-family:inherit';document.body.appendChild(t);requestAnimationFrame(function(){t.style.top='24px'});setTimeout(function(){t.style.top='-60px';setTimeout(function(){t.remove()},400)},2500)}
+
+/* 确认弹窗 */
+function showConfirm(title,msg,onOk){var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s';o.innerHTML='<div style="background:#fff;border-radius:12px;padding:28px;width:420px;max-width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2);font-family:inherit;transform:scale(0.9);transition:transform 0.2s"><h3 style="margin:0 0 8px;font-size:16px;color:#3C444F">'+title+'</h3><p style="margin:0 0 20px;font-size:14px;color:#696F7D;line-height:1.6">'+msg+'</p><div style="display:flex;gap:10px;justify-content:flex-end"><button class="_mc" style="padding:8px 20px;border-radius:8px;border:1px solid #ECEFF4;background:#F5F7FA;color:#3C444F;cursor:pointer;font-size:13px;font-family:inherit">取消</button><button class="_mo" style="padding:8px 20px;border-radius:8px;border:none;background:#3087CC;color:#fff;cursor:pointer;font-size:13px;font-family:inherit">确定</button></div></div>';document.body.appendChild(o);requestAnimationFrame(function(){o.style.opacity='1';o.firstElementChild.style.transform='scale(1)'});o.querySelector('._mo').onclick=function(){o.remove();if(onOk)onOk()};o.querySelector('._mc').onclick=function(){o.remove()};o.addEventListener('click',function(e){if(e.target===o)o.remove()})}
+
+/* Tab 切换 */
+function switchTab(tab,el){
+  document.querySelectorAll('.tab-item').forEach(function(t){t.classList.remove('active')});
+  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});
+  el.classList.add('active');
+  document.getElementById('panel-'+tab).classList.add('active');
+}
+
+/* Tag 输入 */
+function addTag(e,input){
+  if(e.key==='Enter'&&input.value.trim()){
+    e.preventDefault();
+    var tag=document.createElement('span');
+    tag.className='tag';
+    tag.innerHTML=input.value.trim()+' <span class="del" onclick="event.stopPropagation();this.parentElement.remove()"><i class="fa-solid fa-xmark"></i></span>';
+    input.parentElement.insertBefore(tag,input);
+    input.value='';
+    showToast('已添加专业标签','success');
+  }
+}
+
+/* 成员管理 */
+var memberCount=3;
+function addMember(){
+  memberCount++;
+  var tbody=document.getElementById('memberBody');
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+memberCount+'</td><td><input type="text" placeholder="请输入姓名"></td><td><input type="text" placeholder="请输入职务"></td><td><select><option>基地负责人</option><option>教务员</option><option selected>学业导师</option><option>科研导师</option><option>其他</option></select></td><td style="text-align:center"><button class="btn-danger-text" onclick="removeMember(this)"><i class="fa-solid fa-trash-can"></i></button></td>';
+  tbody.appendChild(tr);
+  showToast('已添加新成员行','success');
+}
+
+function removeMember(btn){
+  var tr=btn.closest('tr');
+  tr.style.background='#FCE8EA';
+  setTimeout(function(){tr.remove();reindexMembers()},200);
+}
+
+function reindexMembers(){
+  var rows=document.querySelectorAll('#memberBody tr');
+  rows.forEach(function(row,i){row.cells[0].textContent=i+1});
+  memberCount=rows.length;
+}
+
+/* 字典管理 */
+var dictCount=8;
+function addDictRow(){
+  dictCount++;
+  var tbody=document.getElementById('dictBody');
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+dictCount+'</td><td><input type="text" placeholder="编码"></td><td><input type="text" placeholder="名称"></td><td><input type="number" value="'+dictCount+'" style="width:70px"></td><td style="text-align:center"><span class="status-toggle" onclick="toggleStatus(this)"><span class="toggle-switch on"></span> <span class="st-label">启用</span></span></td><td style="text-align:center"><button class="btn-danger-text" onclick="removeDictRow(this)"><i class="fa-solid fa-trash-can"></i></button></td>';
+  tbody.appendChild(tr);
+  showToast('已添加新字典值','success');
+}
+
+function removeDictRow(btn){
+  var tr=btn.closest('tr');
+  tr.style.background='#FCE8EA';
+  setTimeout(function(){tr.remove();reindexDict()},200);
+}
+
+function reindexDict(){
+  var rows=document.querySelectorAll('#dictBody tr');
+  rows.forEach(function(row,i){row.cells[0].textContent=i+1});
+  dictCount=rows.length;
+}
+
+/* 状态切换 */
+function toggleStatus(el){
+  var sw=el.querySelector('.toggle-switch');
+  var lb=el.querySelector('.st-label');
+  if(sw.classList.contains('on')){
+    sw.classList.remove('on');
+    sw.style.background='#C8CAD1';
+    lb.textContent='禁用';
+    lb.style.color='#9096A2';
+  }else{
+    sw.classList.add('on');
+    sw.style.background='';
+    lb.textContent='启用';
+    lb.style.color='';
+  }
+}
+
+/* 操作栏 */
+function cancelEdit(){
+  showConfirm('确认取消','确定要取消编辑吗？未保存的修改将丢失。',function(){
+    showToast('已取消编辑','info');
+    setTimeout(function(){window.location.href='base-config.html'},500);
+  });
+}
+function saveConfig(){
+  showConfirm('确认保存','确定要保存当前配置吗？',function(){
+    showToast('配置已保存成功','success');
+  });
+}
+
+/* 字典模板快速填充 */
+function loadDictTemplate(tpl){
+  if(!tpl)return;
+  var templates={
+    level:[{code:'national',name:'国家级'},{code:'provincial',name:'省级'},{code:'school',name:'校级'},{code:'college',name:'院级'}],
+    status:[{code:'pending',name:'待审核'},{code:'approved',name:'已通过'},{code:'rejected',name:'已驳回'}],
+    yesno:[{code:'yes',name:'是'},{code:'no',name:'否'}]
+  };
+  var data=templates[tpl];
+  if(!data)return;
+  showConfirm('加载模板','加载模板将替换当前字典值列表，是否继续？',function(){
+    var tbody=document.getElementById('dictBody');
+    tbody.innerHTML='';
+    data.forEach(function(item,i){
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td>'+(i+1)+'</td><td><input type="text" value="'+item.code+'" readonly></td><td><input type="text" value="'+item.name+'"></td><td><input type="number" value="'+(i+1)+'" style="width:70px"></td><td style="text-align:center"><span class="status-toggle" onclick="toggleStatus(this)"><span class="toggle-switch on"></span> <span class="st-label">启用</span></span></td><td style="text-align:center"><button class="btn-danger-text" onclick="removeDictRow(this)"><i class="fa-solid fa-trash-can"></i></button></td>';
+      tbody.appendChild(tr);
+    });
+    dictCount=data.length;
+    showToast('模板已加载','success');
+  });
+}
+</script>
+</body>
+</html>

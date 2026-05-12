@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>我的学生 · 导师端</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'OPPOSans',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#F5F7FA;color:#1E2532;max-width:428px;margin:0 auto;min-height:100vh;font-size:14px;padding-bottom:72px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+
+.navbar{position:sticky;top:0;z-index:100;height:44px;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 16px;border-bottom:1px solid #ECEFF4}
+.navbar .title{font-size:16px;font-weight:600;color:#1E2532}
+
+.filter-bar{display:flex;gap:10px;padding:12px 16px;background:#fff;border-bottom:1px solid #F0F2F5}
+.filter-select{height:36px;padding:0 12px;border:1px solid #E0E3E8;border-radius:10px;background:#FAFBFC;font-size:13px;color:#3C444F;outline:none;font-family:inherit;cursor:pointer;min-width:90px}
+.filter-select:focus{border-color:#F29100}
+.search-box{flex:1;height:36px;padding:0 12px 0 36px;border:1px solid #E0E3E8;border-radius:10px;background:#FAFBFC url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%239096A2' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") no-repeat 12px center;font-size:13px;color:#1E2532;outline:none;font-family:inherit}
+.search-box:focus{border-color:#F29100}
+.search-box::placeholder{color:#B0B5BF}
+
+.stat-bar{padding:12px 16px;font-size:13px;color:#696F7D}
+.stat-bar strong{color:#1E2532;font-weight:600}
+
+.student-list{padding:0 16px}
+.student-card{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;display:flex;align-items:flex-start;gap:12px;cursor:pointer;transition:all .15s;position:relative}
+.student-card:active{background:#FFF8F0}
+.avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#F29100,#E07D00);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0}
+.stu-info{flex:1;min-width:0}
+.stu-name{font-size:15px;font-weight:600;color:#1E2532}
+.stu-meta{font-size:12px;color:#9096A2;margin-top:3px}
+.stu-todo{font-size:12px;margin-top:6px;display:flex;align-items:center;gap:4px}
+.stu-todo .todo-text{color:#696F7D}
+.stu-todo .dot-red{width:7px;height:7px;background:#E8443A;border-radius:50%;display:inline-block;margin-left:2px}
+.stu-status{margin-top:8px}
+.status-tag{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px}
+.tag-orange{background:#FFF3E0;color:#F29100}
+.tag-blue{background:#E8F4FD;color:#2196F3}
+.tag-green{background:#E8F8F0;color:#1BB975}
+.tag-gray{background:#F0F2F5;color:#9096A2}
+.card-arrow{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:#C8CAD1;font-size:14px}
+
+.tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:428px;height:56px;background:#fff;border-top:1px solid #ECEFF4;display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0px)}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;color:#9096A2;cursor:pointer;position:relative;transition:color .15s}
+.tab-item.active{color:#F29100}
+.tab-item.active i{color:#F29100}
+.tab-item i{font-size:20px;transition:color .15s}
+.tab-badge{position:absolute;top:4px;right:50%;transform:translateX(calc(50% + 12px));min-width:16px;height:16px;background:#E8443A;color:#fff;font-size:10px;font-weight:700;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.8);background:rgba(30,37,50,0.88);color:#fff;padding:14px 28px;border-radius:12px;font-size:14px;z-index:9999;opacity:0;transition:all .25s;pointer-events:none;text-align:center;max-width:280px}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.toast i{display:block;font-size:28px;margin-bottom:8px}
+
+.drawer-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
+.drawer-mask.show{opacity:1;pointer-events:auto}
+.drawer{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:428px;background:#fff;border-radius:20px 20px 0 0;z-index:201;transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:85vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,0px)}
+.drawer.show{transform:translateX(-50%) translateY(0)}
+.drawer.full{max-height:92vh}
+.drawer-header{display:flex;justify-content:space-between;align-items:center;padding:18px 20px 14px;border-bottom:1px solid #F0F2F5;position:sticky;top:0;background:#fff;border-radius:20px 20px 0 0;z-index:1}
+.drawer-header .title{font-size:17px;font-weight:700;color:#1E2532}
+.drawer-header .close{width:32px;height:32px;border-radius:50%;background:#F0F2F5;display:flex;align-items:center;justify-content:center;font-size:16px;color:#696F7D;cursor:pointer}
+.drawer-header .close:active{background:#E0E3E8}
+.drawer-body{padding:16px 20px 24px}
+
+.profile-top{display:flex;gap:14px;align-items:center;margin-bottom:18px}
+.profile-top .avatar{width:52px;height:52px;font-size:20px}
+.profile-info .name{font-size:17px;font-weight:700;color:#1E2532}
+.profile-info .sid{font-size:12px;color:#9096A2;margin-top:2px}
+.profile-info .major{font-size:13px;color:#696F7D;margin-top:3px}
+
+.profile-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
+.profile-grid-item{background:#FAFBFC;border-radius:10px;padding:12px;text-align:center}
+.profile-grid-item .val{font-size:20px;font-weight:700;color:#1E2532}
+.profile-grid-item .label{font-size:11px;color:#9096A2;margin-top:3px}
+.profile-grid-item.highlight .val{color:#F29100}
+
+.profile-actions{display:flex;flex-direction:column;gap:10px}
+.profile-actions .action-btn{height:44px;border-radius:11px;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:all .15s}
+.action-btn-primary{background:#F29100;color:#fff}
+.action-btn-primary:active{background:#E07D00}
+.action-btn-outline{background:#FFF3E0;color:#F29100;border:1px solid #FFD699}
+.action-btn-outline:active{background:#FFE8CC}
+.action-btn-gray{background:#F0F2F5;color:#696F7D}
+.action-btn-gray:active{background:#E0E3E8}
+
+.review-card{background:#FAFBFC;border-radius:12px;padding:14px;margin-bottom:12px}
+.review-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.review-card-name{font-size:14px;font-weight:600;color:#1E2532}
+.review-card-type{font-size:11px;color:#9096A2;background:#F0F2F5;padding:2px 8px;border-radius:4px}
+.review-card-desc{font-size:13px;color:#3C444F;margin-bottom:6px}
+.review-card-date{font-size:11px;color:#B0B5BF;margin-bottom:10px}
+.review-card-btns{display:flex;gap:8px}
+.review-card-btns .rbtn{flex:1;height:34px;border-radius:8px;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.rbtn-pass{background:#E8F8F0;color:#1BB975}
+.rbtn-pass:active{background:#D0F0E0}
+.rbtn-reject{background:#FDECEA;color:#E8443A}
+.rbtn-reject:active{background:#FADBD8}
+
+.progress-ring-wrap{display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:20px;padding:16px 0}
+.progress-ring{width:100px;height:100px;border-radius:50%;background:conic-gradient(#F29100 0% 37.5%,#F0F2F5 37.5% 100%);display:flex;align-items:center;justify-content:center;position:relative}
+.progress-ring::after{content:'';width:76px;height:76px;border-radius:50%;background:#fff;position:absolute}
+.progress-ring-text{position:relative;z-index:1;text-align:center}
+.progress-ring-text .num{font-size:24px;font-weight:700;color:#F29100}
+.progress-ring-text .sub{font-size:11px;color:#9096A2}
+.progress-stats{font-size:13px;color:#696F7D;line-height:2}
+
+.assess-list{margin-top:12px}
+.assess-item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #F5F7FA}
+.assess-item:last-child{border-bottom:none}
+.assess-item-name{font-size:14px;font-weight:500;color:#1E2532}
+.assess-item-btn{font-size:12px;font-weight:600;color:#F29100;background:#FFF3E0;padding:5px 12px;border-radius:6px;cursor:pointer}
+.assess-item-btn:active{background:#FFE8CC}
+.assess-item-done{font-size:12px;color:#1BB975;font-weight:500}
+
+.msg-item{padding:14px 0;border-bottom:1px solid #F5F7FA;cursor:pointer}
+.msg-item:last-child{border-bottom:none}
+.msg-item:active{background:#FAFBFC;border-radius:8px}
+.msg-item-title{font-size:13px;color:#1E2532;font-weight:500;margin-bottom:4px}
+.msg-item-time{font-size:11px;color:#B0B5BF}
+
+.input-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:300;display:none;justify-content:center;align-items:center}
+.input-mask.show{display:flex}
+.input-box{width:300px;background:#fff;border-radius:16px;overflow:hidden;animation:popIn .2s ease}
+@keyframes popIn{from{transform:scale(0.85);opacity:0}to{transform:scale(1);opacity:1}}
+.input-box-body{padding:24px 20px 16px}
+.input-box-body .msg{font-size:15px;font-weight:600;color:#1E2532;margin-bottom:12px}
+.input-box-body textarea{width:100%;height:80px;border:1px solid #E0E3E8;border-radius:10px;padding:10px;font-size:13px;outline:none;resize:none;font-family:inherit}
+.input-box-body textarea:focus{border-color:#F29100}
+.input-box-actions{display:flex;border-top:1px solid #F0F2F5}
+.input-box-actions button{flex:1;padding:14px;font-size:15px;font-weight:500;cursor:pointer;transition:background .15s}
+.input-box-actions .cancel-btn{color:#696F7D;border-right:1px solid #F0F2F5}
+.input-box-actions .cancel-btn:active{background:#F5F7FA}
+.input-box-actions .ok-btn{color:#F29100;font-weight:600}
+.input-box-actions .ok-btn:active{background:#FFF8F0}
+
+.confirm-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:300;display:none;justify-content:center;align-items:center}
+.confirm-mask.show{display:flex}
+.confirm-box{width:300px;background:#fff;border-radius:16px;overflow:hidden;animation:popIn .2s ease}
+.confirm-body{padding:24px 20px 16px;text-align:center}
+.confirm-body .msg{font-size:15px;font-weight:600;color:#1E2532;margin-bottom:6px}
+.confirm-body .sub{font-size:13px;color:#9096A2}
+.confirm-actions{display:flex;border-top:1px solid #F0F2F5}
+.confirm-actions button{flex:1;padding:14px;font-size:15px;font-weight:500;cursor:pointer;transition:background .15s}
+.confirm-actions .cancel-btn{color:#696F7D;border-right:1px solid #F0F2F5}
+.confirm-actions .cancel-btn:active{background:#F5F7FA}
+.confirm-actions .ok-btn{color:#F29100;font-weight:600}
+.confirm-actions .ok-btn:active{background:#FFF8F0}
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="title">成长档案 · 导师端</div>
+</div>
+
+<div class="filter-bar">
+  <select class="filter-select" id="gradeFilter" onchange="filterStudents()">
+    <option value="">全部年级</option>
+    <option value="2022">2022级</option>
+    <option value="2023">2023级</option>
+    <option value="2024">2024级</option>
+  </select>
+  <input class="search-box" id="searchInput" type="text" placeholder="搜索学生姓名" oninput="filterStudents()">
+</div>
+
+<div class="stat-bar">共 <strong>8</strong> 名学生 · 待办 <strong>3</strong> 项</div>
+
+<div class="student-list" id="studentList">
+
+  <div class="student-card" data-grade="2022" data-name="张三" onclick="openProfile(0)">
+    <div class="avatar">张</div>
+    <div class="stu-info">
+      <div class="stu-name">张三</div>
+      <div class="stu-meta">2022级 · 计算机科学与技术</div>
+      <div class="stu-todo"><span class="todo-text">待办：导师评价待填写</span><span class="dot-red"></span></div>
+      <div class="stu-status"><span class="status-tag tag-orange">鉴定填报中</span></div>
+    </div>
+    <i class="fa-solid fa-chevron-right card-arrow"></i>
+  </div>
+
+  <div class="student-card" data-grade="2022" data-name="李四" onclick="openProfile(1)">
+    <div class="avatar">李</div>
+    <div class="stu-info">
+      <div class="stu-name">李四</div>
+      <div class="stu-meta">2022级 · 数学与应用数学</div>
+      <div class="stu-todo"><span class="todo-text">待办：无</span></div>
+      <div class="stu-status"><span class="status-tag tag-blue">数据确认中</span></div>
+    </div>
+    <i class="fa-solid fa-chevron-right card-arrow"></i>
+  </div>
+
+  <div class="student-card" data-grade="2023" data-name="赵敏" onclick="openProfile(2)">
+    <div class="avatar">赵</div>
+    <div class="stu-info">
+      <div class="stu-name">赵敏</div>
+      <div class="stu-meta">2023级 · 计算机科学与技术</div>
+      <div class="stu-todo"><span class="todo-text">待办：补充申请待审核</span><span class="dot-red"></span></div>
+      <div class="stu-status"><span class="status-tag tag-orange">鉴定填报中</span></div>
+    </div>
+    <i class="fa-solid fa-chevron-right card-arrow"></i>
+  </div>
+
+  <div class="student-card" data-grade="2023" data-name="孙强" onclick="openProfile(3)">
+    <div class="avatar">孙</div>
+    <div class="stu-info">
+      <div class="stu-name">孙强</div>
+      <div class="stu-meta">2023级 · 物理学</div>
+      <div class="stu-todo"><span class="todo-text">待办：无</span></div>
+      <div class="stu-status"><span class="status-tag tag-green">已完成</span></div>
+    </div>
+    <i class="fa-solid fa-chevron-right card-arrow"></i>
+  </div>
+
+  <div class="student-card" data-grade="2023" data-name="周蕾" onclick="openProfile(4)">
+    <div class="avatar">周</div>
+    <div class="stu-info">
+      <div class="stu-name">周蕾</div>
+      <div class="stu-meta">2023级 · 化学</div>
+      <div class="stu-todo"><span class="todo-text">待办：导师评价待填写</span><span class="dot-red"></span></div>
+      <div class="stu-status"><span class="status-tag tag-orange">鉴定填报中</span></div>
+    </div>
+    <i class="fa-solid fa-chevron-right card-arrow"></i>
+  </div>
+
+  <div class="student-card" data-grade="2024" data-name="吴瑶" onclick="openProfile(5)">
+    <div class="avatar">吴</div>
+    <div class="stu-info">
+      <div class="stu-name">吴瑶</div>
+      <div class="stu-meta">2024级 · 生物科学</div>
+      <div class="stu-todo"><span class="todo-text">待办：无</span></div>
+      <div class="stu-status"><span class="status-tag tag-blue">数据确认中</span></div>
+    </div>
+    <i class="fa-solid fa-chevron-right card-arrow"></i>
+  </div>
+
+  <div class="student-card" data-grade="2024" data-name="郑浩" onclick="openProfile(6)">
+    <div class="avatar">郑</div>
+    <div class="stu-info">
+      <div class="stu-name">郑浩</div>
+      <div class="stu-meta">2024级 · 计算机科学与技术</div>
+      <div class="stu-todo"><span class="todo-text">待办：无</span></div>
+      <div class="stu-status"><span class="status-tag tag-blue">数据确认中</span></div>
+    </div>
+    <i class="fa-solid fa-chevron-right card-arrow"></i>
+  </div>
+
+  <div class="student-card" data-grade="2024" data-name="陈曦" onclick="openProfile(7)">
+    <div class="avatar">陈</div>
+    <div class="stu-info">
+      <div class="stu-name">陈曦</div>
+      <div class="stu-meta">2024级 · 数学与应用数学</div>
+      <div class="stu-todo"><span class="todo-text">待办：无</span></div>
+      <div class="stu-status"><span class="status-tag tag-gray">未开始</span></div>
+    </div>
+    <i class="fa-solid fa-chevron-right card-arrow"></i>
+  </div>
+
+</div>
+
+<div class="tab-bar">
+  <div class="tab-item active" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <i class="fa-solid fa-users"></i><span>我的学生</span>
+  </div>
+  <div class="tab-item" onclick="location.href='tutor-review.html'" style="position:relative">
+    <i class="fa-solid fa-clipboard-check"></i><span>审核</span>
+    <div class="tab-badge">2</div>
+  </div>
+</div>
+
+<div class="drawer-mask" id="profileMask" onclick="closeProfile()"></div>
+<div class="drawer" id="profileDrawer">
+  <div class="drawer-header">
+    <span class="title">学生档案</span>
+    <span class="close" onclick="closeProfile()"><i class="fa-solid fa-xmark"></i></span>
+  </div>
+  <div class="drawer-body" id="profileBody"></div>
+</div>
+
+<div class="drawer-mask" id="reviewMask" onclick="closeReviewDrawer()"></div>
+<div class="drawer full" id="reviewDrawer">
+  <div class="drawer-header">
+    <span class="title">待审核申请</span>
+    <span class="close" onclick="closeReviewDrawer()"><i class="fa-solid fa-xmark"></i></span>
+  </div>
+  <div class="drawer-body">
+    <div class="review-card">
+      <div class="review-card-top">
+        <span class="review-card-name">赵敏</span>
+        <span class="review-card-type">补充申请</span>
+      </div>
+      <div class="review-card-desc">竞赛获奖 · 数学建模省赛一等奖</div>
+      <div class="review-card-date">2026-05-11 提交</div>
+      <div class="review-card-btns">
+        <div class="rbtn rbtn-pass" onclick="confirmPass('赵敏')">通过</div>
+        <div class="rbtn rbtn-reject" onclick="showRejectInput('赵敏')">退回</div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-card-top">
+        <span class="review-card-name">张三</span>
+        <span class="review-card-type">勘误申请</span>
+      </div>
+      <div class="review-card-desc">发表论文 · SCI论文作者顺序修正</div>
+      <div class="review-card-date">2026-05-09 提交</div>
+      <div class="review-card-btns">
+        <div class="rbtn rbtn-pass" onclick="confirmPass('张三')">通过</div>
+        <div class="rbtn rbtn-reject" onclick="showRejectInput('张三')">退回</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="drawer-mask" id="assessMask" onclick="closeAssessDrawer()"></div>
+<div class="drawer full" id="assessDrawer">
+  <div class="drawer-header">
+    <span class="title">学年鉴定进度</span>
+    <span class="close" onclick="closeAssessDrawer()"><i class="fa-solid fa-xmark"></i></span>
+  </div>
+  <div class="drawer-body">
+    <div class="progress-ring-wrap">
+      <div class="progress-ring">
+        <div class="progress-ring-text">
+          <div class="num">3/8</div>
+          <div class="sub">已完成</div>
+        </div>
+      </div>
+      <div class="progress-stats">
+        <div>✅ 已完成评价：<strong>3</strong> 人</div>
+        <div>⏳ 待填写评价：<strong>5</strong> 人</div>
+        <div>📅 截止日期：2026-06-15</div>
+      </div>
+    </div>
+    <div style="font-size:14px;font-weight:600;color:#1E2532;margin-bottom:10px">待填写</div>
+    <div class="assess-list">
+      <div class="assess-item"><span class="assess-item-name">张三</span><span class="assess-item-btn" onclick="location.href='tutor-evaluation.html'">去填写</span></div>
+      <div class="assess-item"><span class="assess-item-name">赵敏</span><span class="assess-item-btn" onclick="location.href='tutor-evaluation.html'">去填写</span></div>
+      <div class="assess-item"><span class="assess-item-name">周蕾</span><span class="assess-item-btn" onclick="location.href='tutor-evaluation.html'">去填写</span></div>
+      <div class="assess-item"><span class="assess-item-name">吴瑶</span><span class="assess-item-btn" onclick="location.href='tutor-evaluation.html'">去填写</span></div>
+      <div class="assess-item"><span class="assess-item-name">陈曦</span><span class="assess-item-btn" onclick="location.href='tutor-evaluation.html'">去填写</span></div>
+    </div>
+    <div style="font-size:14px;font-weight:600;color:#1E2532;margin:18px 0 10px">已完成</div>
+    <div class="assess-list">
+      <div class="assess-item"><span class="assess-item-name">孙强</span><span class="assess-item-done">已提交 ✓</span></div>
+      <div class="assess-item"><span class="assess-item-name">李四</span><span class="assess-item-done">已提交 ✓</span></div>
+      <div class="assess-item"><span class="assess-item-name">郑浩</span><span class="assess-item-done">已提交 ✓</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="drawer-mask" id="msgMask" onclick="closeMsgDrawer()"></div>
+<div class="drawer" id="msgDrawer">
+  <div class="drawer-header">
+    <span class="title">消息通知</span>
+    <span class="close" onclick="closeMsgDrawer()"><i class="fa-solid fa-xmark"></i></span>
+  </div>
+  <div class="drawer-body">
+    <div class="msg-item" onclick="showToast('2025-2026学年鉴定已正式开启，请在截止日期前完成所有学生的导师评价填写。','info')">
+      <div class="msg-item-title">🔔 系统通知：2025-2026学年鉴定已开启</div>
+      <div class="msg-item-time">5月1日</div>
+    </div>
+    <div class="msg-item" onclick="showToast('赵敏提交了竞赛获奖补充申请「数学建模省赛一等奖」，请及时审核。','info')">
+      <div class="msg-item-title">📋 审核提醒：赵敏提交了竞赛获奖补充申请</div>
+      <div class="msg-item-time">5月11日</div>
+    </div>
+    <div class="msg-item" onclick="showToast('张三提交了论文勘误申请「SCI论文作者顺序修正」，请及时审核。','info')">
+      <div class="msg-item-title">📋 审核提醒：张三提交了论文勘误申请</div>
+      <div class="msg-item-time">5月9日</div>
+    </div>
+    <div class="msg-item" onclick="showToast('您还有5名学生的导师评价尚未填写，请在6月15日前完成。','info')">
+      <div class="msg-item-title">✅ 催办通知：请尽快完成导师评价填写</div>
+      <div class="msg-item-time">5月5日</div>
+    </div>
+    <div class="msg-item" onclick="showToast('本学年教务系统数据已同步完成，包括成绩、竞赛、论文等信息。','info')">
+      <div class="msg-item-title">🔔 系统通知：本学年数据同步完成</div>
+      <div class="msg-item-time">4月30日</div>
+    </div>
+  </div>
+</div>
+
+<div class="confirm-mask" id="confirmMask" onclick="closeConfirmDialog()">
+  <div class="confirm-box" onclick="event.stopPropagation()">
+    <div class="confirm-body">
+      <div class="msg" id="confirmMsg">确认通过该申请？</div>
+      <div class="sub" id="confirmSub">通过后将通知学生</div>
+    </div>
+    <div class="confirm-actions">
+      <button class="cancel-btn" onclick="closeConfirmDialog()">取消</button>
+      <button class="ok-btn" id="confirmOkBtn" onclick="doConfirmPass()">确认</button>
+    </div>
+  </div>
+</div>
+
+<div class="input-mask" id="inputMask" onclick="closeInputDialog()">
+  <div class="input-box" onclick="event.stopPropagation()">
+    <div class="input-box-body">
+      <div class="msg">退回原因</div>
+      <textarea id="rejectReason" placeholder="请输入退回原因..."></textarea>
+    </div>
+    <div class="input-box-actions">
+      <button class="cancel-btn" onclick="closeInputDialog()">取消</button>
+      <button class="ok-btn" onclick="doReject()">确认退回</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var students = [
+  {name:'张三',grade:'2022',major:'计算机科学与技术',base:'计算机科学拔尖学生培养基地',sid:'2022010101',gpa:'3.85',competition:2,paper:1,patent:0,status:'鉴定填报中',statusTag:'tag-orange',todo:'导师评价待填写',hasTodo:true,pendingReview:0},
+  {name:'李四',grade:'2022',major:'数学与应用数学',base:'数学拔尖学生培养基地',sid:'2022020205',gpa:'3.72',competition:1,paper:0,patent:0,status:'数据确认中',statusTag:'tag-blue',todo:'无',hasTodo:false,pendingReview:0},
+  {name:'赵敏',grade:'2023',major:'计算机科学与技术',base:'计算机科学拔尖学生培养基地',sid:'2023010103',gpa:'3.91',competition:3,paper:2,patent:1,status:'鉴定填报中',statusTag:'tag-orange',todo:'补充申请待审核',hasTodo:true,pendingReview:1},
+  {name:'孙强',grade:'2023',major:'物理学',base:'物理学拔尖学生培养基地',sid:'2023030201',gpa:'3.56',competition:0,paper:1,patent:0,status:'已完成',statusTag:'tag-green',todo:'无',hasTodo:false,pendingReview:0},
+  {name:'周蕾',grade:'2023',major:'化学',base:'化学拔尖学生培养基地',sid:'2023040108',gpa:'3.68',competition:1,paper:1,patent:0,status:'鉴定填报中',statusTag:'tag-orange',todo:'导师评价待填写',hasTodo:true,pendingReview:0},
+  {name:'吴瑶',grade:'2024',major:'生物科学',base:'生物科学拔尖学生培养基地',sid:'2024050112',gpa:'3.78',competition:1,paper:0,patent:0,status:'数据确认中',statusTag:'tag-blue',todo:'无',hasTodo:false,pendingReview:0},
+  {name:'郑浩',grade:'2024',major:'计算机科学与技术',base:'计算机科学拔尖学生培养基地',sid:'2024010209',gpa:'3.65',competition:0,paper:0,patent:1,status:'数据确认中',statusTag:'tag-blue',todo:'无',hasTodo:false,pendingReview:0},
+  {name:'陈曦',grade:'2024',major:'数学与应用数学',base:'数学拔尖学生培养基地',sid:'2024020115',gpa:'3.42',competition:0,paper:0,patent:0,status:'未开始',statusTag:'tag-gray',todo:'无',hasTodo:false,pendingReview:0}
+];
+
+function filterStudents(){
+  var grade = document.getElementById('gradeFilter').value;
+  var keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+  var cards = document.querySelectorAll('.student-card');
+  cards.forEach(function(card){
+    var cardGrade = card.getAttribute('data-grade');
+    var cardName = card.getAttribute('data-name').toLowerCase();
+    var gradeMatch = !grade || cardGrade === grade;
+    var nameMatch = !keyword || cardName.indexOf(keyword) !== -1;
+    card.style.display = (gradeMatch && nameMatch) ? '' : 'none';
+  });
+}
+
+function openProfile(idx){
+  var s = students[idx];
+  var evalBtn = '';
+  if(s.todo === '导师评价待填写'){
+    evalBtn = '<div class="action-btn action-btn-primary" onclick="location.href=\'tutor-evaluation.html\'"><i class="fa-solid fa-pen"></i> 填写评价</div>';
+  }
+  var reviewInfo = s.pendingReview > 0
+    ? '<div class="action-btn action-btn-outline" onclick="showToast(\'该学生有'+s.pendingReview+'条待审核申请\',\'info\')"><i class="fa-solid fa-clipboard-check"></i> 审核申请 ('+s.pendingReview+')</div>'
+    : '<div class="action-btn action-btn-gray" onclick="showToast(\'该学生暂无待审核申请\',\'info\')"><i class="fa-solid fa-clipboard-check"></i> 审核申请</div>';
+  var html = '<div class="profile-top"><div class="avatar" style="width:52px;height:52px;font-size:20px">'+s.name[0]+'</div><div class="profile-info"><div class="name">'+s.name+'</div><div class="sid">学号：'+s.sid+'</div><div class="major">'+s.major+' · '+s.base+'</div></div></div>'
+    + '<div class="profile-grid">'
+    + '<div class="profile-grid-item"><div class="val">'+s.gpa+'</div><div class="label">GPA</div></div>'
+    + '<div class="profile-grid-item highlight"><div class="val">'+s.competition+'</div><div class="label">竞赛获奖</div></div>'
+    + '<div class="profile-grid-item"><div class="val" style="color:#2196F3">'+s.paper+'</div><div class="label">发表论文</div></div>'
+    + '<div class="profile-grid-item"><div class="val">'+s.patent+'</div><div class="label">专利</div></div>'
+    + '</div>'
+    + '<div style="margin-bottom:14px"><span class="status-tag '+s.statusTag+'" style="font-size:12px;padding:4px 12px">'+s.status+'</span></div>'
+    + '<div class="profile-actions">'
+    + evalBtn
+    + reviewInfo
+    + '<div class="action-btn action-btn-gray" onclick="location.href=\'tutor-archive.html\'"><i class="fa-solid fa-expand"></i> 查看完整档案</div>'
+    + '</div>';
+  document.getElementById('profileBody').innerHTML = html;
+  document.getElementById('profileMask').classList.add('show');
+  document.getElementById('profileDrawer').classList.add('show');
+}
+function closeProfile(){
+  document.getElementById('profileMask').classList.remove('show');
+  document.getElementById('profileDrawer').classList.remove('show');
+}
+
+function openReviewDrawer(){
+  document.getElementById('reviewMask').classList.add('show');
+  document.getElementById('reviewDrawer').classList.add('show');
+}
+function closeReviewDrawer(){
+  document.getElementById('reviewMask').classList.remove('show');
+  document.getElementById('reviewDrawer').classList.remove('show');
+}
+
+var _confirmTarget = '';
+function confirmPass(name){
+  _confirmTarget = name;
+  document.getElementById('confirmMsg').textContent = '确认通过「'+name+'」的申请？';
+  document.getElementById('confirmSub').textContent = '通过后将通知学生';
+  document.getElementById('confirmMask').classList.add('show');
+}
+function closeConfirmDialog(){
+  document.getElementById('confirmMask').classList.remove('show');
+}
+function doConfirmPass(){
+  closeConfirmDialog();
+  showToast('已通过「'+_confirmTarget+'」的申请','success');
+}
+
+var _rejectTarget = '';
+function showRejectInput(name){
+  _rejectTarget = name;
+  document.getElementById('rejectReason').value = '';
+  document.getElementById('inputMask').classList.add('show');
+}
+function closeInputDialog(){
+  document.getElementById('inputMask').classList.remove('show');
+}
+function doReject(){
+  closeInputDialog();
+  showToast('已退回「'+_rejectTarget+'」的申请','success');
+}
+
+function openAssessDrawer(){
+  document.getElementById('assessMask').classList.add('show');
+  document.getElementById('assessDrawer').classList.add('show');
+}
+function closeAssessDrawer(){
+  document.getElementById('assessMask').classList.remove('show');
+  document.getElementById('assessDrawer').classList.remove('show');
+}
+
+function openMsgDrawer(){
+  document.getElementById('msgMask').classList.add('show');
+  document.getElementById('msgDrawer').classList.add('show');
+}
+function closeMsgDrawer(){
+  document.getElementById('msgMask').classList.remove('show');
+  document.getElementById('msgDrawer').classList.remove('show');
+}
+
+function showToast(msg,type){
+  var t=document.getElementById('toast');
+  var icon=type==='success'?'<i class="fa-solid fa-circle-check" style="color:#1BB975"></i>':'<i class="fa-solid fa-circle-info" style="color:#F29100"></i>';
+  t.innerHTML=icon+msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show')},2200);
+}
+</script>
+</body>
+</html>
