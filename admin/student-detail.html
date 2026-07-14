@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学生档案详情 · 基础学科学生成长档案</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'OPPOSans',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#F5F7FA;color:#3C444F;min-height:100vh;font-size:14px}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+.layout{display:flex;min-height:100vh}
+
+/* Sidebar 与 student-list 相同 */
+.sidebar{width:232px;background:#fff;border-right:1px solid #ECEFF4;flex-shrink:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.sidebar-brand{padding:20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #ECEFF4}
+.brand-icon{width:38px;height:38px;background:linear-gradient(135deg,#3087CC,#006DAD);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
+.brand-text h1{font-size:14px;font-weight:700;color:#3C444F}
+.brand-text p{font-size:11px;color:#9096A2;margin-top:2px}
+.sidebar-nav{flex:1;padding:14px 12px;overflow-y:auto}
+.nav-group{margin-bottom:18px}
+.nav-group-title{font-size:11px;color:#9096A2;font-weight:600;padding:0 10px;margin-bottom:6px;letter-spacing:0.5px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;color:#696F7D;cursor:pointer;transition:all .15s;margin-bottom:2px}
+.nav-item i{font-size:15px;width:18px}
+.nav-item:hover{background:#F5F7FA;color:#3087CC}
+.nav-item.active{background:#E3F1F9;color:#3087CC;font-weight:600}
+.nav-item .badge{margin-left:auto;font-size:11px;background:#DF2027;color:#fff;padding:1px 6px;border-radius:8px;font-weight:600}
+.sidebar-footer{padding:14px 16px;border-top:1px solid #ECEFF4;display:flex;align-items:center;gap:10px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3087CC,#006DAD);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.user-info .name{font-size:13px;font-weight:600;color:#3C444F}
+.user-info .role{font-size:11px;color:#9096A2;margin-top:1px}
+
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{background:#fff;border-bottom:1px solid #ECEFF4;padding:14px 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10}
+.breadcrumb{font-size:13px;color:#9096A2}
+.breadcrumb .current{color:#3C444F;font-weight:600}
+.breadcrumb i{font-size:10px;margin:0 6px}
+.breadcrumb a:hover{color:#3087CC}
+.topbar-actions{margin-left:auto;display:flex;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid transparent;line-height:1.2}
+.btn-primary{background:#3087CC;color:#fff}
+.btn-primary:hover{background:#006DAD}
+.btn-outline{background:#fff;color:#3087CC;border-color:#3087CC}
+.btn-outline:hover{background:#E3F1F9}
+.btn-default{background:#fff;color:#696F7D;border-color:#C8CAD1}
+.btn-default:hover{border-color:#3087CC;color:#3087CC}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+.content{padding:24px 28px;flex:1;overflow-y:auto}
+
+/* Student Profile Card */
+.profile-card{background:linear-gradient(135deg,#fff,#F5FBFF);border:1px solid #ECEFF4;border-radius:14px;padding:24px;margin-bottom:20px;display:flex;gap:24px;position:relative;overflow:hidden}
+.profile-card::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(48,135,204,0.08) 0%,transparent 70%);border-radius:50%}
+.profile-avatar{width:84px;height:84px;border-radius:18px;background:linear-gradient(135deg,#3087CC,#006DAD);color:#fff;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:600;flex-shrink:0;box-shadow:0 6px 20px rgba(48,135,204,0.25);position:relative;z-index:1}
+.profile-info{flex:1;position:relative;z-index:1}
+.profile-name{font-size:22px;font-weight:700;color:#3C444F;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.profile-name .verify{color:#1BB975;font-size:14px}
+.profile-tags{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.p-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:4px;font-size:12px;font-weight:500}
+.pt-base{background:#E3F1F9;color:#3087CC}
+.pt-status{background:#E8FCF4;color:#1BB975;border:1px solid #A7F3D0}
+.pt-qiangji{background:#FFF5E5;color:#F29100;border:1px solid #FFE0B3}
+.profile-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.meta-item .label{font-size:11px;color:#9096A2;margin-bottom:3px}
+.meta-item .value{font-size:13px;color:#3C444F;font-weight:500}
+.profile-actions{display:flex;flex-direction:column;gap:8px;position:relative;z-index:1}
+
+/* Year switcher */
+.year-tabs{background:#fff;border:1px solid #ECEFF4;border-radius:12px;padding:6px;margin-bottom:16px;display:inline-flex;gap:4px}
+.year-tab{padding:8px 18px;border-radius:8px;font-size:13px;color:#696F7D;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.year-tab:hover{background:#F5F7FA;color:#3087CC}
+.year-tab.active{background:#3087CC;color:#fff;font-weight:600}
+.year-tab.locked{opacity:0.6}
+.year-tab.locked i{font-size:11px}
+
+/* Layout */
+.detail-layout{display:grid;grid-template-columns:200px 1fr;gap:20px}
+.category-nav{background:#fff;border:1px solid #ECEFF4;border-radius:12px;padding:12px;position:sticky;top:90px;height:fit-content;max-height:calc(100vh - 110px);overflow-y:auto}
+.cat-group{margin-bottom:14px}
+.cat-group-title{font-size:11px;color:#9096A2;font-weight:600;padding:0 8px;margin-bottom:6px;letter-spacing:0.5px}
+.cat-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;font-size:13px;color:#696F7D;cursor:pointer;transition:all .15s;margin-bottom:2px}
+.cat-item i{font-size:13px;width:14px}
+.cat-item:hover{background:#F5F7FA;color:#3087CC}
+.cat-item.active{background:#E3F1F9;color:#3087CC;font-weight:600}
+.cat-item .num{margin-left:auto;font-size:11px;color:#9096A2;background:#F1F2F3;padding:1px 6px;border-radius:8px;font-weight:500}
+.cat-item.active .num{background:#3087CC;color:#fff}
+
+.detail-main{display:flex;flex-direction:column;gap:16px}
+.section{background:#fff;border:1px solid #ECEFF4;border-radius:12px;overflow:hidden}
+.section-header{padding:14px 20px;border-bottom:1px solid #ECEFF4;display:flex;align-items:center;justify-content:space-between}
+.section-header h3{font-size:15px;font-weight:700;color:#3C444F;display:flex;align-items:center;gap:8px}
+.section-header h3 i{color:#3087CC;font-size:16px}
+.section-header .count{font-size:12px;color:#9096A2;font-weight:400;margin-left:6px;background:#F5F7FA;padding:2px 8px;border-radius:10px}
+.section-body{padding:0}
+
+/* Cards inside section */
+.item-list{display:flex;flex-direction:column}
+.item-row{padding:16px 20px;border-bottom:1px solid #F5F7FA;display:flex;gap:16px;align-items:flex-start;transition:all .15s}
+.item-row:last-child{border-bottom:none}
+.item-row:hover{background:#FAFBFC}
+.item-icon{width:36px;height:36px;border-radius:8px;background:#E3F1F9;color:#3087CC;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.item-content{flex:1;min-width:0}
+.item-title{font-size:14px;font-weight:600;color:#3C444F;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.item-meta{display:flex;gap:14px;font-size:12px;color:#696F7D;flex-wrap:wrap}
+.item-meta span{display:inline-flex;align-items:center;gap:4px}
+.item-meta i{color:#9096A2;font-size:11px}
+
+.source-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.src-sync{background:#F1F2F3;color:#696F7D}
+.src-manual{background:#E3F1F9;color:#3087CC}
+.src-correction{background:#FFF5E5;color:#F29100}
+.src-pending{background:#FFF5E5;color:#F29100;border:1px solid #FFE0B3}
+
+.lvl-tag{display:inline-flex;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.lvl-national{background:#FCE8EA;color:#DF2027}
+.lvl-provincial{background:#FFF5E5;color:#F29100}
+.lvl-school{background:#E3F1F9;color:#3087CC}
+.lvl-special{background:#FFF7E0;color:#B8860B;border:1px solid #FFE082}
+
+.item-actions{display:flex;gap:6px;flex-shrink:0}
+.act-btn{padding:5px 10px;font-size:12px;color:#696F7D;border:1px solid #ECEFF4;border-radius:5px;background:#fff;transition:all .15s;cursor:pointer}
+.act-btn:hover{border-color:#3087CC;color:#3087CC;background:#F5FBFF}
+
+/* Grade Table */
+.grade-table{width:100%;border-collapse:collapse;font-size:13px}
+.grade-table th{background:#F5F7FA;padding:10px 14px;text-align:left;color:#3C444F;font-weight:600;font-size:12px;border-bottom:1px solid #ECEFF4}
+.grade-table td{padding:11px 14px;border-bottom:1px solid #F5F7FA;color:#3C444F}
+.grade-table tr:last-child td{border-bottom:none}
+.grade-table tr:hover{background:#FAFBFC}
+.grade-score{font-weight:600;color:#3087CC}
+.grade-score.high{color:#1BB975}
+.grade-score.low{color:#F29100}
+
+/* Text block */
+.text-block{padding:16px 20px;font-size:13px;line-height:1.8;color:#3C444F;background:#F8FAFC;margin:14px 20px;border-radius:8px;border-left:3px solid #3087CC;min-height:80px}
+.text-block.empty{color:#9096A2;font-style:italic;border-left-color:#C8CAD1}
+
+/* 特色培养项目 */
+.cultivation-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;position:relative;z-index:1}
+.cult-label{font-size:12px;color:#9096A2;font-weight:600;display:inline-flex;align-items:center;gap:4px}
+.cult-label i{color:#F29100}
+.cult-tag{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:4px;font-size:12px;font-weight:500;background:#FFF7E0;color:#B8860B;border:1px solid #FFE082}
+.cult-tag em{font-style:normal;color:#B0975A;font-size:11px}
+.cult-tag.quit{background:#F1F2F3;color:#9096A2;border-color:#E0E3E8}
+
+/* 成绩不合格判定 */
+.grade-fail-flag{display:flex;align-items:center;gap:8px;padding:11px 20px;font-size:13px;font-weight:600}
+.grade-fail-flag.warn{background:#FCE8EA;color:#DF2027;border-top:1px solid #F5C6CB}
+.grade-fail-flag.ok{background:#E8FCF4;color:#1BB975;border-top:1px solid #A7F3D0}
+.grade-score.fail{color:#DF2027;font-weight:700}
+.result-pass{color:#1BB975;font-weight:600}
+.result-fail{color:#DF2027;font-weight:600}
+
+@media(max-width:1200px){.detail-layout{grid-template-columns:1fr}.category-nav{position:relative;top:0;max-height:none}.profile-meta{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+    <div class="brand-text"><h1>成长档案</h1><p>基础学科 · 管理端</p></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-group">
+      <div class="nav-group-title">概览</div>
+      <a class="nav-item" href="dashboard.html"><i class="fa-solid fa-gauge-high"></i>工作台</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">档案管理</div>
+      <a class="nav-item" href="student-list.html"><i class="fa-solid fa-users"></i>学生档案<span class="badge">1180</span></a>
+      <div class="nav-item active"><i class="fa-solid fa-folder-open"></i>档案详情</div>
+      <a class="nav-item" href="data-entry.html"><i class="fa-solid fa-pen-to-square"></i>直接录入</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">审核中心</div>
+      <a class="nav-item" href="review-list.html"><i class="fa-solid fa-clipboard-check"></i>补充勘误审核<span class="badge">12</span></a>
+      <a class="nav-item" href="review-detail.html"><i class="fa-solid fa-eye"></i>审核详情</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">学年鉴定</div>
+      <a class="nav-item" href="annual-review.html"><i class="fa-solid fa-file-signature"></i>鉴定管理</a>
+      <a class="nav-item" href="annual-review-committee.html"><i class="fa-solid fa-user-group"></i>考核小组配置</a>
+      <a class="nav-item" href="annual-review-detail.html"><i class="fa-solid fa-pen-to-square"></i>考核录入</a>
+      <a class="nav-item" href="annual-review-export.html"><i class="fa-solid fa-file-export"></i>导出模板</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">数据分析</div>
+      <a class="nav-item" href="statistics.html"><i class="fa-solid fa-chart-column"></i>查询与统计</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">系统</div>
+      <a class="nav-item" href="base-config.html"><i class="fa-solid fa-sliders"></i>系统配置</a>
+      <a class="nav-item" href="../index.html"><i class="fa-solid fa-arrow-right-from-bracket"></i>返回导航</a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-avatar">李</div>
+    <div class="user-info"><div class="name">李振华</div><div class="role">本科生院 · 管理员</div></div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="breadcrumb">
+      <i class="fa-solid fa-house"></i> <a href="dashboard.html">首页</a> <i class="fa-solid fa-chevron-right"></i>
+      <a href="student-list.html">学生档案</a> <i class="fa-solid fa-chevron-right"></i>
+      <span class="current">王明 - 档案详情</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-default btn-sm" onclick="window.print()"><i class="fa-solid fa-print"></i>打印</button>
+      <button class="btn btn-default btn-sm" onclick="openExportModal()"><i class="fa-solid fa-file-export"></i>导出 Word</button>
+      <button class="btn btn-outline btn-sm" onclick="openLogModal()"><i class="fa-solid fa-clock-rotate-left"></i>操作记录</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Profile Card -->
+    <div class="profile-card">
+      <div class="profile-avatar">王</div>
+      <div class="profile-info">
+        <div class="profile-name">王明 <i class="fa-solid fa-circle-check verify"></i></div>
+        <div class="profile-tags">
+          <span class="p-tag pt-base"><i class="fa-solid fa-building-columns"></i>物理学院</span>
+          <span class="p-tag pt-status"><i class="fa-solid fa-circle-check"></i>在籍</span>
+        </div>
+        <div class="cultivation-row">
+          <span class="cult-label"><i class="fa-solid fa-star"></i>特色培养项目</span>
+          <span class="cult-tag">国家级基础学科拔尖基地 <em>2022.09 加入</em></span>
+          <span class="cult-tag">强基计划 <em>2022.09 加入</em></span>
+        </div>
+        <div class="profile-meta">
+          <div class="meta-item"><div class="label">本科学号</div><div class="value">2022100123</div></div>
+          <div class="meta-item"><div class="label">性别 / 出生</div><div class="value">男 / 2004年3月</div></div>
+          <div class="meta-item"><div class="label">身份证号</div><div class="value">430****1234</div></div>
+          <div class="meta-item"><div class="label">毕业中学</div><div class="value">长沙市第一中学</div></div>
+        </div>
+        <div style="font-size:11px;color:#9096A2;font-weight:600;padding:10px 0 4px;margin-top:10px;border-top:1px solid #ECEFF4;letter-spacing:0.5px">本研一体化学段信息</div>
+        <div class="profile-meta">
+          <div class="meta-item"><div class="label">本科入学</div><div class="value">2022年9月</div></div>
+          <div class="meta-item"><div class="label">本科专业 / 班级</div><div class="value">应用物理学 / 物理2201</div></div>
+          <div class="meta-item"><div class="label">本科学院</div><div class="value">物理学院</div></div>
+          <div class="meta-item"><div class="label">导师（确定时间）</div><div class="value">张教授 · 凝聚态物理（2023.09）</div></div>
+          <div class="meta-item"><div class="label">硕士入学</div><div class="value" style="color:#9096A2">—（暂未转段）</div></div>
+          <div class="meta-item"><div class="label">硕士学号</div><div class="value" style="color:#9096A2">—</div></div>
+          <div class="meta-item"><div class="label">硕士学科专业</div><div class="value" style="color:#9096A2">—</div></div>
+          <div class="meta-item"><div class="label">硕士班级 / 学院</div><div class="value" style="color:#9096A2">—</div></div>
+          <div class="meta-item"><div class="label">博士入学</div><div class="value" style="color:#9096A2">—</div></div>
+          <div class="meta-item"><div class="label">博士学号</div><div class="value" style="color:#9096A2">—</div></div>
+          <div class="meta-item"><div class="label">博士学科专业</div><div class="value" style="color:#9096A2">—</div></div>
+          <div class="meta-item"><div class="label">博士班级 / 学院</div><div class="value" style="color:#9096A2">—</div></div>
+        </div>
+      </div>
+      <div class="profile-actions">
+        <button class="btn btn-primary" onclick="window.location.href='data-entry.html'"><i class="fa-solid fa-pen-to-square"></i>直接录入</button>
+        <button class="btn btn-outline" onclick="openReviewHistoryModal()"><i class="fa-solid fa-clipboard-list"></i>审核历史</button>
+        <button class="btn btn-default" onclick="openContactModal()"><i class="fa-solid fa-comment"></i>联系学生</button>
+      </div>
+    </div>
+
+    <!-- Year tabs -->
+    <div class="year-tabs" id="yearTabs">
+      <div class="year-tab"><i class="fa-solid fa-circle"></i>全部</div>
+      <div class="year-tab locked">2022-2023 <i class="fa-solid fa-lock"></i></div>
+      <div class="year-tab locked">2023-2024 <i class="fa-solid fa-lock"></i></div>
+      <div class="year-tab">2024-2025</div>
+      <div class="year-tab active">2025-2026</div>
+    </div>
+
+    <div class="detail-layout">
+
+      <!-- Category Nav -->
+      <aside class="category-nav">
+        <div class="cat-group">
+          <div class="cat-group-title">基本信息</div>
+          <div class="cat-item"><i class="fa-solid fa-id-card"></i>个人信息</div>
+          <div class="cat-item"><i class="fa-solid fa-chalkboard-user"></i>导师信息</div>
+        </div>
+        <div class="cat-group">
+          <div class="cat-group-title">学业发展</div>
+          <div class="cat-item active"><i class="fa-solid fa-graduation-cap"></i>学业成绩<span class="num">32</span></div>
+          <div class="cat-item"><i class="fa-solid fa-trophy"></i>竞赛获奖<span class="num">5</span></div>
+          <div class="cat-item"><i class="fa-solid fa-award"></i>其他获奖<span class="num">2</span></div>
+          <div class="cat-item"><i class="fa-solid fa-money-bill"></i>奖学金<span class="num">3</span></div>
+        </div>
+        <div class="cat-group">
+          <div class="cat-group-title">科研创新</div>
+          <div class="cat-item"><i class="fa-solid fa-lightbulb"></i>创新创业<span class="num">2</span></div>
+          <div class="cat-item"><i class="fa-solid fa-file-lines"></i>发表论文<span class="num">2</span></div>
+          <div class="cat-item"><i class="fa-solid fa-certificate"></i>专利软著<span class="num">1</span></div>
+          <div class="cat-item"><i class="fa-solid fa-flask"></i>科研实践<span class="num">1</span></div>
+        </div>
+        <div class="cat-group">
+          <div class="cat-group-title">社会实践</div>
+          <div class="cat-item"><i class="fa-solid fa-globe"></i>境内外交流<span class="num">1</span></div>
+          <div class="cat-item"><i class="fa-solid fa-handshake-angle"></i>社会实践<span class="num">2</span></div>
+        </div>
+        <div class="cat-group">
+          <div class="cat-group-title">学年鉴定</div>
+          <div class="cat-item"><i class="fa-solid fa-shield-halved"></i>思想品德</div>
+          <div class="cat-item"><i class="fa-solid fa-pen-fancy"></i>自我鉴定</div>
+          <div class="cat-item"><i class="fa-solid fa-comment-dots"></i>导师评价</div>
+          <div class="cat-item"><i class="fa-solid fa-stamp"></i>学年鉴定</div>
+        </div>
+        <div class="cat-group">
+          <div class="cat-group-title">未来发展</div>
+          <div class="cat-item"><i class="fa-solid fa-route"></i>毕业去向</div>
+        </div>
+      </aside>
+
+      <!-- Main Detail -->
+      <div class="detail-main">
+
+        <!-- 竞赛获奖 -->
+        <div class="section" id="sec-competition">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-trophy"></i>竞赛获奖 <span class="count">5 项</span></h3>
+            <button class="act-btn" onclick="window.location.href='data-entry.html'"><i class="fa-solid fa-plus"></i> 直接录入</button>
+          </div>
+          <div class="section-body">
+            <div class="item-list">
+              <div class="item-row">
+                <div class="item-icon" style="background:#FCE8EA;color:#DF2027"><i class="fa-solid fa-medal"></i></div>
+                <div class="item-content">
+                  <div class="item-title">ACM-ICPC 国际大学生程序设计竞赛 亚洲区域赛 <span class="lvl-tag lvl-national">国家级</span> <span class="lvl-tag lvl-special">银奖</span></div>
+                  <div class="item-meta">
+                    <span><i class="fa-regular fa-calendar"></i>2025-11-15</span>
+                    <span><i class="fa-solid fa-tag"></i>学术竞赛</span>
+                    <span><i class="fa-solid fa-database"></i>数据来源：<span class="source-tag src-sync">系统同步</span></span>
+                    <span><i class="fa-regular fa-clock"></i>同步时间：2026-04-21 00:30</span>
+                  </div>
+                </div>
+                <div class="item-actions">
+                  <button class="act-btn" onclick="openProof(this)"><i class="fa-solid fa-paperclip"></i> 证明材料(2)</button>
+                  <button class="act-btn" onclick="openEditModal('ACM-ICPC 国际大学生程序设计竞赛 亚洲区域赛','竞赛获奖','国家级','银奖','2025-11-15')"><i class="fa-solid fa-pen"></i> 编辑</button>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="item-icon" style="background:#FFF5E5;color:#F29100"><i class="fa-solid fa-medal"></i></div>
+                <div class="item-content">
+                  <div class="item-title">全国大学生数学建模竞赛 <span class="lvl-tag lvl-national">国家级</span> <span class="lvl-tag lvl-special">一等奖</span></div>
+                  <div class="item-meta">
+                    <span><i class="fa-regular fa-calendar"></i>2025-09-20</span>
+                    <span><i class="fa-solid fa-tag"></i>学术竞赛</span>
+                    <span><i class="fa-solid fa-database"></i>数据来源：<span class="source-tag src-sync">系统同步</span></span>
+                  </div>
+                </div>
+                <div class="item-actions">
+                  <button class="act-btn" onclick="openProof(this)"><i class="fa-solid fa-paperclip"></i> 证明材料(1)</button>
+                  <button class="act-btn" onclick="openEditModal('全国大学生数学建模竞赛','竞赛获奖','国家级','一等奖','2025-09-20')"><i class="fa-solid fa-pen"></i> 编辑</button>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="item-icon" style="background:#E3F1F9;color:#3087CC"><i class="fa-solid fa-medal"></i></div>
+                <div class="item-content">
+                  <div class="item-title">"挑战杯"全国大学生课外学术科技作品竞赛 <span class="lvl-tag lvl-provincial">省级</span> <span class="lvl-tag lvl-special">一等奖</span></div>
+                  <div class="item-meta">
+                    <span><i class="fa-regular fa-calendar"></i>2025-07-08</span>
+                    <span><i class="fa-solid fa-tag"></i>学术竞赛</span>
+                    <span><i class="fa-solid fa-database"></i>数据来源：<span class="source-tag src-correction">勘误修改</span></span>
+                    <span><i class="fa-solid fa-user-pen"></i>勘误人：王明 · 2025-12-03</span>
+                  </div>
+                </div>
+                <div class="item-actions">
+                  <button class="act-btn" onclick="openProof(this)"><i class="fa-solid fa-paperclip"></i> 证明材料(2)</button>
+                  <button class="act-btn" onclick="openEditModal(&quot;挑战杯 全国大学生课外学术科技作品竞赛&quot;,&quot;竞赛获奖&quot;,&quot;省级&quot;,&quot;一等奖&quot;,&quot;2025-07-08&quot;)"><i class="fa-solid fa-pen"></i> 编辑</button>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="item-icon" style="background:#FFF5E5;color:#F29100;opacity:0.6"><i class="fa-solid fa-medal"></i></div>
+                <div class="item-content">
+                  <div class="item-title">全国大学生英语竞赛 <span class="lvl-tag lvl-school">校级</span> <span class="lvl-tag lvl-special">二等奖</span> <span class="source-tag src-pending"><i class="fa-solid fa-clock"></i> 学院初审中</span></div>
+                  <div class="item-meta">
+                    <span><i class="fa-regular fa-calendar"></i>2025-12-10</span>
+                    <span><i class="fa-solid fa-tag"></i>非学术竞赛</span>
+                    <span><i class="fa-solid fa-database"></i>数据来源：<span class="source-tag src-manual">手动录入</span></span>
+                    <span><i class="fa-solid fa-user-pen"></i>提交人：王明 · 2026-05-08</span>
+                  </div>
+                </div>
+                <div class="item-actions">
+                  <button class="act-btn" onclick="openProof(this)"><i class="fa-solid fa-paperclip"></i> 证明材料(1)</button>
+                  <button class="act-btn" onclick="window.location.href='review-detail.html'"><i class="fa-solid fa-check"></i> 去审核</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 学业成绩 -->
+        <div class="section" id="sec-grade">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-graduation-cap"></i>学业成绩 · 本学年 <span class="count">32 门</span></h3>
+            <div style="display:flex;gap:14px;align-items:center;font-size:12px;color:#696F7D">
+              <span>GPA：<strong style="color:#1BB975;font-size:15px">3.85</strong></span>
+              <span>学分：<strong style="color:#3087CC;font-size:15px">28</strong></span>
+              <span>排名：<strong style="color:#3087CC;font-size:15px">3/45</strong></span>
+            </div>
+          </div>
+          <div class="section-body">
+            <table class="grade-table">
+              <thead>
+                <tr>
+                  <th>课程编号</th>
+                  <th>课程名称</th>
+                  <th>课程性质</th>
+                  <th>学期</th>
+                  <th style="text-align:center">学分</th>
+                  <th style="text-align:center">成绩</th>
+                  <th>来源</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>PHYS3001</td><td>量子力学</td><td>专业必修</td><td>2025秋</td><td style="text-align:center">4</td><td style="text-align:center"><span class="grade-score high">95</span></td><td><span class="source-tag src-sync">系统同步</span></td></tr>
+                <tr><td>PHYS3002</td><td>电动力学</td><td>专业必修</td><td>2025秋</td><td style="text-align:center">4</td><td style="text-align:center"><span class="grade-score high">92</span></td><td><span class="source-tag src-sync">系统同步</span></td></tr>
+                <tr><td>PHYS3003</td><td>固体物理学</td><td>专业必修</td><td>2025秋</td><td style="text-align:center">3</td><td style="text-align:center"><span class="grade-score">88</span></td><td><span class="source-tag src-sync">系统同步</span></td></tr>
+                <tr><td>MATH2001</td><td>数学物理方法</td><td>专业基础</td><td>2025秋</td><td style="text-align:center">4</td><td style="text-align:center"><span class="grade-score high">94</span></td><td><span class="source-tag src-sync">系统同步</span></td></tr>
+                <tr><td>CS1001</td><td>程序设计基础</td><td>学科基础</td><td>2025秋</td><td style="text-align:center">3</td><td style="text-align:center"><span class="grade-score high">91</span></td><td><span class="source-tag src-sync">系统同步</span></td></tr>
+                <tr><td>ENG2001</td><td>大学英语 III</td><td>通识必修</td><td>2025秋</td><td style="text-align:center">2</td><td style="text-align:center"><span class="grade-score">85</span></td><td><span class="source-tag src-sync">系统同步</span></td></tr>
+                <tr><td>PE2001</td><td>体育 III</td><td>通识必修</td><td>2025秋</td><td style="text-align:center">1</td><td style="text-align:center"><span class="grade-score">87</span></td><td><span class="source-tag src-sync">系统同步</span></td></tr>
+              </tbody>
+            </table>
+            <div class="grade-fail-flag ok"><i class="fa-solid fa-circle-check"></i>本学年是否有两门及以上必修课成绩不合格：否</div>
+            <div style="padding:12px 20px;background:#F8FAFC;font-size:12px;color:#9096A2;text-align:center">显示前 7 门成绩 · <a href="#" onclick="expandGrades(this);return false" style="color:#3087CC">查看全部 32 门</a></div>
+            <div style="padding:14px 20px;border-top:2px dashed #ECEFF4">
+              <div style="font-size:13px;font-weight:600;color:#3C444F;margin-bottom:8px"><i class="fa-solid fa-scroll" style="color:#3087CC;margin-right:6px"></i>毕业论文</div>
+              <div style="display:grid;grid-template-columns:100px 1fr 100px 1fr;gap:8px;font-size:13px">
+                <div style="color:#9096A2">论文题目</div><div style="color:#3C444F;font-weight:500">暂未填写（非毕业年级）</div>
+                <div style="color:#9096A2">论文成绩</div><div style="color:#3C444F;font-weight:500">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 发表论文 -->
+        <div class="section" id="sec-paper">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-file-lines"></i>发表论文 <span class="count">2 篇</span></h3>
+            <button class="act-btn" onclick="window.location.href='data-entry.html'"><i class="fa-solid fa-plus"></i> 直接录入</button>
+          </div>
+          <div class="section-body">
+            <div class="item-list">
+              <div class="item-row">
+                <div class="item-icon" style="background:#FCE8EA;color:#DF2027"><i class="fa-solid fa-bookmark"></i></div>
+                <div class="item-content">
+                  <div class="item-title">Quantum Coherence in Two-Dimensional Materials at Low Temperatures <span class="lvl-tag lvl-school">期刊论文</span> <span class="lvl-tag lvl-national">SCI 一区</span></div>
+                  <div class="item-meta">
+                    <span><i class="fa-solid fa-newspaper"></i>刊物：Physical Review Letters · Vol.131 · p.146801</span>
+                    <span><i class="fa-regular fa-calendar"></i>发表年份：2025</span>
+                    <span><i class="fa-solid fa-user"></i>是否一作：否（本人第二作者·导师一作）</span>
+                    <span><i class="fa-solid fa-building-columns"></i>第一作者署名单位：中南大学物理学院</span>
+                    <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                  </div>
+                </div>
+                <div class="item-actions">
+                  <button class="act-btn" onclick="openPaperDetail(this)"><i class="fa-solid fa-eye"></i> 查看</button>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="item-icon" style="background:#FFF5E5;color:#F29100"><i class="fa-solid fa-bookmark"></i></div>
+                <div class="item-content">
+                  <div class="item-title">基于深度学习的凝聚态物理相变研究 <span class="lvl-tag lvl-school">期刊论文</span> <span class="lvl-tag lvl-provincial">EI</span></div>
+                  <div class="item-meta">
+                    <span><i class="fa-solid fa-newspaper"></i>刊物：物理学报 · Vol.74 · p.23-30</span>
+                    <span><i class="fa-regular fa-calendar"></i>发表年份：2025</span>
+                    <span><i class="fa-solid fa-user"></i>是否一作：是</span>
+                    <span><i class="fa-solid fa-building-columns"></i>第一作者署名单位：中南大学物理学院</span>
+                    <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                  </div>
+                </div>
+                <div class="item-actions">
+                  <button class="act-btn" onclick="openPaperDetail(this)"><i class="fa-solid fa-eye"></i> 查看</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 思想品德/自我鉴定/导师评价 -->
+        <div class="section" id="sec-moral">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-shield-halved"></i>思想品德表现</h3>
+            <span class="source-tag src-manual"><i class="fa-solid fa-user-pen"></i> 学生本人填写 2026-05-08 ｜ 辅导员 王老师 已确认 2026-05-09</span>
+          </div>
+          <div class="section-body">
+            <div class="text-block">本学年我坚定政治立场，积极学习马克思主义理论和习近平新时代中国特色社会主义思想，自觉践行社会主义核心价值观，遵守校规校纪。担任班级学习委员，工作认真负责，热心服务同学，团结同学、尊敬师长；积极参加新生入学教育、校史馆志愿讲解等志愿服务活动，本学年无违纪违规、不良行为记录。</div>
+            <div style="padding:0 20px 14px;font-size:12px;color:#9096A2"><i class="fa-solid fa-circle-info" style="margin-right:4px"></i>流程：学生本人填写并提交 → 辅导员查看/修改并确认（辅导员仅可查看本人所管学生）</div>
+          </div>
+        </div>
+
+        <div class="section" id="sec-self">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-pen-fancy"></i>自我鉴定</h3>
+            <span class="source-tag src-manual"><i class="fa-solid fa-user-pen"></i> 学生本人 · 2026-05-10</span>
+          </div>
+          <div class="section-body">
+            <div class="text-block">本学年我在专业学习上取得了显著进步，量子力学、电动力学等核心课程均取得 90 分以上的成绩。在科研方面，参与导师课题组的二维材料研究，作为第二作者发表 SCI 论文 1 篇。在 ACM-ICPC 亚洲区域赛中获得银奖，全国大学生数学建模竞赛获国家一等奖。下学年计划继续深入凝聚态物理研究，并申报国家级大学生创新创业项目。</div>
+          </div>
+        </div>
+
+        <div class="section" id="sec-mentor">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-comment-dots"></i>导师评价</h3>
+            <span class="source-tag src-manual"><i class="fa-solid fa-user-pen"></i> 张教授 · 2026-05-10（可修改）</span>
+          </div>
+          <div class="section-body">
+            <div class="text-block">王明同学学习刻苦认真，专业基础扎实，具备良好的科研思维和动手能力。在我课题组期间，能够独立完成实验设计和数据分析，并在论文撰写中表现出较强的学术写作能力。建议下学年在拓宽研究视野的同时，加强国际学术交流，争取参加国际学术会议。</div>
+            <div style="padding:0 20px 14px;font-size:12px;color:#9096A2"><i class="fa-solid fa-eye" style="margin-right:4px"></i>可见范围：导师、学生本人、管理人员（无需公示）· 导师可在鉴定期内修改已提交评价</div>
+          </div>
+        </div>
+
+        <!-- 其他获奖 -->
+        <div class="section" id="sec-other-award">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-award"></i>其他获奖 <span class="count">2 项</span></h3>
+            <button class="act-btn" onclick="window.location.href='data-entry.html'"><i class="fa-solid fa-plus"></i> 直接录入</button>
+          </div>
+          <div class="section-body">
+            <div class="item-list">
+              <div class="item-row">
+                <div class="item-icon" style="background:#FFF5E5;color:#F29100"><i class="fa-solid fa-award"></i></div>
+                <div class="item-content">
+                  <div class="item-title">校三好学生 <span class="lvl-tag lvl-school">校级</span> <span class="lvl-tag lvl-special">荣誉称号</span></div>
+                  <div class="item-meta">
+                    <span><i class="fa-regular fa-calendar"></i>2025-11-20</span>
+                    <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                  </div>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="item-icon" style="background:#E8FCF4;color:#1BB975"><i class="fa-solid fa-award"></i></div>
+                <div class="item-content">
+                  <div class="item-title">优秀学生干部 <span class="lvl-tag lvl-school">校级</span> <span class="lvl-tag lvl-special">荣誉称号</span></div>
+                  <div class="item-meta">
+                    <span><i class="fa-regular fa-calendar"></i>2025-11-20</span>
+                    <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 创新创业项目 -->
+        <div class="section" id="sec-innovation">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-lightbulb"></i>创新创业项目 <span class="count">2 项</span></h3>
+            <button class="act-btn" onclick="window.location.href='data-entry.html'"><i class="fa-solid fa-plus"></i> 直接录入</button>
+          </div>
+          <div class="section-body">
+            <div class="item-list">
+              <div class="item-row">
+                <div class="item-icon" style="background:#FCE8EA;color:#DF2027"><i class="fa-solid fa-lightbulb"></i></div>
+                <div class="item-content">
+                  <div class="item-title">量子传感器微型化关键技术研究 <span class="lvl-tag lvl-national">国家级</span> <span class="lvl-tag lvl-school">创新训练</span></div>
+                  <div class="item-meta">
+                    <span><i class="fa-solid fa-hashtag"></i>项目编号：CX2025-0186</span>
+                    <span><i class="fa-solid fa-user"></i>项目负责人：本人（主持）</span>
+                    <span><i class="fa-solid fa-chalkboard-user"></i>指导教师：张教授</span>
+                    <span><i class="fa-regular fa-calendar"></i>设立：2025-06</span>
+                    <span><i class="fa-solid fa-spinner"></i>是否结题：否 · 进行中</span>
+                    <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                  </div>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="item-icon" style="background:#E3F1F9;color:#3087CC"><i class="fa-solid fa-lightbulb"></i></div>
+                <div class="item-content">
+                  <div class="item-title">基于AI的物理实验智能分析平台 <span class="lvl-tag lvl-school">校级</span> <span class="lvl-tag lvl-school">创新训练</span></div>
+                  <div class="item-meta">
+                    <span><i class="fa-solid fa-hashtag"></i>项目编号：CX2024-0521</span>
+                    <span><i class="fa-solid fa-user"></i>项目负责人：李同学（本人参与）</span>
+                    <span><i class="fa-solid fa-chalkboard-user"></i>指导教师：王教授</span>
+                    <span><i class="fa-regular fa-calendar"></i>设立：2024-12</span>
+                    <span><i class="fa-solid fa-circle-check" style="color:#1BB975"></i>是否结题：是 · 结题结果：优秀</span>
+                    <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 奖学金 -->
+        <div class="section" id="sec-scholarship">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-money-bill"></i>奖学金 <span class="count">3 项</span></h3>
+          </div>
+          <div class="section-body">
+            <div class="item-list">
+              <div class="item-row">
+                <div class="item-icon" style="background:#FCE8EA;color:#DF2027"><i class="fa-solid fa-money-bill"></i></div>
+                <div class="item-content">
+                  <div class="item-title">国家奖学金 <span class="lvl-tag lvl-national">国家级</span> <span class="lvl-tag lvl-special">¥8,000</span></div>
+                  <div class="item-meta">
+                    <span><i class="fa-solid fa-tag"></i>学业奖学金 · 一等</span>
+                    <span><i class="fa-solid fa-building-columns"></i>设立：教育部</span>
+                    <span><i class="fa-regular fa-calendar"></i>获评：2025-11</span>
+                    <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                  </div>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="item-icon" style="background:#E3F1F9;color:#3087CC"><i class="fa-solid fa-money-bill"></i></div>
+                <div class="item-content">
+                  <div class="item-title">中南大学优秀学生奖学金 <span class="lvl-tag lvl-school">校级</span> <span class="lvl-tag lvl-special">¥3,000</span></div>
+                  <div class="item-meta">
+                    <span><i class="fa-solid fa-tag"></i>学业奖学金 · 一等</span>
+                    <span><i class="fa-solid fa-building-columns"></i>设立：中南大学</span>
+                    <span><i class="fa-regular fa-calendar"></i>获评：2025-11</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 专利（或软件著作权） -->
+        <div class="section" id="sec-patent">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-certificate"></i>专利（或软件著作权） <span class="count">1 项</span></h3>
+          </div>
+          <div class="section-body">
+            <div class="item-list">
+              <div class="item-row">
+                <div class="item-icon" style="background:#F0E5FF;color:#8A4FE0"><i class="fa-solid fa-certificate"></i></div>
+                <div class="item-content">
+                  <div class="item-title">一种基于量子效应的低温传感装置 <span class="lvl-tag lvl-school">发明专利</span> <span class="lvl-tag lvl-special">已授权</span></div>
+                  <div class="item-meta">
+                    <span><i class="fa-solid fa-tag"></i>类型：发明专利</span>
+                    <span><i class="fa-solid fa-circle-check"></i>状态：已授权</span>
+                    <span><i class="fa-solid fa-building-columns"></i>第一署名单位：中南大学物理学院</span>
+                    <span><i class="fa-regular fa-calendar"></i>获得时间：2025-09-10</span>
+                    <span><i class="fa-solid fa-database"></i><span class="source-tag src-sync">系统同步</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 境内外交流 -->
+        <div class="section" id="sec-exchange">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-globe"></i>境内外交流 <span class="count">1 项</span></h3>
+          </div>
+          <div class="section-body">
+            <div class="item-list">
+              <div class="item-row">
+                <div class="item-icon" style="background:#F0E5FF;color:#8A4FE0"><i class="fa-solid fa-plane-departure"></i></div>
+                <div class="item-content">
+                  <div class="item-title">东京大学暑期研究项目 <span class="lvl-tag lvl-special">境外</span> <span class="lvl-tag lvl-school">科研实习</span></div>
+                  <div class="item-meta">
+                    <span><i class="fa-solid fa-tag"></i>项目类型：科研实习</span>
+                    <span><i class="fa-solid fa-building-columns"></i>合作单位：东京大学物理工学系</span>
+                    <span><i class="fa-solid fa-earth-asia"></i>国家/地区：日本</span>
+                    <span><i class="fa-regular fa-calendar"></i>2025-07-15 至 2025-08-25</span>
+                    <span><i class="fa-regular fa-clock"></i>活动时长：42 天</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 科研实践 -->
+        <div class="section" id="sec-research">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-flask"></i>科研实践 <span class="count">1 项</span></h3>
+          </div>
+          <div class="section-body">
+            <div class="item-list">
+              <div class="item-row">
+                <div class="item-icon" style="background:#E8FCF4;color:#1BB975"><i class="fa-solid fa-flask"></i></div>
+                <div class="item-content">
+                  <div class="item-title">二维材料低温量子相干性研究 <span class="lvl-tag lvl-school">校级</span></div>
+                  <div class="item-meta">
+                    <span><i class="fa-solid fa-tag"></i>类型：导师课题参与</span>
+                    <span><i class="fa-regular fa-calendar"></i>立项：2024-09</span>
+                    <span><i class="fa-solid fa-chalkboard-user"></i>指导老师：张教授</span>
+                    <span><i class="fa-solid fa-file-lines"></i>成果：发表SCI论文1篇</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 社会实践 -->
+        <div class="section" id="sec-practice">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-handshake-angle"></i>社会实践 <span class="count">2 项</span></h3>
+          </div>
+          <div class="section-body">
+            <div class="item-list">
+              <div class="item-row">
+                <div class="item-icon" style="background:#FFF5E5;color:#F29100"><i class="fa-solid fa-handshake-angle"></i></div>
+                <div class="item-content">
+                  <div class="item-title">暑期"三下乡"科技支农 <span class="lvl-tag lvl-school">校级</span></div>
+                  <div class="item-meta">
+                    <span><i class="fa-solid fa-tag"></i>类型：暑期三下乡</span>
+                    <span><i class="fa-regular fa-calendar"></i>2025-07-10 至 2025-07-24</span>
+                    <span><i class="fa-solid fa-chalkboard-user"></i>指导老师：刘老师</span>
+                  </div>
+                </div>
+              </div>
+              <div class="item-row">
+                <div class="item-icon" style="background:#E8FCF4;color:#1BB975"><i class="fa-solid fa-handshake-angle"></i></div>
+                <div class="item-content">
+                  <div class="item-title">校史馆志愿讲解员 <span class="lvl-tag lvl-school">校级</span></div>
+                  <div class="item-meta">
+                    <span><i class="fa-solid fa-tag"></i>类型：志愿服务</span>
+                    <span><i class="fa-regular fa-calendar"></i>2025-09 至 2026-01</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 毕业去向 -->
+        <div class="section" id="sec-graduation">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-route"></i>毕业去向</h3>
+          </div>
+          <div class="section-body">
+            <div class="text-block empty" style="border-left-color:#9096A2">该学生尚在本科就读阶段，暂无毕业去向数据。毕业季由学校统一采集（对接中南大学就业信息网 career.csu.edu.cn）后将展示：毕业去向（国内读研 / 国外读研 / 就业 / 其他）、读研学校、读研专业、工作单位、学生本人联系邮箱。</div>
+          </div>
+        </div>
+
+        <!-- 学年鉴定 -->
+        <div class="section" id="sec-review">
+          <div class="section-header">
+            <h3><i class="fa-solid fa-stamp"></i>学年鉴定 · 2025-2026</h3>
+            <a class="act-btn" href="annual-review-detail.html" style="color:#3087CC;border-color:#3087CC"><i class="fa-solid fa-pen-to-square"></i> 去录入考核</a>
+          </div>
+          <div class="section-body">
+            <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;font-size:13px">
+              <div><div style="color:#9096A2;font-size:11px;margin-bottom:4px">考核时间</div><div style="font-weight:600">2026-06-15</div></div>
+              <div><div style="color:#9096A2;font-size:11px;margin-bottom:4px">考核小组考核结果</div><div class="result-pass">通过</div></div>
+              <div><div style="color:#9096A2;font-size:11px;margin-bottom:4px">学年鉴定结论</div><div class="result-pass">通过</div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</main>
+
+</div>
+
+<script>
+/* Toast 提示 */
+function showToast(msg,type){type=type||'info';var t=document.createElement('div');var c={success:'#1BB975',info:'#3087CC',warning:'#F29100',error:'#DF2027'};var ic={success:'fa-circle-check',info:'fa-circle-info',warning:'fa-triangle-exclamation',error:'fa-circle-xmark'};t.innerHTML='<i class="fa-solid '+ic[type]+'"></i> '+msg;t.style.cssText='position:fixed;top:-60px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;color:#fff;background:'+(c[type]||c.info)+';box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;gap:8px;z-index:99999;transition:top 0.3s ease;white-space:nowrap;font-family:inherit';document.body.appendChild(t);requestAnimationFrame(function(){t.style.top='24px'});setTimeout(function(){t.style.top='-60px';setTimeout(function(){t.remove()},400)},2500)}
+
+/* 确认弹窗 */
+function showConfirm(title,msg,onOk){var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s';o.innerHTML='<div style="background:#fff;border-radius:12px;padding:28px;width:420px;max-width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2);font-family:inherit;transform:scale(0.9);transition:transform 0.2s"><h3 style="margin:0 0 8px;font-size:16px;color:#3C444F">'+title+'</h3><p style="margin:0 0 20px;font-size:14px;color:#696F7D;line-height:1.6">'+msg+'</p><div style="display:flex;gap:10px;justify-content:flex-end"><button class="_mc" style="padding:8px 20px;border-radius:8px;border:1px solid #ECEFF4;background:#F5F7FA;color:#3C444F;cursor:pointer;font-size:13px;font-family:inherit">取消</button><button class="_mo" style="padding:8px 20px;border-radius:8px;border:none;background:#3087CC;color:#fff;cursor:pointer;font-size:13px;font-family:inherit">确定</button></div></div>';document.body.appendChild(o);requestAnimationFrame(function(){o.style.opacity='1';o.firstElementChild.style.transform='scale(1)'});o.querySelector('._mo').onclick=function(){o.remove();if(onOk)onOk()};o.querySelector('._mc').onclick=function(){o.remove()};o.addEventListener('click',function(e){if(e.target===o)o.remove()})}
+
+/* 联系学生 */
+function openContactModal(){
+  var info={name:'王明',sid:'2022100123',phone:'138****5678',email:'wangming@student.csu.edu.cn',wechat:'wm_2022',dorm:'升华公寓 12栋 305',tutor:'张教授（zhang@csu.edu.cn）'};
+  var body='<div style="display:grid;grid-template-columns:88px 1fr;gap:10px 14px;font-size:13px;margin-bottom:16px"><div style="color:#9096A2">姓名</div><div style="color:#3C444F;font-weight:600">'+info.name+'（'+info.sid+'）</div><div style="color:#9096A2">手机号</div><div style="color:#3C444F" id="_cp">'+info.phone+'</div><div style="color:#9096A2">邮箱</div><div style="color:#3C444F" id="_ce">'+info.email+'</div><div style="color:#9096A2">微信</div><div style="color:#3C444F">'+info.wechat+'</div><div style="color:#9096A2">宿舍</div><div style="color:#3C444F">'+info.dorm+'</div><div style="color:#9096A2">导师</div><div style="color:#3C444F">'+info.tutor+'</div></div><div style="display:flex;gap:10px;justify-content:flex-end"><button class="_cp1" style="padding:8px 16px;border-radius:8px;border:1px solid #3087CC;background:#fff;color:#3087CC;cursor:pointer;font-size:13px;font-family:inherit"><i class="fa-solid fa-copy"></i> 复制手机号</button><button class="_cp2" style="padding:8px 16px;border-radius:8px;border:1px solid #3087CC;background:#fff;color:#3087CC;cursor:pointer;font-size:13px;font-family:inherit"><i class="fa-solid fa-copy"></i> 复制邮箱</button></div>';
+  openModal('<i class="fa-solid fa-comment" style="color:#3087CC;margin-right:8px"></i>联系学生 · '+info.name,body,function(o){
+    o.querySelector('._cp1').onclick=function(){navigator.clipboard&&navigator.clipboard.writeText(info.phone.replace(/\*/g,''));showToast('手机号已复制到剪贴板','success')};
+    o.querySelector('._cp2').onclick=function(){navigator.clipboard&&navigator.clipboard.writeText(info.email);showToast('邮箱已复制到剪贴板','success')};
+  },520);
+}
+
+/* 编辑弹窗 */
+function openEditModal(name,type,level,award,date){
+  var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s';
+  o.innerHTML='<div style="background:#fff;border-radius:12px;padding:0;width:580px;max-width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2);font-family:inherit;transform:scale(0.9);transition:transform 0.2s"><div style="padding:18px 24px;border-bottom:1px solid #ECEFF4;display:flex;align-items:center;justify-content:space-between"><h3 style="font-size:16px;color:#3C444F;margin:0"><i class="fa-solid fa-pen-to-square" style="color:#3087CC;margin-right:8px"></i>编辑'+type+'</h3><button class="_close" style="width:32px;height:32px;border-radius:8px;background:#F5F7FA;border:none;cursor:pointer;font-size:14px;color:#696F7D">✕</button></div><div style="padding:20px 24px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px"><div style="grid-column:1/-1"><label style="display:block;font-size:12px;color:#696F7D;margin-bottom:6px;font-weight:500">名称</label><input type="text" id="_en" value="'+name+'" style="width:100%;height:36px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none"></div><div><label style="display:block;font-size:12px;color:#696F7D;margin-bottom:6px;font-weight:500">级别</label><select id="_el" style="width:100%;height:36px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none;background:#fff"><option '+(level==="国家级"?"selected":"")+'>国家级</option><option '+(level==="省级"?"selected":"")+'>省级</option><option '+(level==="校级"?"selected":"")+'>校级</option></select></div><div><label style="display:block;font-size:12px;color:#696F7D;margin-bottom:6px;font-weight:500">奖项</label><select id="_ea" style="width:100%;height:36px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none;background:#fff"><option '+(award==="特等奖"?"selected":"")+'>特等奖</option><option '+(award==="金奖"?"selected":"")+'>金奖</option><option '+(award==="银奖"?"selected":"")+'>银奖</option><option '+(award==="一等奖"?"selected":"")+'>一等奖</option><option '+(award==="二等奖"?"selected":"")+'>二等奖</option><option '+(award==="三等奖"?"selected":"")+'>三等奖</option></select></div><div><label style="display:block;font-size:12px;color:#696F7D;margin-bottom:6px;font-weight:500">获奖日期</label><input type="date" id="_ed" value="'+date+'" style="width:100%;height:36px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none"></div><div><label style="display:block;font-size:12px;color:#696F7D;margin-bottom:6px;font-weight:500">竞赛类型</label><select style="width:100%;height:36px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none;background:#fff"><option>学术竞赛</option><option>非学术竞赛</option></select></div><div style="grid-column:1/-1"><label style="display:block;font-size:12px;color:#696F7D;margin-bottom:6px;font-weight:500">备注</label><textarea style="width:100%;padding:8px 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none;resize:vertical;min-height:60px;font-family:inherit" placeholder="可选填备注信息"></textarea></div></div></div><div style="padding:14px 24px;border-top:1px solid #ECEFF4;display:flex;gap:10px;justify-content:flex-end"><button class="_mc" style="padding:8px 20px;border-radius:8px;border:1px solid #ECEFF4;background:#F5F7FA;color:#3C444F;cursor:pointer;font-size:13px;font-family:inherit">取消</button><button class="_mo" style="padding:8px 20px;border-radius:8px;border:none;background:#3087CC;color:#fff;cursor:pointer;font-size:13px;font-family:inherit"><i class="fa-solid fa-check"></i> 保存修改</button></div></div>';
+  o._editRow=window._editTargetRow||null;
+  document.body.appendChild(o);requestAnimationFrame(function(){o.style.opacity='1';o.firstElementChild.style.transform='scale(1)'});
+  o.querySelector('._mo').onclick=function(){
+    var newName=o.querySelector('#_en').value.trim();
+    var newLevel=o.querySelector('#_el').value;
+    var newAward=o.querySelector('#_ea').value;
+    if(o._editRow){
+      var titleEl=o._editRow.querySelector('.item-title');
+      if(titleEl){
+        var tags=titleEl.querySelectorAll('.lvl-tag');
+        var tagHtml='';
+        tags.forEach(function(t){tagHtml+=' '+t.outerHTML});
+        titleEl.innerHTML=newName+tagHtml;
+      }
+    }
+    o.remove();showToast('修改已保存','success');
+  };
+  o.querySelector('._mc').onclick=o.querySelector('._close').onclick=function(){o.remove()};
+  o.addEventListener('click',function(e){if(e.target===o)o.remove()});
+}
+document.addEventListener('click',function(e){var btn=e.target.closest('.act-btn');if(btn&&btn.getAttribute('onclick')&&btn.getAttribute('onclick').indexOf('openEditModal')>=0){window._editTargetRow=btn.closest('.item-row')}},true);
+
+/* 学年 Tab 切换 */
+var catSectionMap={'个人信息':'sec-grade','导师信息':'sec-grade','学业成绩':'sec-grade','竞赛获奖':'sec-competition','其他获奖':'sec-other-award','奖学金':'sec-scholarship','创新创业':'sec-innovation','发表论文':'sec-paper','专利软著':'sec-patent','科研实践':'sec-research','境内外交流':'sec-exchange','社会实践':'sec-practice','思想品德':'sec-moral','自我鉴定':'sec-self','导师评价':'sec-mentor','学年鉴定':'sec-review','毕业去向':'sec-graduation'};
+document.getElementById('yearTabs').addEventListener('click',function(e){
+  var tab=e.target.closest('.year-tab');
+  if(!tab)return;
+  if(tab.classList.contains('locked')){showToast('该学年档案已归档锁定，如需查看请联系管理员','warning');return}
+  var tabs=this.querySelectorAll('.year-tab');
+  tabs.forEach(function(t){t.classList.remove('active')});
+  tab.classList.add('active');
+  var label=tab.textContent.replace(/\s+/g,' ').trim();
+  document.querySelectorAll('.detail-main .section').forEach(function(sec){sec.style.display=''});
+  if(label!=='全部'&&label.indexOf('2025-2026')<0&&label.indexOf('2024-2025')<0){
+    openModal('<i class="fa-solid fa-folder-open" style="color:#3087CC;margin-right:8px"></i>'+label+' 学年档案','<div style="font-size:13px;color:#696F7D;line-height:1.8">该学年共有 28 门课程成绩、4 项竞赛获奖、1 篇论文等档案数据（原型示意）。<br><br>当前页面默认展示最新学年数据，切换历史学年可在弹窗中浏览摘要。</div><div style="margin-top:14px;text-align:right"><button class="_ok" style="padding:8px 18px;border-radius:8px;border:none;background:#3087CC;color:#fff;cursor:pointer;font-size:13px;font-family:inherit">知道了</button></div>',function(o){o.querySelector('._ok').onclick=function(){o.remove()}});
+  }
+  showToast('已切换至 '+label,'info');
+});
+
+/* 左侧分类导航：滚动定位 */
+document.querySelector('.category-nav').addEventListener('click',function(e){
+  var item=e.target.closest('.cat-item');
+  if(!item)return;
+  this.querySelectorAll('.cat-item').forEach(function(i){i.classList.remove('active')});
+  item.classList.add('active');
+  var label=item.textContent.replace(/\d+/g,'').trim();
+  var secId=catSectionMap[label];
+  if(secId){
+    var el=document.getElementById(secId);
+    if(el){el.scrollIntoView({behavior:'smooth',block:'start'});el.style.transition='box-shadow .3s';el.style.boxShadow='0 0 0 2px rgba(48,135,204,0.35)';setTimeout(function(){el.style.boxShadow=''},1200)}
+  }
+});
+
+/* 通用弹窗 */
+function openModal(title,body,after,width){
+  var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s';
+  o.innerHTML='<div style="background:#fff;border-radius:12px;width:'+(width||560)+'px;max-width:92%;max-height:86vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.2);font-family:inherit;transform:scale(0.9);transition:transform .2s"><div style="padding:16px 22px;border-bottom:1px solid #ECEFF4;display:flex;align-items:center;justify-content:space-between"><h3 style="font-size:16px;color:#3C444F;margin:0">'+title+'</h3><button class="_x" style="width:30px;height:30px;border-radius:8px;background:#F5F7FA;border:none;cursor:pointer;color:#696F7D">✕</button></div><div style="padding:20px 22px;overflow-y:auto">'+body+'</div></div>';
+  document.body.appendChild(o);requestAnimationFrame(function(){o.style.opacity='1';o.firstElementChild.style.transform='scale(1)'});
+  o.querySelector('._x').onclick=function(){o.remove()};o.addEventListener('click',function(e){if(e.target===o)o.remove()});
+  if(after)after(o);return o;
+}
+
+/* 证明材料预览 */
+function previewFile(name){
+  var isImg=/\.(jpg|jpeg|png|gif)$/i.test(name);
+  var view=isImg
+    ? '<div style="height:300px;background:repeating-conic-gradient(#F0F2F5 0% 25%,#fff 0% 50%) 50%/26px 26px;display:flex;align-items:center;justify-content:center;border-radius:8px"><div style="text-align:center;color:#9096A2"><i class="fa-regular fa-image" style="font-size:46px;color:#C8CAD1"></i><div style="margin-top:8px;font-size:13px">图片预览（原型示意）</div></div></div>'
+    : '<div style="height:300px;background:#F8FAFC;border:1px solid #ECEFF4;display:flex;align-items:center;justify-content:center;border-radius:8px"><div style="text-align:center;color:#9096A2"><i class="fa-regular fa-file-pdf" style="font-size:46px;color:#DF2027"></i><div style="margin-top:8px;font-size:13px">PDF 文档预览（原型示意）· 共 3 页</div></div></div>';
+  openModal('<i class="fa-solid fa-paperclip" style="color:#3087CC;margin-right:8px"></i>证明材料预览',
+    '<div style="font-size:13px;color:#3C444F;font-weight:600;margin-bottom:12px">'+name+'</div>'+view+'<div style="margin-top:14px;text-align:right"><button class="_dl" style="padding:8px 18px;border-radius:8px;border:1px solid #3087CC;background:#fff;color:#3087CC;cursor:pointer;font-size:13px;font-family:inherit"><i class="fa-solid fa-download"></i> 下载原件</button></div>',
+    function(o){o.querySelector('._dl').onclick=function(){showToast('文件已开始下载','success')}});
+}
+
+/* 证明材料列表 */
+function openProof(btn){
+  var label=(btn.textContent||'').trim();var m=label.match(/\((\d+)\)/);var n=m?parseInt(m[1]):1;
+  var row=btn.closest('.item-row');var title=row?((row.querySelector('.item-title')||{}).textContent||'').trim():'';
+  var names=['获奖证书.pdf','颁奖现场.jpg','证明文件.pdf','公示截图.png'];
+  var files='';
+  for(var i=0;i<n;i++){var fn=names[i]||('证明材料'+(i+1)+'.pdf');var img=/\.(jpg|jpeg|png|gif)$/i.test(fn);
+    files+='<div class="_pf" data-name="'+fn+'" style="display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid #ECEFF4;border-radius:8px;cursor:pointer" onmouseover="this.style.borderColor=\'#3087CC\';this.style.background=\'#F5FBFF\'" onmouseout="this.style.borderColor=\'#ECEFF4\';this.style.background=\'#fff\'"><i class="fa-regular '+(img?'fa-image':'fa-file-pdf')+'" style="font-size:18px;color:'+(img?'#3087CC':'#DF2027')+'"></i><div style="flex:1;font-size:13px;color:#3C444F">'+fn+'</div><span style="font-size:12px;color:#3087CC"><i class="fa-solid fa-eye"></i> 预览</span></div>';}
+  openModal('<i class="fa-solid fa-paperclip" style="color:#3087CC;margin-right:8px"></i>证明材料 <span style="font-size:12px;color:#9096A2;font-weight:400">（共 '+n+' 份）</span>',
+    (title?'<div style="font-size:12px;color:#9096A2;margin-bottom:12px">'+title+'</div>':'')+'<div style="display:flex;flex-direction:column;gap:8px">'+files+'</div>',
+    function(o){o.querySelectorAll('._pf').forEach(function(f){f.onclick=function(){previewFile(this.getAttribute('data-name'))}})});
+}
+
+/* 论文详情 */
+function openPaperDetail(btn){
+  var row=btn.closest('.item-row');if(!row){showToast('暂无详情','info');return}
+  var title=((row.querySelector('.item-title')||{}).textContent||'').trim();
+  var meta=(row.querySelector('.item-meta')||{}).innerHTML||'';
+  openModal('<i class="fa-solid fa-file-lines" style="color:#3087CC;margin-right:8px"></i>论文详情',
+    '<div style="font-size:15px;font-weight:700;color:#3C444F;line-height:1.5;margin-bottom:12px">'+title+'</div><div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:#696F7D">'+meta+'</div><div style="margin-top:14px;padding:12px 14px;background:#F8FAFC;border-radius:8px;border-left:3px solid #3087CC;font-size:13px;color:#3C444F;line-height:1.8"><strong>摘要：</strong>本研究围绕相关科学问题开展系统性工作，提出了新的理论模型与实验方法，取得了具有创新性的研究成果，相关结论已通过同行评审并公开发表（原型示意）。</div><div style="margin-top:14px;text-align:right"><button class="_dl" style="padding:8px 18px;border-radius:8px;border:1px solid #3087CC;background:#fff;color:#3087CC;cursor:pointer;font-size:13px;font-family:inherit"><i class="fa-solid fa-download"></i> 下载全文 PDF</button></div>',
+    function(o){o.querySelector('._dl').onclick=function(){showToast('论文全文已开始下载','success')}},600);
+}
+
+/* 导出档案弹窗 */
+function openExportModal(){
+  openModal('<i class="fa-solid fa-file-export" style="color:#3087CC;margin-right:8px"></i>导出学生档案',
+    '<div style="font-size:13px;color:#696F7D;margin-bottom:12px">导出 王明（2022100123）的成长档案：</div><div style="display:flex;flex-direction:column;gap:10px"><label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="radio" name="_ef" checked style="accent-color:#3087CC"> Word 文档（.docx）</label><label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="radio" name="_ef" style="accent-color:#3087CC"> PDF 文档（.pdf）</label></div><div style="margin-top:12px;font-size:12px;color:#9096A2">导出范围：<select style="height:32px;border:1px solid #C8CAD1;border-radius:6px;font-size:12px;padding:0 8px;margin-left:6px;font-family:inherit"><option>全部学年</option><option>仅 2025-2026 学年</option></select></div><div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end"><button class="_x2" style="padding:8px 18px;border-radius:8px;border:1px solid #ECEFF4;background:#F5F7FA;color:#3C444F;cursor:pointer;font-size:13px;font-family:inherit">取消</button><button class="_go" style="padding:8px 18px;border-radius:8px;border:none;background:#3087CC;color:#fff;cursor:pointer;font-size:13px;font-family:inherit"><i class="fa-solid fa-download"></i> 生成并下载</button></div>',
+    function(o){o.querySelector('._x2').onclick=function(){o.remove()};o.querySelector('._go').onclick=function(){o.remove();showToast('档案文件已开始下载','success')}});
+}
+
+/* 操作记录 */
+function openLogModal(){
+  var logs=[
+    {t:'2026-05-10 15:32',u:'李振华（管理员）',a:'复审通过 王明 的竞赛补充申请',c:'#1BB975'},
+    {t:'2026-05-08 09:18',u:'王明（学生）',a:'提交 全国大学生英语竞赛 补充申请',c:'#3087CC'},
+    {t:'2026-04-21 00:30',u:'系统',a:'从中台同步 32 门课程成绩',c:'#9096A2'},
+    {t:'2025-12-03 14:05',u:'王明（学生）',a:'勘误 挑战杯竞赛 获奖等级',c:'#F29100'},
+    {t:'2025-09-20 10:40',u:'张教授（导师）',a:'填写 导师评价',c:'#3087CC'}
+  ];
+  var rows=logs.map(function(x){return '<div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid #F5F7FA"><div style="width:8px;height:8px;border-radius:50%;background:'+x.c+';margin-top:6px;flex-shrink:0"></div><div style="flex:1"><div style="font-size:13px;color:#3C444F">'+x.a+'</div><div style="font-size:12px;color:#9096A2;margin-top:2px">'+x.u+' · '+x.t+'</div></div></div>'}).join('');
+  openModal('<i class="fa-solid fa-clock-rotate-left" style="color:#3087CC;margin-right:8px"></i>操作记录','<div>'+rows+'</div>',null,560);
+}
+
+/* 审核历史 */
+function openReviewHistoryModal(){
+  var his=[
+    {t:'竞赛补充：ACM-ICPC 亚洲区域赛 银奖',s:'已通过',c:'#1BB975',bg:'#E8FCF4',m:'2026-05-06 学院初审通过 → 2026-05-10 部门复审通过'},
+    {t:'勘误：挑战杯 获奖等级 二等奖→一等奖',s:'已通过',c:'#1BB975',bg:'#E8FCF4',m:'2025-12-03 提交 → 2025-12-05 通过'},
+    {t:'补充：全国大学生英语竞赛 二等奖',s:'审核中',c:'#F29100',bg:'#FFF5E5',m:'2026-05-08 提交 · 学院初审中'},
+    {t:'补充：社会实践 校史馆志愿讲解',s:'已退回',c:'#DF2027',bg:'#FCE8EA',m:'2026-03-11 退回：需补充盖章证明'}
+  ];
+  var rows=his.map(function(x){return '<div style="padding:12px 14px;border:1px solid #ECEFF4;border-radius:8px;margin-bottom:8px"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px"><div style="font-size:13px;color:#3C444F;font-weight:500">'+x.t+'</div><span style="font-size:11px;font-weight:600;color:'+x.c+';background:'+x.bg+';padding:2px 8px;border-radius:4px;white-space:nowrap">'+x.s+'</span></div><div style="font-size:12px;color:#9096A2">'+x.m+'</div></div>'}).join('');
+  openModal('<i class="fa-solid fa-clipboard-list" style="color:#3087CC;margin-right:8px"></i>审核历史','<div>'+rows+'</div>',null,580);
+}
+
+/* 展开全部成绩 */
+function expandGrades(link){
+  var body=link.closest('.section-body');if(!body){return}
+  var tb=body.querySelector('.grade-table tbody');if(!tb||tb.getAttribute('data-expanded')){return}
+  var more=[
+    ['PHYS3004','热力学与统计物理','专业必修','2026春','4','89',''],
+    ['PHYS3005','原子物理学','专业必修','2026春','3','93','high'],
+    ['MATH2002','复变函数','专业基础','2026春','3','90','high'],
+    ['CS2002','数据结构','学科基础','2026春','3','88',''],
+    ['PHYS3006','计算物理','专业选修','2026春','2','91','high'],
+    ['ENG2002','大学英语 IV','通识必修','2026春','2','86',''],
+    ['PHIL1001','马克思主义基本原理','通识必修','2026春','3','84',''],
+    ['PE2002','体育 IV','通识必修','2026春','1','90','high']
+  ];
+  var html=more.map(function(r){var cls=r[6]?(' '+r[6]):'';return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td style="text-align:center">'+r[4]+'</td><td style="text-align:center"><span class="grade-score'+cls+'">'+r[5]+'</span></td><td><span class="source-tag src-sync">系统同步</span></td></tr>'}).join('');
+  tb.insertAdjacentHTML('beforeend',html);tb.setAttribute('data-expanded','1');
+  var foot=link.closest('div');if(foot)foot.innerHTML='<i class="fa-solid fa-circle-check" style="color:#1BB975;margin-right:6px"></i>已展开全部成绩 · 共 32 门';
+  showToast('已展开全部成绩','success');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>导师审核 · 导师端</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'OPPOSans',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#F5F7FA;color:#1E2532;max-width:428px;margin:0 auto;min-height:100vh;font-size:14px;padding-bottom:72px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+
+.navbar{position:sticky;top:0;z-index:100;height:44px;background:#fff;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid #ECEFF4}
+.navbar .back{font-size:18px;color:#3C444F;padding:8px 8px 8px 0}
+.navbar .title{flex:1;text-align:center;font-size:16px;font-weight:600;color:#1E2532;margin-right:26px}
+
+.stat-scroll{padding:12px 16px;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none;display:flex;gap:10px}
+.stat-scroll::-webkit-scrollbar{display:none}
+.stat-chip{display:inline-flex;flex-direction:column;align-items:center;min-width:80px;padding:14px 12px;background:#fff;border-radius:12px;flex-shrink:0}
+.stat-chip .num{font-size:22px;font-weight:700;line-height:1}
+.stat-chip .lab{font-size:11px;color:#9096A2;margin-top:4px}
+.stat-chip.orange .num{color:#F29100}
+.stat-chip.green .num{color:#1BB975}
+.stat-chip.blue .num{color:#2196F3}
+.stat-chip.red .num{color:#E8443A}
+
+.filter-section{background:#fff;padding:0;border-bottom:1px solid #ECEFF4}
+.status-tabs{display:flex;padding:0 16px}
+.status-tab{flex:1;text-align:center;padding:12px 0;font-size:13px;color:#9096A2;cursor:pointer;border-bottom:2px solid transparent;font-weight:500;transition:all .2s}
+.status-tab.active{color:#F29100;border-bottom-color:#F29100;font-weight:600}
+.search-row{padding:10px 16px}
+.search-input{width:100%;height:36px;padding:0 12px 0 36px;border:1px solid #E0E3E8;border-radius:10px;background:#FAFBFC url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%239096A2' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") no-repeat 12px center;font-size:13px;color:#1E2532;outline:none;font-family:inherit}
+.search-input:focus{border-color:#F29100}
+.search-input::placeholder{color:#B0B5BF}
+
+.review-list{padding:12px 16px}
+.review-card{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;position:relative;border-left:3px solid transparent}
+.review-card[data-status="pending"]{border-left-color:#F29100}
+.review-card[data-status="approved"]{border-left-color:#1BB975}
+.review-card[data-status="rejected"]{border-left-color:#E8443A}
+.rc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.rc-student{font-size:13px;color:#1E2532}
+.rc-student strong{font-weight:600}
+.rc-type{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500}
+.type-supplement{background:#FFF3E0;color:#F29100}
+.type-correction{background:#E3F1F9;color:#3087CC}
+.rc-title{font-size:14px;font-weight:600;color:#1E2532;margin-bottom:4px}
+.rc-desc{font-size:13px;color:#696F7D;margin-bottom:6px}
+.rc-meta{font-size:12px;color:#B0B5BF;margin-bottom:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rc-meta i{font-size:11px}
+.rc-attach{font-size:12px;color:#F29100;margin-bottom:10px;display:flex;align-items:center;gap:4px}
+.rc-attach i{font-size:12px}
+.rc-actions{display:flex;gap:8px}
+.rc-btn{flex:1;height:34px;border-radius:8px;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.rc-btn-detail{background:#F0F2F5;color:#696F7D}
+.rc-btn-detail:active{background:#E0E3E8}
+.rc-btn-pass{background:#E8F8F0;color:#1BB975}
+.rc-btn-pass:active{background:#D0F0E0}
+.rc-btn-reject{background:#FDECEA;color:#E8443A}
+.rc-btn-reject:active{background:#FADBD8}
+
+.status-label{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:6px}
+.sl-approved{background:#E8F8F0;color:#1BB975}
+.sl-rejected{background:#FDECEA;color:#E8443A}
+
+.tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:428px;height:56px;background:#fff;border-top:1px solid #ECEFF4;display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0px)}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;color:#9096A2;cursor:pointer;position:relative;transition:color .15s;text-decoration:none}
+.tab-item.active{color:#F29100}
+.tab-item.active i{color:#F29100}
+.tab-item i{font-size:20px;transition:color .15s}
+.tab-badge{position:absolute;top:4px;right:50%;transform:translateX(calc(50% + 12px));min-width:16px;height:16px;background:#E8443A;color:#fff;font-size:10px;font-weight:700;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+
+.drawer-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
+.drawer-mask.show{opacity:1;pointer-events:auto}
+.drawer{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:428px;background:#fff;border-radius:20px 20px 0 0;z-index:201;transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:85vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,0px)}
+.drawer.show{transform:translateX(-50%) translateY(0)}
+.drawer-header{display:flex;justify-content:space-between;align-items:center;padding:18px 20px 14px;border-bottom:1px solid #F0F2F5;position:sticky;top:0;background:#fff;border-radius:20px 20px 0 0;z-index:1}
+.drawer-header .title{font-size:17px;font-weight:700;color:#1E2532}
+.drawer-header .close{width:32px;height:32px;border-radius:50%;background:#F0F2F5;display:flex;align-items:center;justify-content:center;font-size:16px;color:#696F7D;cursor:pointer}
+.drawer-header .close:active{background:#E0E3E8}
+.drawer-body{padding:16px 20px 24px}
+
+.detail-section{margin-bottom:16px}
+.detail-label{font-size:12px;color:#9096A2;margin-bottom:4px;font-weight:500}
+.detail-val{font-size:14px;color:#1E2532;font-weight:500;margin-bottom:12px;line-height:1.6}
+.detail-diff{background:#FAFBFC;border-radius:10px;padding:14px;margin-bottom:12px;font-size:13px;line-height:1.8}
+.detail-diff .old{color:#E8443A;text-decoration:line-through}
+.detail-diff .new{color:#1BB975;font-weight:600}
+.detail-attach{display:flex;gap:10px;margin-bottom:16px}
+.detail-thumb{width:72px;height:72px;border-radius:10px;background:#F0F2F5;display:flex;align-items:center;justify-content:center;font-size:24px;color:#B0B5BF}
+.detail-textarea{width:100%;min-height:80px;padding:12px;border:1px solid #E0E3E8;border-radius:10px;font-size:13px;font-family:inherit;color:#1E2532;resize:vertical;outline:none}
+.detail-textarea:focus{border-color:#F29100}
+.detail-btns{display:flex;gap:10px;margin-top:16px}
+.detail-btns .dbtn{flex:1;height:44px;border-radius:11px;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.dbtn-pass{background:#1BB975;color:#fff}
+.dbtn-pass:active{background:#17A568}
+.dbtn-reject{background:#FDECEA;color:#E8443A;border:1px solid #F5C6C2}
+.dbtn-reject:active{background:#FADBD8}
+
+.input-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:300;display:none;justify-content:center;align-items:center}
+.input-mask.show{display:flex}
+.input-box{width:300px;background:#fff;border-radius:16px;overflow:hidden;animation:popIn .2s ease}
+@keyframes popIn{from{transform:scale(0.85);opacity:0}to{transform:scale(1);opacity:1}}
+.input-box-body{padding:24px 20px 16px}
+.input-box-body .msg{font-size:15px;font-weight:600;color:#1E2532;margin-bottom:12px}
+.input-box-body textarea{width:100%;height:80px;border:1px solid #E0E3E8;border-radius:10px;padding:10px;font-size:13px;outline:none;resize:none;font-family:inherit}
+.input-box-body textarea:focus{border-color:#F29100}
+.input-box-actions{display:flex;border-top:1px solid #F0F2F5}
+.input-box-actions button{flex:1;padding:14px;font-size:15px;font-weight:500;cursor:pointer;transition:background .15s}
+.input-box-actions .cancel-btn{color:#696F7D;border-right:1px solid #F0F2F5}
+.input-box-actions .cancel-btn:active{background:#F5F7FA}
+.input-box-actions .ok-btn{color:#E8443A;font-weight:600}
+.input-box-actions .ok-btn:active{background:#FFF0EE}
+
+.confirm-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:300;display:none;justify-content:center;align-items:center}
+.confirm-mask.show{display:flex}
+.confirm-box{width:300px;background:#fff;border-radius:16px;overflow:hidden;animation:popIn .2s ease}
+.confirm-body{padding:24px 20px 16px;text-align:center}
+.confirm-body .msg{font-size:15px;font-weight:600;color:#1E2532;margin-bottom:6px}
+.confirm-body .sub{font-size:13px;color:#9096A2}
+.confirm-actions{display:flex;border-top:1px solid #F0F2F5}
+.confirm-actions button{flex:1;padding:14px;font-size:15px;font-weight:500;cursor:pointer;transition:background .15s}
+.confirm-actions .cancel-btn{color:#696F7D;border-right:1px solid #F0F2F5}
+.confirm-actions .cancel-btn:active{background:#F5F7FA}
+.confirm-actions .ok-btn{color:#1BB975;font-weight:600}
+.confirm-actions .ok-btn:active{background:#F0FFF6}
+
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.8);background:rgba(30,37,50,0.88);color:#fff;padding:14px 28px;border-radius:12px;font-size:14px;z-index:9999;opacity:0;transition:all .25s;pointer-events:none;text-align:center;max-width:280px}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.toast i{display:block;font-size:28px;margin-bottom:8px}
+
+.empty-hint{text-align:center;padding:60px 20px;color:#C8CAD1}
+.empty-hint i{font-size:40px;margin-bottom:10px}
+.empty-hint p{font-size:13px}
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <a class="back" href="tutor-students.html"><i class="fa-solid fa-chevron-left"></i></a>
+  <div class="title">导师审核</div>
+</div>
+
+<div style="padding:10px 16px 0;font-size:12px;color:#9096A2;line-height:1.5"><i class="fa-solid fa-circle-info" style="color:#F29100"></i> 仅显示您指导学生提交的申请</div>
+
+<div class="stat-scroll">
+  <div class="stat-chip orange"><div class="num" id="statPending">2</div><div class="lab">待审核</div></div>
+  <div class="stat-chip green"><div class="num" id="statApproved">4</div><div class="lab">已审核</div></div>
+  <div class="stat-chip blue"><div class="num" id="statTotal">6</div><div class="lab">本学年</div></div>
+  <div class="stat-chip red"><div class="num" id="statRejected">0</div><div class="lab">退回</div></div>
+</div>
+
+<div class="filter-section">
+  <div class="status-tabs" id="statusTabs">
+    <div class="status-tab active" data-filter="all">全部</div>
+    <div class="status-tab" data-filter="pending">待审核</div>
+    <div class="status-tab" data-filter="approved">已通过</div>
+    <div class="status-tab" data-filter="rejected">已退回</div>
+  </div>
+  <div class="search-row">
+    <input class="search-input" id="searchInput" type="text" placeholder="搜索学生姓名" oninput="filterCards()">
+  </div>
+</div>
+
+<div class="review-list" id="reviewList">
+
+  <div class="review-card" data-status="pending" data-name="赵敏" data-idx="0">
+    <div class="rc-top">
+      <div class="rc-student"><strong>赵敏</strong> · 2023级 计算机 · <span class="rc-type type-supplement">补充申请</span></div>
+    </div>
+    <div class="rc-title">竞赛获奖</div>
+    <div class="rc-desc">全国数学建模竞赛 省赛一等奖</div>
+    <div class="rc-meta"><i class="fa-regular fa-clock"></i> 提交时间：2026-05-11</div>
+    <div class="rc-attach"><i class="fa-solid fa-paperclip"></i> 1份证明材料</div>
+    <div class="rc-actions">
+      <div class="rc-btn rc-btn-detail" onclick="openDetail(0)">查看详情</div>
+      <div class="rc-btn rc-btn-pass" onclick="confirmPass(0)">通过</div>
+      <div class="rc-btn rc-btn-reject" onclick="showRejectInput(0)">退回</div>
+    </div>
+  </div>
+
+  <div class="review-card" data-status="pending" data-name="张三" data-idx="1">
+    <div class="rc-top">
+      <div class="rc-student"><strong>张三</strong> · 2022级 计算机 · <span class="rc-type type-correction">勘误申请</span></div>
+    </div>
+    <div class="rc-title">发表论文</div>
+    <div class="rc-desc">SCI论文作者顺序修正</div>
+    <div class="rc-meta"><i class="fa-regular fa-clock"></i> 提交时间：2026-05-09</div>
+    <div class="rc-actions">
+      <div class="rc-btn rc-btn-detail" onclick="openDetail(1)">查看详情</div>
+      <div class="rc-btn rc-btn-pass" onclick="confirmPass(1)">通过</div>
+      <div class="rc-btn rc-btn-reject" onclick="showRejectInput(1)">退回</div>
+    </div>
+  </div>
+
+  <div class="review-card" data-status="approved" data-name="张三" data-idx="2">
+    <div class="rc-top">
+      <div class="rc-student"><strong>张三</strong> · 2022级 计算机</div>
+    </div>
+    <div class="rc-title">竞赛获奖 · ACM-ICPC 银奖</div>
+    <div class="rc-meta"><i class="fa-regular fa-clock"></i> 审核时间：2026-05-06</div>
+    <div style="margin-top:8px"><span class="status-label sl-approved"><i class="fa-solid fa-check"></i> 已通过</span></div>
+  </div>
+
+  <div class="review-card" data-status="approved" data-name="李四" data-idx="3">
+    <div class="rc-top">
+      <div class="rc-student"><strong>李四</strong> · 2022级 数学</div>
+    </div>
+    <div class="rc-title">论文补充</div>
+    <div class="rc-meta"><i class="fa-regular fa-clock"></i> 审核时间：2026-05-04</div>
+    <div style="margin-top:8px"><span class="status-label sl-approved"><i class="fa-solid fa-check"></i> 已通过</span></div>
+  </div>
+
+  <div class="review-card" data-status="approved" data-name="赵敏" data-idx="4">
+    <div class="rc-top">
+      <div class="rc-student"><strong>赵敏</strong> · 2023级 计算机</div>
+    </div>
+    <div class="rc-title">创新创业</div>
+    <div class="rc-meta"><i class="fa-regular fa-clock"></i> 审核时间：2026-05-02</div>
+    <div style="margin-top:8px"><span class="status-label sl-approved"><i class="fa-solid fa-check"></i> 已通过</span></div>
+  </div>
+
+  <div class="review-card" data-status="approved" data-name="周蕾" data-idx="5">
+    <div class="rc-top">
+      <div class="rc-student"><strong>周蕾</strong> · 2023级 化学</div>
+    </div>
+    <div class="rc-title">奖学金</div>
+    <div class="rc-meta"><i class="fa-regular fa-clock"></i> 审核时间：2026-04-28</div>
+    <div style="margin-top:8px"><span class="status-label sl-approved"><i class="fa-solid fa-check"></i> 已通过</span></div>
+  </div>
+
+</div>
+
+<div class="tab-bar">
+  <a class="tab-item" href="tutor-students.html"><i class="fa-solid fa-users"></i><span>我的学生</span></a>
+  <a class="tab-item active" href="javascript:void(0)" style="position:relative"><i class="fa-solid fa-clipboard-check"></i><span>审核</span><div class="tab-badge" id="tabBadge">2</div></a>
+</div>
+
+<div class="drawer-mask" id="detailMask" onclick="closeDetail()"></div>
+<div class="drawer" id="detailDrawer">
+  <div class="drawer-header">
+    <span class="title">审核详情</span>
+    <span class="close" onclick="closeDetail()"><i class="fa-solid fa-xmark"></i></span>
+  </div>
+  <div class="drawer-body" id="detailBody"></div>
+</div>
+
+<div class="confirm-mask" id="confirmMask" onclick="closeConfirmDialog()">
+  <div class="confirm-box" onclick="event.stopPropagation()">
+    <div class="confirm-body">
+      <div class="msg" id="confirmMsg">确认通过该申请？</div>
+      <div class="sub" id="confirmSub">通过后将通知学生</div>
+    </div>
+    <div class="confirm-actions">
+      <button class="cancel-btn" onclick="closeConfirmDialog()">取消</button>
+      <button class="ok-btn" id="confirmOkBtn">确认通过</button>
+    </div>
+  </div>
+</div>
+
+<div class="input-mask" id="inputMask" onclick="closeInputDialog()">
+  <div class="input-box" onclick="event.stopPropagation()">
+    <div class="input-box-body">
+      <div class="msg">退回原因</div>
+      <textarea id="rejectReason" placeholder="请输入退回原因（必填）..."></textarea>
+    </div>
+    <div class="input-box-actions">
+      <button class="cancel-btn" onclick="closeInputDialog()">取消</button>
+      <button class="ok-btn" onclick="doReject()">确认退回</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var reviewData = [
+  {
+    name:'赵敏', grade:'2023级', major:'计算机科学与技术', sid:'2023010103',
+    applyType:'补充申请', category:'竞赛获奖',
+    title:'全国数学建模竞赛 省赛一等奖',
+    desc:'新增竞赛获奖记录：2026年全国数学建模竞赛，获省赛一等奖。',
+    time:'2026-05-11', attach:1, status:'pending',
+    isCorrection:false
+  },
+  {
+    name:'张三', grade:'2022级', major:'计算机科学与技术', sid:'2022010101',
+    applyType:'勘误申请', category:'发表论文',
+    title:'SCI论文作者顺序修正',
+    desc:'申请修正论文《基于深度学习的图像分割》的作者顺序。',
+    time:'2026-05-09', attach:0, status:'pending',
+    isCorrection:true,
+    oldVal:'第二作者', newVal:'第一作者'
+  },
+  {name:'张三', grade:'2022级', major:'计算机科学与技术', sid:'2022010101', applyType:'补充申请', category:'竞赛获奖', title:'ACM-ICPC 银奖', time:'2026-05-06', status:'approved'},
+  {name:'李四', grade:'2022级', major:'数学与应用数学', sid:'2022020205', applyType:'补充申请', category:'论文补充', title:'论文补充', time:'2026-05-04', status:'approved'},
+  {name:'赵敏', grade:'2023级', major:'计算机科学与技术', sid:'2023010103', applyType:'补充申请', category:'创新创业', title:'创新创业', time:'2026-05-02', status:'approved'},
+  {name:'周蕾', grade:'2023级', major:'化学', sid:'2023040108', applyType:'补充申请', category:'奖学金', title:'奖学金', time:'2026-04-28', status:'approved'}
+];
+
+var currentFilter = 'all';
+var _actionIdx = -1;
+var statPending = 2, statApproved = 4, statRejected = 0;
+
+function updateStats(){
+  document.getElementById('statPending').textContent = statPending;
+  document.getElementById('statApproved').textContent = statApproved;
+  document.getElementById('statRejected').textContent = statRejected;
+  document.getElementById('statTotal').textContent = statPending + statApproved + statRejected;
+  var badge = document.getElementById('tabBadge');
+  if(badge){
+    if(statPending > 0){ badge.textContent = statPending; badge.style.display = ''; }
+    else { badge.style.display = 'none'; }
+  }
+}
+
+var statusTabs = document.querySelectorAll('.status-tab');
+statusTabs.forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    statusTabs.forEach(function(t) { t.classList.remove('active') });
+    tab.classList.add('active');
+    currentFilter = tab.getAttribute('data-filter');
+    filterCards();
+  });
+});
+
+function filterCards() {
+  var keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+  var cards = document.querySelectorAll('.review-card');
+  cards.forEach(function(card) {
+    var status = card.getAttribute('data-status');
+    var name = card.getAttribute('data-name').toLowerCase();
+    var statusMatch = currentFilter === 'all' || status === currentFilter;
+    var nameMatch = !keyword || name.indexOf(keyword) !== -1;
+    card.style.display = (statusMatch && nameMatch) ? '' : 'none';
+  });
+}
+
+function openDetail(idx) {
+  var r = reviewData[idx];
+  var html = '<div class="detail-section">';
+  html += '<div class="detail-label">申请人</div>';
+  html += '<div class="detail-val">'+r.name+' · '+r.grade+' · '+r.major+'</div>';
+  html += '<div class="detail-label">申请类型</div>';
+  html += '<div class="detail-val">'+r.applyType+' · '+r.category+'</div>';
+  html += '<div class="detail-label">申请内容</div>';
+  html += '<div class="detail-val">'+r.title+'</div>';
+  if (r.desc) {
+    html += '<div class="detail-label">详细说明</div>';
+    html += '<div class="detail-val">'+r.desc+'</div>';
+  }
+  if (r.isCorrection) {
+    html += '<div class="detail-label">数据变更</div>';
+    html += '<div class="detail-diff"><span class="old">原值：'+r.oldVal+'</span><br><span class="new">新值：'+r.newVal+'</span></div>';
+  }
+  html += '<div class="detail-label">提交时间</div>';
+  html += '<div class="detail-val">'+r.time+'</div>';
+  if (r.attach && r.attach > 0) {
+    html += '<div class="detail-label">附件材料（'+r.attach+'份）</div>';
+    html += '<div class="detail-attach"><div class="detail-thumb"><i class="fa-regular fa-file-image"></i></div></div>';
+  }
+  html += '</div>';
+  if (r.status === 'pending') {
+    html += '<div class="detail-label">审核意见（选填）</div>';
+    html += '<textarea class="detail-textarea" id="detailOpinion" placeholder="请输入审核意见..."></textarea>';
+    html += '<div class="detail-btns">';
+    html += '<div class="dbtn dbtn-reject" onclick="closeDetail();showRejectInput('+idx+')">退回</div>';
+    html += '<div class="dbtn dbtn-pass" onclick="closeDetail();confirmPass('+idx+')">通过</div>';
+    html += '</div>';
+  }
+  document.getElementById('detailBody').innerHTML = html;
+  document.getElementById('detailMask').classList.add('show');
+  document.getElementById('detailDrawer').classList.add('show');
+}
+
+function closeDetail() {
+  document.getElementById('detailMask').classList.remove('show');
+  document.getElementById('detailDrawer').classList.remove('show');
+}
+
+function confirmPass(idx) {
+  _actionIdx = idx;
+  var r = reviewData[idx];
+  document.getElementById('confirmMsg').textContent = '确认通过「'+r.name+'」的'+r.applyType+'？';
+  document.getElementById('confirmSub').textContent = '通过后将通知学生';
+  document.getElementById('confirmOkBtn').onclick = doConfirmPass;
+  document.getElementById('confirmMask').classList.add('show');
+}
+
+function closeConfirmDialog() {
+  document.getElementById('confirmMask').classList.remove('show');
+}
+
+function doConfirmPass() {
+  closeConfirmDialog();
+  var card = document.querySelector('.review-card[data-idx="'+_actionIdx+'"]');
+  if (card) {
+    card.setAttribute('data-status', 'approved');
+    card.style.borderLeftColor = '#1BB975';
+    var actions = card.querySelector('.rc-actions');
+    if (actions) actions.innerHTML = '<span class="status-label sl-approved"><i class="fa-solid fa-check"></i> 已通过</span>';
+    var attach = card.querySelector('.rc-attach');
+    if (attach) attach.style.display = 'none';
+  }
+  reviewData[_actionIdx].status = 'approved';
+  if(statPending > 0) statPending--;
+  statApproved++;
+  updateStats();
+  showToast('审核通过', 'success');
+}
+
+function showRejectInput(idx) {
+  _actionIdx = idx;
+  document.getElementById('rejectReason').value = '';
+  document.getElementById('inputMask').classList.add('show');
+}
+
+function closeInputDialog() {
+  document.getElementById('inputMask').classList.remove('show');
+}
+
+function doReject() {
+  var reason = document.getElementById('rejectReason').value.trim();
+  if (!reason) {
+    showToast('请输入退回原因', 'info');
+    return;
+  }
+  closeInputDialog();
+  var card = document.querySelector('.review-card[data-idx="'+_actionIdx+'"]');
+  if (card) {
+    card.setAttribute('data-status', 'rejected');
+    card.style.borderLeftColor = '#E8443A';
+    var actions = card.querySelector('.rc-actions');
+    if (actions) actions.innerHTML = '<span class="status-label sl-rejected"><i class="fa-solid fa-xmark"></i> 已退回</span>';
+    var attach = card.querySelector('.rc-attach');
+    if (attach) attach.style.display = 'none';
+  }
+  reviewData[_actionIdx].status = 'rejected';
+  if(statPending > 0) statPending--;
+  statRejected++;
+  updateStats();
+  showToast('已退回', 'success');
+}
+
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  var icon = type === 'success' ? '<i class="fa-solid fa-circle-check" style="color:#1BB975"></i>' : '<i class="fa-solid fa-circle-info" style="color:#F29100"></i>';
+  t.innerHTML = icon + msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show') }, 2200);
+}
+
+function showConfirm(msg, sub, cb) {
+  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmSub').textContent = sub || '';
+  document.getElementById('confirmOkBtn').onclick = function() { closeConfirmDialog(); if (cb) cb(); };
+  document.getElementById('confirmMask').classList.add('show');
+}
+updateStats();
+</script>
+</body>
+</html>

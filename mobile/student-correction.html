@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>勘误现有数据 · 学生端</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'OPPOSans',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#F5F7FA;color:#1E2532;max-width:428px;margin:0 auto;min-height:100vh;font-size:14px;padding-bottom:80px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,textarea,select{font-family:inherit;font-size:14px}
+
+.navbar{position:sticky;top:0;z-index:100;height:44px;background:#fff;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid #ECEFF4}
+.navbar .back{font-size:18px;color:#3C444F;padding:8px 8px 8px 0;cursor:pointer}
+.navbar .title{flex:1;text-align:center;font-size:16px;font-weight:600;color:#1E2532;margin-right:26px}
+
+/* Steps indicator */
+.steps-bar{display:flex;align-items:center;padding:16px 20px;background:#fff;border-bottom:1px solid #ECEFF4}
+.step-item{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;position:relative}
+.step-item:not(:last-child)::after{content:'';position:absolute;left:50%;top:14px;width:100%;height:2px;background:#ECEFF4;z-index:0;transform:translateX(0)}
+.step-item.done:not(:last-child)::after,.step-item.active:not(:last-child)::after{background:#1BB975}
+.step-circle{width:28px;height:28px;border-radius:50%;background:#F0F2F5;color:#9096A2;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;position:relative;z-index:1;transition:all .25s}
+.step-item.done .step-circle{background:#1BB975;color:#fff}
+.step-item.active .step-circle{background:#1BB975;color:#fff;box-shadow:0 0 0 4px rgba(27,185,117,0.2)}
+.step-label{font-size:11px;color:#9096A2;font-weight:500;white-space:nowrap}
+.step-item.done .step-label,.step-item.active .step-label{color:#1BB975;font-weight:600}
+
+/* Info banner */
+.info-banner{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#F0FBF6;border-left:3px solid #1BB975;margin:16px 16px 0}
+.info-banner i{color:#1BB975;font-size:16px;flex-shrink:0}
+.info-banner p{font-size:12px;color:#696F7D;line-height:1.5}
+
+/* Section */
+.section{padding:16px}
+.section-title{font-size:15px;font-weight:600;color:#1E2532;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+/* Category grid */
+.category-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.cat-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 4px;background:#fff;border-radius:12px;border:2px solid transparent;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.cat-btn:active{transform:scale(0.96)}
+.cat-btn i{font-size:22px;color:#9096A2}
+.cat-btn span{font-size:12px;color:#696F7D;text-align:center;line-height:1.3}
+.cat-btn.active{border-color:#1BB975;background:#F0FBF6}
+.cat-btn.active i{color:#1BB975}
+.cat-btn.active span{color:#1BB975;font-weight:600}
+
+/* Record list */
+.record-list{display:flex;flex-direction:column;gap:10px}
+.record-item{background:#fff;border-radius:12px;padding:16px;cursor:pointer;border:2px solid transparent;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.record-item:active{transform:scale(0.98)}
+.record-item.selected{border-color:#1BB975;background:#F0FBF6}
+.record-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
+.record-name{font-size:14px;font-weight:600;color:#1E2532;flex:1;line-height:1.4}
+.record-sel-icon{width:22px;height:22px;border-radius:50%;border:2px solid #D4D8DF;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent;transition:all .2s}
+.record-item.selected .record-sel-icon{border-color:#1BB975;background:#1BB975;color:#fff}
+.record-tags{display:flex;gap:6px;flex-wrap:wrap}
+.r-tag{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500}
+.r-tag.blue{background:#E3F1F9;color:#3087CC}
+.r-tag.green{background:#E8FCF4;color:#1BB975}
+.r-tag.gray{background:#F0F2F5;color:#696F7D}
+.r-tag.orange{background:#FFF5E5;color:#F29100}
+.record-source{font-size:12px;color:#9096A2;margin-top:6px;display:flex;align-items:center;gap:4px}
+.record-source i{font-size:11px}
+.src-sync{color:#696F7D}
+.src-manual{color:#3087CC}
+
+/* Form card */
+.form-card{background:#fff;border-radius:14px;padding:20px 16px;margin:0 16px 14px}
+.form-group{margin-bottom:18px}
+.form-group:last-child{margin-bottom:0}
+.form-label{display:block;font-size:13px;color:#696F7D;margin-bottom:6px;font-weight:500}
+.form-label .req{color:#E8443A;margin-left:2px}
+.form-label .original{font-size:11px;color:#9096A2;font-weight:400;margin-left:6px}
+.form-input{width:100%;height:44px;padding:0 14px;border:1px solid #E0E3E8;border-radius:10px;background:#FAFBFC;outline:none;font-size:14px;color:#1E2532;transition:border-color .2s}
+.form-input:focus{border-color:#1BB975;background:#fff}
+.form-input.changed{border-color:#F29100;background:#FFFBF0}
+.form-select{width:100%;height:44px;padding:0 14px;border:1px solid #E0E3E8;border-radius:10px;background:#FAFBFC;outline:none;font-size:14px;color:#1E2532;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:border-color .2s;-webkit-user-select:none;user-select:none}
+.form-select.changed{border-color:#F29100;background:#FFFBF0}
+.form-select .placeholder{color:#B0B5BF}
+.form-select i{color:#B0B5BF;font-size:12px}
+.form-textarea{width:100%;min-height:88px;padding:12px 14px;border:1px solid #E0E3E8;border-radius:10px;background:#FAFBFC;outline:none;font-size:14px;color:#1E2532;resize:vertical;transition:border-color .2s;line-height:1.6}
+.form-textarea:focus{border-color:#1BB975;background:#fff}
+.form-textarea.required-field{border-color:#E8443A;background:#FFF8F8}
+.form-textarea.required-field:focus{border-color:#E8443A}
+.form-textarea.filled{border-color:#1BB975}
+.reason-note{font-size:12px;color:#9096A2;margin-top:6px;line-height:1.5;display:flex;align-items:flex-start;gap:4px}
+.reason-note i{color:#F29100;flex-shrink:0;margin-top:2px}
+
+/* Section divider */
+.form-divider{height:1px;background:#F0F2F5;margin:18px 0}
+.form-divider-label{font-size:13px;font-weight:600;color:#3C444F;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.form-divider-label i{color:#1BB975}
+
+/* Original value chip */
+.original-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#F5F7FA;border-radius:6px;font-size:12px;color:#9096A2;margin-bottom:8px}
+.original-chip strong{color:#3C444F}
+
+/* Upload */
+.upload-card{background:#fff;border-radius:14px;padding:20px 16px;margin:0 16px 14px}
+.upload-title{font-size:15px;font-weight:600;color:#1E2532;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.upload-title .required{color:#E8443A;font-size:13px;font-weight:400}
+.upload-sub{font-size:12px;color:#9096A2;margin-bottom:12px}
+.upload-area{border:2px dashed #D4D8DF;border-radius:12px;padding:24px 16px;text-align:center;cursor:pointer;transition:border-color .2s;-webkit-tap-highlight-color:transparent}
+.upload-area:active{border-color:#1BB975;background:#F0FBF6}
+.upload-area i{font-size:28px;color:#B0B5BF;margin-bottom:6px;display:block}
+.upload-area .upload-actions{display:flex;justify-content:center;gap:20px;margin-top:8px}
+.upload-area .upload-actions span{font-size:13px;color:#1BB975;font-weight:500;display:flex;align-items:center;gap:4px}
+.upload-preview{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.upload-thumb{width:68px;height:68px;border-radius:10px;background:#F0F2F5;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.upload-thumb .thumb-placeholder{background:linear-gradient(135deg,#1BB975,#15a366);width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;flex-direction:column;gap:2px;padding:4px}
+.upload-thumb .thumb-placeholder i{font-size:18px}
+.upload-thumb .thumb-placeholder span{text-align:center;line-height:1.2}
+.upload-thumb .remove{position:absolute;top:-4px;right:-4px;width:18px;height:18px;background:#E8443A;color:#fff;border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.upload-hint{font-size:12px;color:#9096A2;margin-top:8px}
+
+/* Bottom bar */
+.bottom-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:428px;background:#fff;border-top:1px solid #ECEFF4;padding:10px 16px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:12px;z-index:100}
+.btn{flex:1;height:46px;border-radius:12px;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;cursor:pointer}
+.btn-gray{background:#F0F2F5;color:#696F7D}
+.btn-gray:active{background:#E0E3E8}
+.btn-green{background:#1BB975;color:#fff}
+.btn-green:active{background:#15a366}
+.btn-green:disabled{background:#9096A2;cursor:not-allowed}
+
+/* Picker */
+.picker-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:200;opacity:0;pointer-events:none;transition:opacity .3s}
+.picker-mask.show{opacity:1;pointer-events:auto}
+.picker-panel{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:428px;background:#fff;border-radius:16px 16px 0 0;padding-bottom:env(safe-area-inset-bottom,0px);z-index:201;transition:transform .3s cubic-bezier(0.32,0.72,0,1)}
+.picker-panel.show{transform:translateX(-50%) translateY(0)}
+.picker-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #F0F2F5}
+.picker-header .cancel{font-size:14px;color:#9096A2;cursor:pointer}
+.picker-header .title{font-size:16px;font-weight:600;color:#1E2532}
+.picker-header .confirm{font-size:14px;color:#1BB975;font-weight:600;cursor:pointer}
+.picker-options{padding:8px 16px 16px;max-height:50vh;overflow-y:auto}
+.picker-option{padding:14px 16px;font-size:15px;color:#3C444F;border-radius:10px;cursor:pointer;transition:background .15s}
+.picker-option:active,.picker-option.selected{background:#F0FBF6;color:#1BB975;font-weight:600}
+
+/* Action sheet */
+.action-sheet-mask{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:300;opacity:0;pointer-events:none;transition:opacity .3s}
+.action-sheet-mask.show{opacity:1;pointer-events:auto}
+.action-sheet{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:428px;z-index:301;transition:transform .3s cubic-bezier(0.32,0.72,0,1);padding:0 12px 12px}
+.action-sheet.show{transform:translateX(-50%) translateY(0)}
+.action-sheet-group{background:#fff;border-radius:14px;overflow:hidden;margin-bottom:8px}
+.action-sheet-item{padding:16px;text-align:center;font-size:16px;color:#3C444F;cursor:pointer;border-bottom:1px solid #F2F3F5;transition:background .15s}
+.action-sheet-item:last-child{border-bottom:none}
+.action-sheet-item:active{background:#F5F7FA}
+.action-sheet-item i{margin-right:8px;color:#1BB975}
+.action-sheet-cancel{background:#fff;border-radius:14px;padding:16px;text-align:center;font-size:16px;color:#DF2027;font-weight:600;cursor:pointer}
+
+/* Toast */
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.8);background:rgba(30,37,50,0.88);color:#fff;padding:14px 28px;border-radius:12px;font-size:14px;z-index:999;opacity:0;transition:all .25s;pointer-events:none;text-align:center;max-width:280px}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.toast i{display:block;font-size:28px;margin-bottom:8px}
+
+/* Success screen */
+.success-screen{display:none;flex-direction:column;align-items:center;padding:60px 24px;text-align:center}
+.success-screen.show{display:flex}
+.success-icon{width:80px;height:80px;border-radius:50%;background:#E8FCF4;display:flex;align-items:center;justify-content:center;font-size:36px;color:#1BB975;margin-bottom:20px}
+.success-title{font-size:20px;font-weight:700;margin-bottom:8px}
+.success-desc{font-size:14px;color:#696F7D;line-height:1.6;margin-bottom:28px}
+.success-info{background:#F5F7FA;border-radius:12px;padding:16px;text-align:left;width:100%;margin-bottom:24px}
+.success-info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #ECEFF4;font-size:13px}
+.success-info-row:last-child{border-bottom:none}
+.success-info-row .key{color:#9096A2}
+.success-info-row .val{font-weight:600;color:#3C444F}
+.success-btns{display:flex;flex-direction:column;gap:10px;width:100%}
+.success-btn{height:46px;border-radius:12px;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+.success-btn.primary{background:#1BB975;color:#fff}
+.success-btn.secondary{background:#F0F2F5;color:#696F7D}
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="back" id="navBack" onclick="handleBack()"><i class="fa-solid fa-chevron-left"></i></div>
+  <div class="title" id="navTitle">勘误现有数据</div>
+</div>
+
+<!-- Steps indicator -->
+<div class="steps-bar" id="stepsBar">
+  <div class="step-item active" id="step1"><div class="step-circle">1</div><div class="step-label">选择类目</div></div>
+  <div class="step-item" id="step2"><div class="step-circle">2</div><div class="step-label">选择记录</div></div>
+  <div class="step-item" id="step3"><div class="step-circle">3</div><div class="step-label">填写勘误</div></div>
+</div>
+
+<!-- Step 1: Category -->
+<div id="pageStep1">
+  <div class="info-banner">
+    <i class="fa-solid fa-circle-info"></i>
+    <p>勘误是指对系统中已有数据进行修正。请先选择需要勘误的数据类目，再从现有记录中选择具体条目进行修改。</p>
+  </div>
+  <div class="section">
+    <div class="section-title"><i class="fa-solid fa-layer-group" style="color:#1BB975"></i>选择数据类目</div>
+    <div class="category-grid" id="catGrid">
+      <div class="cat-btn" data-cat="competition"><i class="fa-solid fa-trophy"></i><span>竞赛获奖</span></div>
+      <div class="cat-btn" data-cat="other-award"><i class="fa-solid fa-award"></i><span>其他获奖</span></div>
+      <div class="cat-btn" data-cat="innovation"><i class="fa-solid fa-lightbulb"></i><span>创新创业</span></div>
+      <div class="cat-btn" data-cat="paper"><i class="fa-solid fa-file-lines"></i><span>发表论文</span></div>
+      <div class="cat-btn" data-cat="patent"><i class="fa-solid fa-certificate"></i><span>专利软著</span></div>
+      <div class="cat-btn" data-cat="exchange"><i class="fa-solid fa-plane"></i><span>境内外交流</span></div>
+      <div class="cat-btn" data-cat="scholarship"><i class="fa-solid fa-coins"></i><span>奖学金</span></div>
+      <div class="cat-btn" data-cat="research"><i class="fa-solid fa-flask"></i><span>科研实践</span></div>
+      <div class="cat-btn" data-cat="social"><i class="fa-solid fa-handshake-angle"></i><span>社会实践</span></div>
+    </div>
+  </div>
+</div>
+<div class="bottom-bar" id="bottomStep1" style="display:none">
+  <button class="btn btn-gray" onclick="handleBack()">取消</button>
+  <button class="btn btn-green" id="nextStep1Btn" onclick="goStep2()">下一步 <i class="fa-solid fa-chevron-right"></i></button>
+</div>
+
+<!-- Step 2: Select record -->
+<div id="pageStep2" style="display:none">
+  <div class="section">
+    <div class="section-title" id="step2Title"><i class="fa-solid fa-list-check" style="color:#1BB975"></i>选择要勘误的记录</div>
+    <div class="record-list" id="recordList"></div>
+  </div>
+</div>
+<div class="bottom-bar" id="bottomStep2" style="display:none">
+  <button class="btn btn-gray" onclick="goStep1()"><i class="fa-solid fa-chevron-left"></i> 上一步</button>
+  <button class="btn btn-green" id="nextStep2Btn" onclick="goStep3()">下一步 <i class="fa-solid fa-chevron-right"></i></button>
+</div>
+
+<!-- Step 3: Edit form -->
+<div id="pageStep3" style="display:none">
+  <div class="form-card" id="formCard"></div>
+  <div class="upload-card">
+    <div class="upload-title"><i class="fa-solid fa-paperclip" style="color:#1BB975"></i>上传证明材料 <span class="required">（必须）</span></div>
+    <div class="upload-sub">上传能证明正确信息的截图、证书或证明文件，有助于审核人员快速核实</div>
+    <div class="upload-area" onclick="openActionSheet()">
+      <i class="fa-solid fa-camera-retro"></i>
+      <div class="upload-actions">
+        <span><i class="fa-solid fa-camera"></i>拍照上传</span>
+        <span><i class="fa-solid fa-image"></i>从相册选择</span>
+      </div>
+    </div>
+    <div class="upload-preview" id="uploadPreview">
+      <div class="upload-thumb">
+        <div class="thumb-placeholder"><i class="fa-solid fa-file-image"></i><span>证明材料.jpg</span></div>
+        <div class="remove" onclick="event.stopPropagation();removeThumb(this)"><i class="fa-solid fa-xmark"></i></div>
+      </div>
+    </div>
+    <div class="upload-hint">支持 jpg / png / pdf，单文件 ≤ 20MB</div>
+  </div>
+</div>
+<div class="bottom-bar" id="bottomStep3" style="display:none">
+  <button class="btn btn-gray" onclick="goStep2()" style="flex:0.8"><i class="fa-solid fa-chevron-left"></i></button>
+  <button class="btn btn-gray" onclick="saveCorrectionDraft()" style="flex:1.2"><i class="fa-solid fa-floppy-disk"></i> 暂存</button>
+  <button class="btn btn-green" onclick="submitCorrection()" style="flex:1.4"><i class="fa-solid fa-paper-plane"></i>提交</button>
+</div>
+
+<!-- Success screen -->
+<div class="success-screen" id="successScreen">
+  <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
+  <div class="success-title">勘误申请已提交</div>
+  <div class="success-desc">您的勘误申请已成功提交，学院审核人员将在 3 个工作日内进行核实处理，通过后系统数据将自动更新。</div>
+  <div class="success-info" id="successInfo"></div>
+  <div class="success-btns">
+    <button class="success-btn primary" onclick="location.href='student-requests.html'"><i class="fa-solid fa-list-check"></i>查看申请进度</button>
+    <button class="success-btn secondary" onclick="location.reload()">继续勘误其他数据</button>
+  </div>
+</div>
+
+<!-- Picker -->
+<div class="picker-mask" id="pickerMask" onclick="closePicker()"></div>
+<div class="picker-panel" id="pickerPanel" onclick="event.stopPropagation()">
+  <div class="picker-header">
+    <span class="cancel" onclick="closePicker()">取消</span>
+    <span class="title" id="pickerTitle"></span>
+    <span class="confirm" onclick="confirmPicker()">确认</span>
+  </div>
+  <div class="picker-options" id="pickerOptions"></div>
+</div>
+
+<!-- Action sheet -->
+<div class="action-sheet-mask" id="actionSheetMask" onclick="closeActionSheet()"></div>
+<div class="action-sheet" id="actionSheet">
+  <div class="action-sheet-group">
+    <div class="action-sheet-item" onclick="closeActionSheet();addUpload('camera')"><i class="fa-solid fa-camera"></i>拍照上传</div>
+    <div class="action-sheet-item" onclick="closeActionSheet();addUpload('album')"><i class="fa-solid fa-image"></i>从相册选择</div>
+    <div class="action-sheet-item" onclick="closeActionSheet();addUpload('file')"><i class="fa-solid fa-folder-open"></i>选择文件</div>
+  </div>
+  <div class="action-sheet-cancel" onclick="closeActionSheet()">取消</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ─── Mock data per category ──────────────────────────────── */
+var catNames={
+  competition:'竞赛获奖','other-award':'其他获奖',
+  innovation:'创新创业',paper:'发表论文',
+  patent:'专利软著',exchange:'境内外交流',
+  scholarship:'奖学金',research:'科研实践',social:'社会实践'
+};
+
+var mockRecords={
+  competition:[
+    {name:'ACM-ICPC 国际大学生程序设计竞赛 亚洲区域赛',tags:['国家级','银奖','学术竞赛'],date:'2025-11-15',src:'sync',
+     fields:{level:'国家级',prize:'银奖',academic:'是（学术竞赛）',date:'2025-11-15',rank:'团队第 1 位'}},
+    {name:'全国大学生数学建模竞赛',tags:['国家级','一等奖','学术竞赛'],date:'2025-09-20',src:'sync',
+     fields:{level:'国家级',prize:'一等奖',academic:'是（学术竞赛）',date:'2025-09-20',rank:'团队第 1 位'}},
+    {name:'"挑战杯"全国大学生课外学术科技作品竞赛',tags:['省级','一等奖'],date:'2025-07-08',src:'correction',
+     fields:{level:'省级',prize:'一等奖',academic:'是（学术竞赛）',date:'2025-07-08',rank:''}},
+    {name:'全国大学生英语竞赛',tags:['校级','二等奖','审核中'],date:'2025-12-10',src:'manual',
+     fields:{level:'校级',prize:'二等奖',academic:'否（非学术竞赛）',date:'2025-12-10',rank:''}}
+  ],
+  'other-award':[
+    {name:'校三好学生',tags:['校级','荣誉称号'],date:'2025-11-20',src:'sync',
+     fields:{level:'校级',grade:'荣誉称号',date:'2025-11-20'}},
+    {name:'优秀学生干部',tags:['校级','荣誉称号'],date:'2025-11-20',src:'sync',
+     fields:{level:'校级',grade:'荣誉称号',date:'2025-11-20'}}
+  ],
+  innovation:[
+    {name:'量子传感器微型化关键技术研究',tags:['国家级','创新训练','进行中'],date:'2025-06',src:'sync',
+     fields:{code:'202510533001',ptype:'创新训练',level:'国家级',leader:'王明',teacher:'张教授',done:'否',result:'',date:'2025-06'}},
+    {name:'基于AI的物理实验智能分析平台',tags:['校级','创新训练','已结题优秀'],date:'2024-12',src:'sync',
+     fields:{code:'202410533008',ptype:'创新训练',level:'校级',leader:'李四',teacher:'刘教授',done:'是',result:'优秀',date:'2024-12'}}
+  ],
+  paper:[
+    {name:'Quantum Coherence in Two-Dimensional Materials at Low Temperatures',tags:['SCI一区','期刊论文','第二作者'],date:'2025-10-12',src:'sync',
+     fields:{type:'期刊论文',journal:'Physical Review Letters',grade:'SCI一区',author:'否',date:'2025-10-12',vol:'Vol.131',page:'p.146801',unit:'物理学院'}},
+    {name:'基于深度学习的凝聚态物理相变研究',tags:['EI','期刊论文','第一作者'],date:'2025-08-25',src:'sync',
+     fields:{type:'期刊论文',journal:'物理学报',grade:'EI',author:'是',date:'2025-08-25',vol:'Vol.74',page:'p.23-30',unit:'物理学院'}}
+  ],
+  patent:[
+    {name:'一种基于量子效应的低温传感装置',tags:['发明专利','已授权'],date:'2025-09-10',src:'sync',
+     fields:{ptype:'发明专利',status:'已授权',date:'2025-09-10',unit:'物理学院'}}
+  ],
+  exchange:[
+    {name:'东京大学暑期研究项目',tags:['境外','科研实习'],date:'2025-07-15',src:'sync',
+     fields:{cat:'境外',type:'科研实习',unit:'东京大学物理工学系',place:'日本',duration:'6周'}}
+  ],
+  scholarship:[
+    {name:'国家奖学金',tags:['国家级','¥8,000'],date:'2025-11',src:'sync',
+     fields:{level:'国家级',type:'学业奖学金',grade:'一等',amount:'8000',unit:'教育部',date:'2025-11'}},
+    {name:'优秀学生奖学金',tags:['校级','¥3,000'],date:'2025-11',src:'sync',
+     fields:{level:'校级',type:'学业奖学金',grade:'一等',amount:'3000',unit:'中南大学',date:'2025-11'}}
+  ],
+  research:[
+    {name:'二维材料低温量子相干性研究',tags:['校级','导师课题参与'],date:'2024-09',src:'sync',
+     fields:{type:'导师课题参与',level:'校级',teacher:'张教授',date:'2024-09',result:'发表SCI论文1篇'}}
+  ],
+  social:[
+    {name:'暑期"三下乡"科技支农',tags:['校级','暑期三下乡'],date:'2025-07',src:'sync',
+     fields:{type:'暑期三下乡',level:'校级',teacher:'刘老师',start:'2025-07-10',end:'2025-07-24'}},
+    {name:'校史馆志愿讲解员',tags:['校级','志愿服务'],date:'2025-09',src:'sync',
+     fields:{type:'志愿服务',level:'校级',teacher:'',start:'2025-09',end:'2026-01'}}
+  ]
+};
+
+/* ─── Form templates with original values ─── */
+function buildForm(cat,record){
+  var f=record.fields;
+  function sel(id,title,opts,val,tgt){
+    var ph=val||'请选择';
+    return '<div class="form-select'+(val?' changed':'')+'" onclick="openPicker(\''+id+'\',\''+title+'\','+JSON.stringify(opts)+',this)"><span class="'+(val?'':'placeholder')+'">'+ph+'</span><i class="fa-solid fa-chevron-right"></i></div>';
+  }
+  function inp(val,ph){
+    return '<input class="form-input'+(val?' changed':'')+'" type="text" value="'+escHtml(val||'')+'" placeholder="'+ph+'">';
+  }
+  function dateInp(val){
+    return '<input class="form-input'+(val?' changed':'')+'" type="date" value="'+(val||'')+'" '+(val?'':'style="color:#B0B5BF"')+' onfocus="this.style.color=\'#1E2532\'">';
+  }
+
+  var html='';
+  if(cat==='competition'){
+    html+='<div class="form-group"><label class="form-label">竞赛名称</label>'+inp(record.name,'竞赛全称')+'</div>';
+    html+='<div class="form-group"><label class="form-label">奖项级别</label>'+sel('level','奖项级别',['国际级','国家级','省级','校级'],f.level,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">获奖等级</label>'+sel('prize','获奖等级',['特等奖','一等奖','二等奖','三等奖','金奖','银奖','铜奖','优秀奖'],f.prize,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">获奖时间</label>'+dateInp(f.date)+'</div>';
+    html+='<div class="form-group"><label class="form-label">是否学术竞赛</label>'+sel('acad','是否学术竞赛',['是（学术竞赛）','否（非学术竞赛）'],f.academic,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">排名/参赛人数</label>'+inp(f.rank,'如：团队第 1 位 / 共 3 人')+'</div>';
+  }else if(cat==='other-award'){
+    html+='<div class="form-group"><label class="form-label">奖项名称</label>'+inp(record.name,'奖项完整名称')+'</div>';
+    html+='<div class="form-group"><label class="form-label">奖项级别</label>'+sel('oalv','奖项级别',['国际级','国家级','省级','校级'],f.level,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">获奖等级</label>'+sel('oagd','获奖等级',['特等奖','一等奖','二等奖','三等奖','荣誉称号','优秀奖','其他'],f.grade,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">获奖时间</label>'+dateInp(f.date)+'</div>';
+  }else if(cat==='innovation'){
+    html+='<div class="form-group"><label class="form-label">项目编号</label>'+inp(f.code,'请输入项目编号')+'</div>';
+    html+='<div class="form-group"><label class="form-label">项目名称</label>'+inp(record.name,'创新创业项目名称')+'</div>';
+    html+='<div class="form-group"><label class="form-label">项目类型</label>'+sel('inntype','项目类型',['创新训练','创业训练'],f.ptype,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">项目级别</label>'+sel('innlv','项目级别',['国家级','省级','校级','院级'],f.level,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">项目负责人</label>'+inp(f.leader,'项目负责人姓名')+'</div>';
+    html+='<div class="form-group"><label class="form-label">指导教师</label>'+inp(f.teacher,'指导教师姓名')+'</div>';
+    html+='<div class="form-group"><label class="form-label">是否结题</label>'+sel('inndone','是否结题',['是','否'],f.done,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">结题结果</label>'+sel('innres','结题结果',['优秀','良好','合格','不合格'],f.result,'')+'</div>';
+  }else if(cat==='paper'){
+    html+='<div class="form-group"><label class="form-label">论文名称</label>'+inp(record.name,'论文完整标题')+'</div>';
+    html+='<div class="form-group"><label class="form-label">论文类型</label>'+sel('ptype','论文类型',['期刊论文','会议论文','学位论文','其他'],f.type,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">发表年份</label>'+inp((f.date||'').substring(0,4),'如 2025')+'</div>';
+    html+='<div class="form-group"><label class="form-label">刊物名称</label>'+inp(f.journal,'期刊或会议名称')+'</div>';
+    html+='<div class="form-group"><label class="form-label">期刊等级</label>'+sel('jrlv','期刊等级',['Science&Nature','SCI一区','SCI二区','SCI三区','EI','一级学报','中文核心','CSSCI','其他'],f.grade,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">卷数</label>'+inp(f.vol,'如 Vol.131')+'</div>';
+    html+='<div class="form-group"><label class="form-label">页码</label>'+inp(f.page,'如 p.146801')+'</div>';
+    html+='<div class="form-group"><label class="form-label">是否一作</label>'+sel('auth','是否一作',['是','否'],f.author,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">第一作者署名单位</label>'+inp(f.unit,'如 物理学院')+'</div>';
+  }else if(cat==='patent'){
+    html+='<div class="form-group"><label class="form-label">名称</label>'+inp(record.name,'专利或软件完整名称')+'</div>';
+    html+='<div class="form-group"><label class="form-label">类型</label>'+sel('pttype','类型',['发明专利','软件著作'],f.ptype,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">状态</label>'+sel('ptst','状态',['已授权','已受理','审查中','已公开'],f.status,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">第一署名单位</label>'+inp(f.unit,'如 物理学院')+'</div>';
+    html+='<div class="form-group"><label class="form-label">获得时间</label>'+dateInp(f.date)+'</div>';
+  }else if(cat==='exchange'){
+    html+='<div class="form-group"><label class="form-label">项目类别</label>'+sel('excat','项目类别',['境内','境外'],f.cat,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">项目名称</label>'+inp(record.name,'交流项目名称')+'</div>';
+    html+='<div class="form-group"><label class="form-label">项目类型</label>'+sel('extype','项目类型',['科研实习','修课','文化交流','其他'],f.type,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">合作单位</label>'+inp(f.unit,'合作单位名称')+'</div>';
+    html+='<div class="form-group"><label class="form-label">国家或地区</label>'+inp(f.place,'如 日本 / 中国香港')+'</div>';
+    html+='<div class="form-group"><label class="form-label">活动时长</label>'+inp(f.duration,'如 6周 / 3个月')+'</div>';
+  }else if(cat==='scholarship'){
+    html+='<div class="form-group"><label class="form-label">奖学金名称</label>'+inp(record.name,'如国家奖学金')+'</div>';
+    html+='<div class="form-group"><label class="form-label">奖励级别</label>'+sel('sclv','奖励级别',['国家级','省级','校级','院级'],f.level,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">类型</label>'+sel('sctype','类型',['学业奖学金','专项奖学金','社会捐赠奖学金','其他'],f.type,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">等级</label>'+sel('scgd','等级',['特等','一等','二等','三等','无等级'],f.grade,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">金额（元）</label>'+inp(f.amount,'金额')+'</div>';
+    html+='<div class="form-group"><label class="form-label">设立单位</label>'+inp(f.unit,'如教育部')+'</div>';
+    html+='<div class="form-group"><label class="form-label">获评时间</label>'+dateInp(f.date)+'</div>';
+  }else if(cat==='research'){
+    html+='<div class="form-group"><label class="form-label">项目名称</label>'+inp(record.name,'科研实践项目')+'</div>';
+    html+='<div class="form-group"><label class="form-label">项目类型</label>'+sel('rstype','项目类型',['大学生创新训练项目','导师课题参与','实验室研究','学术调研','其他'],f.type,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">项目级别</label>'+sel('rslv','项目级别',['国家级','省部级','校级','院级'],f.level,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">立项时间</label>'+dateInp(f.date)+'</div>';
+    html+='<div class="form-group"><label class="form-label">指导老师</label>'+inp(f.teacher,'姓名')+'</div>';
+    html+='<div class="form-group"><label class="form-label">本人工作和成果</label><textarea class="form-textarea changed">'+escHtml(f.result||'')+'</textarea></div>';
+  }else if(cat==='social'){
+    html+='<div class="form-group"><label class="form-label">项目名称</label>'+inp(record.name,'社会实践项目')+'</div>';
+    html+='<div class="form-group"><label class="form-label">项目类型</label>'+sel('sotype','项目类型',['暑期三下乡','社会调研','志愿支教','志愿服务','专业实习','创业实践','其他'],f.type,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">项目级别</label>'+sel('solv','项目级别',['国家级','省级','校级','院级','其他'],f.level,'')+'</div>';
+    html+='<div class="form-group"><label class="form-label">开始时间</label>'+dateInp(f.start)+'</div>';
+    html+='<div class="form-group"><label class="form-label">结束时间</label>'+dateInp(f.end)+'</div>';
+    html+='<div class="form-group"><label class="form-label">指导老师</label>'+inp(f.teacher,'选填')+'</div>';
+  }
+
+  html+='<div class="form-divider"></div>';
+  html+='<div class="form-divider-label"><i class="fa-solid fa-pen-nib"></i>填写勘误原因</div>';
+  html+='<div class="original-chip"><i class="fa-solid fa-database"></i> 原始数据：<strong>'+escHtml(record.name.length>20?record.name.substring(0,20)+'…':record.name)+'</strong></div>';
+  html+='<div class="form-group">';
+  html+='<label class="form-label">勘误原因<span class="req">*</span></label>';
+  html+='<textarea class="form-textarea required-field" id="reasonField" placeholder="请说明现有数据中哪些字段有误、正确信息是什么，以及错误产生的原因（如数据同步错误、录入失误等）" rows="4" oninput="this.classList.add(\'filled\');this.classList.remove(\'required-field\')"></textarea>';
+  html+='<div class="reason-note"><i class="fa-solid fa-triangle-exclamation"></i>勘误原因是必填项，详细说明有助于审核人员快速处理您的申请</div>';
+  html+='</div>';
+
+  return html;
+}
+
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+/* ─── State ─── */
+var state={step:1,cat:null,recordIdx:null};
+
+/* ─── Read URL params ─── */
+(function(){
+  var p=new URLSearchParams(location.search);
+  var pc=p.get('cat');var pr=p.get('record');
+  if(pc&&mockRecords[pc]){
+    state.cat=pc;
+    document.querySelector('[data-cat="'+pc+'"]').classList.add('active');
+    document.getElementById('nextStep1Btn').style.display='';
+    document.getElementById('bottomStep1').style.display='flex';
+    if(pr!==null&&parseInt(pr)<mockRecords[pc].length){
+      state.recordIdx=parseInt(pr);
+      goStep3();return;
+    }
+    goStep2();
+  }else{
+    document.getElementById('bottomStep1').style.display='flex';
+    document.getElementById('nextStep1Btn').style.opacity='0.5';
+  }
+})();
+
+/* ─── Category selection ─── */
+document.querySelectorAll('.cat-btn').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.cat-btn').forEach(function(x){x.classList.remove('active')});
+    b.classList.add('active');
+    state.cat=b.getAttribute('data-cat');
+    document.getElementById('nextStep1Btn').style.opacity='1';
+  });
+});
+
+/* ─── Navigation ─── */
+function setStep(n){
+  state.step=n;
+  [1,2,3].forEach(function(i){
+    var el=document.getElementById('step'+i);
+    el.className='step-item'+(i<n?' done':i===n?' active':'');
+    document.getElementById('pageStep'+i).style.display=(i===n)?'':'none';
+    var bb=document.getElementById('bottomStep'+i);
+    if(bb) bb.style.display=(i===n)?'flex':'none';
+  });
+  document.getElementById('successScreen').classList.remove('show');
+  document.getElementById('stepsBar').style.display='flex';
+  window.scrollTo(0,0);
+}
+
+function goStep1(){setStep(1);state.recordIdx=null;}
+function goStep2(){
+  if(!state.cat){showToast('请先选择类目','warning');return;}
+  setStep(2);
+  document.getElementById('step2Title').innerHTML='<i class="fa-solid fa-list-check" style="color:#1BB975"></i>选择要勘误的「'+catNames[state.cat]+'」记录';
+  renderRecordList();
+  document.getElementById('nextStep2Btn').style.opacity='0.5';
+}
+function goStep3(){
+  if(state.recordIdx===null){showToast('请先选择一条记录','warning');return;}
+  setStep(3);
+  var record=mockRecords[state.cat][state.recordIdx];
+  document.getElementById('formCard').innerHTML=buildForm(state.cat,record);
+}
+
+/* ─── Record list ─── */
+function renderRecordList(){
+  var records=mockRecords[state.cat]||[];
+  var srcLabel={'sync':'系统同步','manual':'手动录入','correction':'勘误修改'};
+  var html='';
+  if(!records.length){
+    html='<div style="text-align:center;padding:40px 0;color:#9096A2"><i class="fa-solid fa-inbox" style="font-size:40px;margin-bottom:12px;display:block"></i>该类目暂无可勘误的记录</div>';
+  }else{
+    records.forEach(function(r,i){
+      html+='<div class="record-item" data-idx="'+i+'" onclick="selectRecord(this,'+i+')">';
+      html+='<div class="record-header"><div class="record-name">'+escHtml(r.name)+'</div><div class="record-sel-icon"><i class="fa-solid fa-check"></i></div></div>';
+      html+='<div class="record-tags">';
+      r.tags.forEach(function(t){html+='<span class="r-tag blue">'+t+'</span>'});
+      html+='<span class="r-tag gray">'+r.date+'</span>';
+      html+='</div>';
+      html+='<div class="record-source"><i class="fa-solid fa-database src-'+r.src+'"></i><span style="'+(r.src==='manual'?'color:#3087CC':r.src==='correction'?'color:#1BB975':'color:#696F7D')+'">'+srcLabel[r.src]+'</span></div>';
+      html+='</div>';
+    });
+  }
+  document.getElementById('recordList').innerHTML=html;
+}
+
+function selectRecord(el,idx){
+  document.querySelectorAll('.record-item').forEach(function(x){x.classList.remove('selected')});
+  el.classList.add('selected');
+  state.recordIdx=idx;
+  document.getElementById('nextStep2Btn').style.opacity='1';
+}
+
+/* ─── Back button ─── */
+function handleBack(){
+  if(state.step===1) location.href='student-home.html';
+  else if(state.step===2) goStep1();
+  else if(state.step===3) goStep2();
+}
+
+/* ─── Submit ─── */
+var CORRECTION_DRAFT_KEY='student_correction_draft';
+
+function saveCorrectionDraft(){
+  var reasonEl=document.getElementById('reasonField');
+  var payload={
+    step:state.step,
+    cat:state.cat,
+    recordIdx:state.recordIdx,
+    reason:reasonEl?reasonEl.value:'',
+    savedAt:new Date().toISOString()
+  };
+  localStorage.setItem(CORRECTION_DRAFT_KEY, JSON.stringify(payload));
+  var t=new Date(),hh=('0'+t.getHours()).slice(-2),mm=('0'+t.getMinutes()).slice(-2);
+  showToast('勘误草稿已保存 · '+hh+':'+mm,'success');
+}
+
+function restoreCorrectionDraft(){
+  var raw=localStorage.getItem(CORRECTION_DRAFT_KEY);
+  if(!raw) return;
+  try{
+    var data=JSON.parse(raw);
+    if(!data.cat) return;
+    state.cat=data.cat;
+    state.recordIdx=data.recordIdx;
+    document.querySelectorAll('.cat-btn').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-cat')===data.cat);
+    });
+    if(data.step>=2){
+      goStep2();
+      if(data.recordIdx!==null && data.recordIdx!==undefined){
+        var items=document.querySelectorAll('.record-item');
+        if(items[data.recordIdx]) selectRecord(items[data.recordIdx], data.recordIdx);
+      }
+    }
+    if(data.step>=3 && state.recordIdx!==null){
+      goStep3();
+      if(data.reason){
+        var reasonEl=document.getElementById('reasonField');
+        if(reasonEl) reasonEl.value=data.reason;
+      }
+    }
+    showToast('已恢复上次暂存的勘误草稿','info');
+  }catch(e){}
+}
+
+function submitCorrection(){
+  var reasonEl=document.getElementById('reasonField');
+  if(!reasonEl||!reasonEl.value.trim()){
+    reasonEl&&reasonEl.classList.add('required-field');
+    reasonEl&&(reasonEl.style.borderColor='#E8443A');
+    showToast('请填写勘误原因','warning');
+    reasonEl&&reasonEl.focus();
+    return;
+  }
+  var record=mockRecords[state.cat][state.recordIdx];
+  document.getElementById('stepsBar').style.display='none';
+  document.getElementById('pageStep3').style.display='none';
+  document.getElementById('bottomStep3').style.display='none';
+  var info=document.getElementById('successInfo');
+  info.innerHTML='<div class="success-info-row"><div class="key">勘误类目</div><div class="val">'+catNames[state.cat]+'</div></div>'
+    +'<div class="success-info-row"><div class="key">勘误记录</div><div class="val" style="max-width:60%;text-align:right;word-break:break-all">'+escHtml(record.name.length>30?record.name.substring(0,30)+'…':record.name)+'</div></div>'
+    +'<div class="success-info-row"><div class="key">申请编号</div><div class="val">EC-2026-'+(Math.floor(Math.random()*9000)+1000)+'</div></div>'
+    +'<div class="success-info-row"><div class="key">预计处理</div><div class="val">3 个工作日内</div></div>';
+  document.getElementById('successScreen').classList.add('show');
+  localStorage.removeItem(CORRECTION_DRAFT_KEY);
+  window.scrollTo(0,0);
+}
+
+/* ─── Picker ─── */
+var currentTarget=null,currentSelected='';
+function openPicker(id,title,opts,el){
+  currentTarget=el;currentSelected='';
+  document.getElementById('pickerTitle').textContent=title;
+  var html='';opts.forEach(function(o){html+='<div class="picker-option" onclick="selectOpt(this)">'+o+'</div>'});
+  document.getElementById('pickerOptions').innerHTML=html;
+  document.getElementById('pickerMask').classList.add('show');
+  document.getElementById('pickerPanel').classList.add('show');
+}
+function selectOpt(el){document.querySelectorAll('.picker-option').forEach(function(x){x.classList.remove('selected')});el.classList.add('selected');currentSelected=el.textContent}
+function confirmPicker(){
+  if(currentSelected&&currentTarget){
+    currentTarget.querySelector('span').textContent=currentSelected;
+    currentTarget.querySelector('span').classList.remove('placeholder');
+    currentTarget.querySelector('span').style.color='#1E2532';
+    currentTarget.classList.add('changed');
+  }
+  closePicker();
+}
+function closePicker(){document.getElementById('pickerMask').classList.remove('show');document.getElementById('pickerPanel').classList.remove('show')}
+
+function openActionSheet(){document.getElementById('actionSheetMask').classList.add('show');document.getElementById('actionSheet').classList.add('show')}
+function closeActionSheet(){document.getElementById('actionSheetMask').classList.remove('show');document.getElementById('actionSheet').classList.remove('show')}
+function addUpload(kind){
+  var preview=document.getElementById('uploadPreview');
+  if(!preview) return;
+  var map={camera:{icon:'fa-file-image',name:'现场拍摄.jpg'},album:{icon:'fa-file-image',name:'相册图片.jpg'},file:{icon:'fa-file-pdf',name:'证明文件.pdf'}};
+  var m=map[kind]||map.file;
+  var thumb=document.createElement('div');
+  thumb.className='upload-thumb';
+  thumb.innerHTML='<div class="thumb-placeholder"><i class="fa-solid '+m.icon+'"></i><span>'+m.name+'</span></div>'
+    +'<div class="remove" onclick="event.stopPropagation();removeThumb(this)"><i class="fa-solid fa-xmark"></i></div>';
+  preview.appendChild(thumb);
+  showToast('已添加证明材料','success');
+}
+function removeThumb(el){
+  var thumb=el.closest('.upload-thumb');
+  if(thumb&&thumb.parentNode) thumb.parentNode.removeChild(thumb);
+  showToast('已删除','info');
+}
+
+function showToast(msg,type){
+  var t=document.getElementById('toast');
+  var icon=type==='success'?'<i class="fa-solid fa-circle-check" style="color:#1BB975"></i>':type==='warning'?'<i class="fa-solid fa-triangle-exclamation" style="color:#F29100"></i>':'<i class="fa-solid fa-circle-info" style="color:#64B5F6"></i>';
+  t.innerHTML=icon+msg;t.classList.add('show');
+  clearTimeout(t._timer);t._timer=setTimeout(function(){t.classList.remove('show')},2000);
+}
+
+(function(){
+  var p=new URLSearchParams(location.search);
+  if(!p.get('cat') && localStorage.getItem('student_correction_draft')){
+    restoreCorrectionDraft();
+  }
+})();
+</script>
+</body>
+</html>

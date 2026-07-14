@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>学生档案 · 导师端</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'OPPOSans',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#F5F7FA;color:#1E2532;max-width:428px;margin:0 auto;min-height:100vh;font-size:14px;padding-bottom:72px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+
+.navbar{position:sticky;top:0;z-index:100;height:44px;background:#fff;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid #ECEFF4}
+.navbar .back{font-size:18px;color:#3C444F;padding:8px 8px 8px 0}
+.navbar .title{flex:1;text-align:center;font-size:16px;font-weight:600;color:#1E2532}
+.navbar .year-sel{height:28px;padding:0 8px;border:1px solid #E0E3E8;border-radius:8px;font-size:12px;color:#3C444F;background:#FAFBFC;outline:none;font-family:inherit;cursor:pointer}
+.navbar .year-sel:focus{border-color:#F29100}
+
+.stu-card{background:#fff;border-radius:14px;margin:16px;overflow:hidden}
+.stu-card-bar{height:4px;background:linear-gradient(90deg,#F29100,#FFB84D)}
+.stu-card-body{padding:16px;display:flex;gap:14px;align-items:center}
+.avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#F29100,#E07D00);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0}
+.stu-text .name{font-size:16px;font-weight:700;color:#1E2532}
+.stu-text .meta{font-size:12px;color:#9096A2;margin-top:3px;line-height:1.5}
+.stu-card-footer{padding:0 16px 16px;display:flex;flex-direction:column;gap:8px}
+.status-tag{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px}
+.tag-orange{background:#FFF3E0;color:#F29100}
+.stu-btns{display:flex;gap:10px;margin-top:6px}
+.stu-btn{flex:1;height:38px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:5px;cursor:pointer;transition:all .15s}
+.stu-btn-primary{background:#F29100;color:#fff}
+.stu-btn-primary:active{background:#E07D00}
+.stu-btn-outline{background:#fff;color:#F29100;border:1px solid #FFD699}
+.stu-btn-outline:active{background:#FFF3E0}
+
+.data-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 16px;margin-bottom:16px}
+.data-cell{background:#fff;border-radius:12px;padding:14px 8px;text-align:center;cursor:pointer;transition:all .15s}
+.data-cell:active{background:#FFF8F0}
+.data-cell .val{font-size:20px;font-weight:700;color:#1E2532}
+.data-cell .val.orange{color:#F29100}
+.data-cell .val.blue{color:#2196F3}
+.data-cell .val.green{color:#1BB975}
+.data-cell .lab{font-size:11px;color:#9096A2;margin-top:3px}
+
+.category-tabs{background:#fff;padding:0 16px;border-bottom:1px solid #ECEFF4;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.category-tabs::-webkit-scrollbar{display:none}
+.cat-tab{display:inline-block;padding:12px 14px;font-size:13px;color:#9096A2;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-weight:500}
+.cat-tab.active{color:#F29100;border-bottom-color:#F29100;font-weight:600}
+
+.tab-content{padding:16px}
+
+.stats-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.summary-item{background:#fff;border-radius:12px;padding:14px;text-align:center}
+.summary-val{font-size:22px;font-weight:700;color:#F29100}
+.summary-lab{font-size:12px;color:#9096A2;margin-top:2px}
+
+.course-card{background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;cursor:pointer;transition:box-shadow .2s}
+.course-card:active{box-shadow:0 2px 4px rgba(0,0,0,0.06)}
+.course-main{display:flex;align-items:center;justify-content:space-between}
+.course-info{flex:1;min-width:0}
+.course-name{font-size:14px;font-weight:600;margin-bottom:4px}
+.course-meta{font-size:12px;color:#9096A2;display:flex;gap:8px;flex-wrap:wrap}
+.course-meta span{display:inline-flex;align-items:center;gap:3px}
+.course-score{font-size:22px;font-weight:700;color:#F29100;flex-shrink:0;margin-left:12px}
+.course-score-unit{font-size:12px;color:#9096A2;font-weight:400}
+.course-detail{max-height:0;overflow:hidden;transition:max-height .3s ease,opacity .3s;opacity:0}
+.course-detail.open{max-height:120px;opacity:1}
+.course-detail-inner{padding-top:12px;margin-top:12px;border-top:1px dashed #ECEFF4;font-size:12px;color:#9096A2;line-height:2}
+
+.award-card{background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;position:relative}
+.award-name{font-size:14px;font-weight:600;margin-bottom:6px}
+.award-tags{display:flex;gap:6px;flex-wrap:wrap}
+.a-tag{font-size:11px;padding:3px 8px;border-radius:4px;font-weight:500}
+.a-tag.level{background:#E3F1F9;color:#3087CC}
+.a-tag.rank{background:#E8FCF4;color:#1BB975}
+.a-tag.date{background:#F5F7FA;color:#9096A2}
+
+.paper-card{background:#fff;border-radius:12px;padding:16px;margin-bottom:10px}
+.paper-name{font-size:14px;font-weight:600;margin-bottom:6px}
+.paper-tags{display:flex;gap:6px;flex-wrap:wrap}
+
+.innovation-card{background:#fff;border-radius:12px;padding:16px;margin-bottom:10px}
+.innovation-name{font-size:14px;font-weight:600;margin-bottom:6px}
+.innovation-tags{display:flex;gap:6px;flex-wrap:wrap}
+
+.scholarship-card{background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.scholarship-info{flex:1}
+.scholarship-name{font-size:14px;font-weight:600;margin-bottom:4px}
+.scholarship-meta{font-size:12px;color:#9096A2;display:flex;gap:8px}
+.scholarship-amount{font-size:20px;font-weight:700;color:#F29100}
+
+.text-block{background:#fff;border-radius:12px;padding:20px;margin-bottom:10px;line-height:1.8;font-size:14px;color:#3C444F}
+.text-block-title{font-size:13px;color:#9096A2;margin-bottom:8px;font-weight:500}
+
+.result-card{background:#fff;border-radius:12px;padding:20px;margin-bottom:10px}
+.result-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;background:linear-gradient(135deg,#FFF7E6,#FFECB3);border-radius:8px;font-size:18px;font-weight:700;color:#E6A700;margin-bottom:14px;border:1px solid #FFD54F}
+.result-steps{display:flex;flex-direction:column;gap:10px}
+.result-step{display:flex;align-items:center;gap:10px;font-size:13px}
+.result-step-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.result-step-dot.done{background:#1BB975}
+.result-step-dot.pending{background:#F29100}
+.result-step-dot.wait{background:#E0E0E0}
+.result-step-label{color:#3C444F}
+.result-step-status{margin-left:auto;font-size:12px;font-weight:500}
+.result-step-status.done{color:#1BB975}
+.result-step-status.pending{color:#F29100}
+.result-step-status.wait{color:#C8CAD1}
+
+.empty-state{text-align:center;padding:50px 20px;color:#C8CAD1}
+.empty-state i{font-size:40px;margin-bottom:10px}
+.empty-state p{font-size:13px}
+
+.fab{position:fixed;bottom:76px;right:calc(50% - 214px + 20px);width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#F29100,#E07D00);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 16px rgba(242,145,0,0.35);cursor:pointer;z-index:90;transition:transform .2s}
+.fab:active{transform:scale(0.92)}
+@media(min-width:428px){.fab{right:calc(50% - 194px)}}
+
+.tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:428px;height:56px;background:#fff;border-top:1px solid #ECEFF4;display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0px)}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;color:#9096A2;cursor:pointer;position:relative;transition:color .15s;text-decoration:none}
+.tab-item.active{color:#F29100}
+.tab-item.active i{color:#F29100}
+.tab-item i{font-size:20px;transition:color .15s}
+.tab-badge{position:absolute;top:4px;right:50%;transform:translateX(calc(50% + 12px));min-width:16px;height:16px;background:#E8443A;color:#fff;font-size:10px;font-weight:700;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+
+.drawer-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
+.drawer-mask.show{opacity:1;pointer-events:auto}
+.drawer{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:428px;background:#fff;border-radius:20px 20px 0 0;z-index:201;transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:60vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,0px)}
+.drawer.show{transform:translateX(-50%) translateY(0)}
+.drawer-header{display:flex;justify-content:space-between;align-items:center;padding:18px 20px 14px;border-bottom:1px solid #F0F2F5;position:sticky;top:0;background:#fff;border-radius:20px 20px 0 0;z-index:1}
+.drawer-header .title{font-size:17px;font-weight:700;color:#1E2532}
+.drawer-header .close{width:32px;height:32px;border-radius:50%;background:#F0F2F5;display:flex;align-items:center;justify-content:center;font-size:16px;color:#696F7D;cursor:pointer}
+.drawer-header .close:active{background:#E0E3E8}
+.drawer-body{padding:16px 20px 24px}
+.fab-item{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #F5F7FA;cursor:pointer;font-size:14px;color:#3C444F;font-weight:500}
+.fab-item:last-child{border-bottom:none}
+.fab-item:active{color:#F29100}
+.fab-item i{width:36px;height:36px;border-radius:10px;background:#FFF3E0;color:#F29100;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+
+.popup-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.35);z-index:250;display:none;justify-content:center;align-items:center}
+.popup-mask.show{display:flex}
+.popup-box{width:300px;background:#fff;border-radius:14px;overflow:hidden;animation:popIn .2s ease}
+@keyframes popIn{from{transform:scale(0.85);opacity:0}to{transform:scale(1);opacity:1}}
+.popup-header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #F0F2F5}
+.popup-header .title{font-size:15px;font-weight:600;color:#1E2532}
+.popup-header .close{font-size:16px;color:#9096A2;cursor:pointer;padding:4px}
+.popup-body{padding:12px 16px 18px;max-height:280px;overflow-y:auto}
+.popup-item{padding:10px 0;border-bottom:1px solid #F5F7FA;font-size:13px;color:#3C444F}
+.popup-item:last-child{border-bottom:none}
+
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.8);background:rgba(30,37,50,0.88);color:#fff;padding:14px 28px;border-radius:12px;font-size:14px;z-index:9999;opacity:0;transition:all .25s;pointer-events:none;text-align:center;max-width:280px}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.toast i{display:block;font-size:28px;margin-bottom:8px}
+
+.confirm-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:300;display:none;justify-content:center;align-items:center}
+.confirm-mask.show{display:flex}
+.confirm-box{width:300px;background:#fff;border-radius:16px;overflow:hidden;animation:popIn .2s ease}
+.confirm-body{padding:24px 20px 16px;text-align:center}
+.confirm-body .msg{font-size:15px;font-weight:600;color:#1E2532;margin-bottom:6px}
+.confirm-body .sub{font-size:13px;color:#9096A2}
+.confirm-actions{display:flex;border-top:1px solid #F0F2F5}
+.confirm-actions button{flex:1;padding:14px;font-size:15px;font-weight:500;cursor:pointer;transition:background .15s}
+.confirm-actions .cancel-btn{color:#696F7D;border-right:1px solid #F0F2F5}
+.confirm-actions .cancel-btn:active{background:#F5F7FA}
+.confirm-actions .ok-btn{color:#F29100;font-weight:600}
+.confirm-actions .ok-btn:active{background:#FFF8F0}
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <a class="back" href="tutor-students.html"><i class="fa-solid fa-chevron-left"></i></a>
+  <div class="title">学生档案</div>
+  <select class="year-sel" id="yearSel" onchange="switchYear(this.value)">
+    <option value="2025">2025-2026</option>
+    <option value="2024">2024-2025</option>
+    <option value="2023">2023-2024</option>
+  </select>
+</div>
+
+<div class="stu-card">
+  <div class="stu-card-bar"></div>
+  <div class="stu-card-body">
+    <div class="avatar">王</div>
+    <div class="stu-text">
+      <div class="name">王明</div>
+      <div class="meta">2022级 · 计算机科学与技术<br>计算机学院 · 国家级基础学科拔尖基地</div>
+    </div>
+  </div>
+  <div class="stu-card-footer">
+    <div><span class="status-tag tag-orange">鉴定填报中</span></div>
+    <div class="stu-btns">
+      <a class="stu-btn stu-btn-primary" href="tutor-evaluation.html"><i class="fa-solid fa-pen"></i> 填写评价</a>
+      <a class="stu-btn stu-btn-outline" href="tutor-review.html"><i class="fa-solid fa-clipboard-check"></i> 审核申请</a>
+    </div>
+  </div>
+</div>
+
+<div class="data-grid">
+  <div class="data-cell" onclick="showDataPopup('gpa')"><div class="val">3.85</div><div class="lab">GPA</div></div>
+  <div class="data-cell" onclick="showDataPopup('competition')"><div class="val orange">3</div><div class="lab">竞赛</div></div>
+  <div class="data-cell" onclick="showDataPopup('paper')"><div class="val blue">1</div><div class="lab">论文</div></div>
+  <div class="data-cell" onclick="showDataPopup('patent')"><div class="val">0</div><div class="lab">专利</div></div>
+  <div class="data-cell" onclick="showDataPopup('innovation')"><div class="val green">2</div><div class="lab">创新</div></div>
+  <div class="data-cell" onclick="showDataPopup('scholarship')"><div class="val orange">1</div><div class="lab">奖学金</div></div>
+</div>
+
+<div class="category-tabs" id="categoryTabs">
+  <span class="cat-tab active" data-tab="grades">学业成绩</span>
+  <span class="cat-tab" data-tab="awards">竞赛获奖</span>
+  <span class="cat-tab" data-tab="papers">论文</span>
+  <span class="cat-tab" data-tab="patents">专利</span>
+  <span class="cat-tab" data-tab="innovation">创新创业</span>
+  <span class="cat-tab" data-tab="exchange">交流</span>
+  <span class="cat-tab" data-tab="scholarship">奖学金</span>
+  <span class="cat-tab" data-tab="research">科研</span>
+  <span class="cat-tab" data-tab="social">社会实践</span>
+  <span class="cat-tab" data-tab="moral">思想品德</span>
+  <span class="cat-tab" data-tab="selfreview">自我鉴定</span>
+  <span class="cat-tab" data-tab="tutorreview">导师评价</span>
+  <span class="cat-tab" data-tab="annualreview">学年鉴定</span>
+</div>
+
+<div class="tab-content" id="tabContent"></div>
+
+<div class="fab" onclick="openFabMenu()"><i class="fa-solid fa-ellipsis-vertical"></i></div>
+
+<div class="tab-bar">
+  <a class="tab-item" href="tutor-students.html"><i class="fa-solid fa-users"></i><span>我的学生</span></a>
+  <a class="tab-item" href="tutor-review.html" style="position:relative"><i class="fa-solid fa-clipboard-check"></i><span>审核</span><div class="tab-badge">2</div></a>
+</div>
+
+<div class="drawer-mask" id="fabMask" onclick="closeFabMenu()"></div>
+<div class="drawer" id="fabDrawer">
+  <div class="drawer-header">
+    <span class="title">更多操作</span>
+    <span class="close" onclick="closeFabMenu()"><i class="fa-solid fa-xmark"></i></span>
+  </div>
+  <div class="drawer-body">
+    <div class="fab-item" onclick="closeFabMenu();location.href='tutor-evaluation.html'"><i class="fa-solid fa-pen"></i><span>填写导师评价</span></div>
+    <div class="fab-item" onclick="closeFabMenu();location.href='tutor-review.html'"><i class="fa-solid fa-clipboard-check"></i><span>查看审核列表</span></div>
+  </div>
+</div>
+
+<div class="popup-mask" id="popupMask" onclick="closePopup()">
+  <div class="popup-box" onclick="event.stopPropagation()">
+    <div class="popup-header">
+      <span class="title" id="popupTitle">详情</span>
+      <span class="close" onclick="closePopup()"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="popup-body" id="popupBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var yearData = {
+  '2025': {credits:'45', gpa:'3.85', count:'12', courses:[
+    {name:'高等数学A(一)',type:'必修',credit:'5',score:'95',teacher:'张教授',nature:'通识必修课'},
+    {name:'大学物理',type:'必修',credit:'4',score:'90',teacher:'王教授',nature:'通识必修课'},
+    {name:'数据结构与算法',type:'必修',credit:'4',score:'92',teacher:'赵教授',nature:'专业核心课'},
+    {name:'线性代数',type:'必修',credit:'3',score:'88',teacher:'刘教授',nature:'通识必修课'},
+    {name:'概率论与数理统计',type:'必修',credit:'3',score:'91',teacher:'陈教授',nature:'通识必修课'}
+  ]},
+  '2024': {credits:'42', gpa:'3.72', count:'11', courses:[
+    {name:'C语言程序设计',type:'必修',credit:'4',score:'89',teacher:'周教授',nature:'专业基础课'},
+    {name:'离散数学',type:'必修',credit:'3',score:'85',teacher:'吴教授',nature:'专业基础课'},
+    {name:'大学英语(三)',type:'必修',credit:'2',score:'82',teacher:'李老师',nature:'通识必修课'},
+    {name:'计算机组成原理',type:'必修',credit:'4',score:'87',teacher:'孙教授',nature:'专业核心课'}
+  ]},
+  '2023': {credits:'38', gpa:'3.60', count:'10', courses:[
+    {name:'高等数学A(二)',type:'必修',credit:'5',score:'86',teacher:'张教授',nature:'通识必修课'},
+    {name:'大学英语(一)',type:'必修',credit:'2',score:'80',teacher:'李老师',nature:'通识必修课'},
+    {name:'思想道德与法治',type:'必修',credit:'3',score:'90',teacher:'马老师',nature:'通识必修课'}
+  ]}
+};
+
+var currentYear = '2025';
+var currentTab = 'grades';
+
+function switchYear(y) {
+  currentYear = y;
+  renderTab(currentTab);
+  showToast('已切换到 '+y+'-'+(parseInt(y)+1)+'学年','info');
+}
+
+function renderTab(key) {
+  currentTab = key;
+  var c = document.getElementById('tabContent');
+  var html = '';
+  var yd = yearData[currentYear];
+
+  if (key === 'grades') {
+    html += '<div class="stats-summary">';
+    html += '<div class="summary-item"><div class="summary-val">'+yd.credits+'</div><div class="summary-lab">总学分</div></div>';
+    html += '<div class="summary-item"><div class="summary-val">'+yd.gpa+'</div><div class="summary-lab">GPA</div></div>';
+    html += '<div class="summary-item"><div class="summary-val">'+yd.count+'</div><div class="summary-lab">课程数</div></div>';
+    html += '</div>';
+    yd.courses.forEach(function(course) {
+      html += '<div class="course-card" onclick="toggleCourse(this)">';
+      html += '<div class="course-main"><div class="course-info">';
+      html += '<div class="course-name">'+course.name+'</div>';
+      html += '<div class="course-meta"><span><i class="fas fa-tag"></i> '+course.type+'</span><span><i class="fas fa-coins"></i> '+course.credit+'学分</span></div>';
+      html += '</div><div class="course-score">'+course.score+'<span class="course-score-unit">分</span></div></div>';
+      html += '<div class="course-detail"><div class="course-detail-inner">';
+      html += '课程性质：'+course.nature+'<br>任课教师：'+course.teacher+'<br>学分：'+course.credit+' · 成绩：'+course.score+'分';
+      html += '</div></div></div>';
+    });
+  } else if (key === 'awards') {
+    var awards = [
+      {name:'ACM-ICPC 亚洲区域赛',level:'国家级',rank:'银奖',date:'2025-11'},
+      {name:'全国大学生数学建模竞赛',level:'国家级',rank:'一等奖',date:'2025-09'},
+      {name:'蓝桥杯程序设计大赛',level:'省级',rank:'一等奖',date:'2025-05'}
+    ];
+    awards.forEach(function(a) {
+      html += '<div class="award-card"><div class="award-name">'+a.name+'</div>';
+      html += '<div class="award-tags">';
+      html += '<span class="a-tag level">'+a.level+'</span>';
+      html += '<span class="a-tag rank">'+a.rank+'</span>';
+      html += '<span class="a-tag date">'+a.date+'</span>';
+      html += '</div></div>';
+    });
+  } else if (key === 'papers') {
+    html += '<div class="paper-card"><div class="paper-name">基于深度学习的图像识别研究</div>';
+    html += '<div class="paper-tags">';
+    html += '<span class="a-tag level">SCI二区</span>';
+    html += '<span class="a-tag rank">第一作者</span>';
+    html += '<span class="a-tag date">2025-12</span>';
+    html += '</div></div>';
+  } else if (key === 'patents') {
+    html += '<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无专利记录</p></div>';
+  } else if (key === 'innovation') {
+    html += '<div class="innovation-card"><div class="innovation-name">互联网+大学生创新创业大赛</div>';
+    html += '<div class="innovation-tags"><span class="a-tag level">省赛</span><span class="a-tag rank">金奖</span><span class="a-tag date">2025-10</span></div></div>';
+    html += '<div class="innovation-card"><div class="innovation-name">大学生创新创业训练计划</div>';
+    html += '<div class="innovation-tags"><span class="a-tag level">国家级</span><span class="a-tag rank">结题优秀</span><span class="a-tag date">2025-06</span></div></div>';
+  } else if (key === 'exchange') {
+    html += '<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无交流记录</p></div>';
+  } else if (key === 'scholarship') {
+    html += '<div class="scholarship-card"><div class="scholarship-info">';
+    html += '<div class="scholarship-name">国家奖学金</div>';
+    html += '<div class="scholarship-meta"><span>2025年度</span><span>国家级</span></div>';
+    html += '</div><div class="scholarship-amount">¥8,000</div></div>';
+  } else if (key === 'research') {
+    html += '<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无科研记录</p></div>';
+  } else if (key === 'social') {
+    html += '<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无社会实践记录</p></div>';
+  } else if (key === 'moral') {
+    html += '<div class="text-block"><div class="text-block-title">思想品德表现（学生填写 · 辅导员确认）</div>';
+    html += '本人思想积极上进，政治立场坚定，认真学习政治理论；在日常生活中团结同学、乐于助人，积极参与班级和学院组织的各项集体活动；担任班级学习委员期间工作认真负责，遵纪守法、诚实守信，具有良好的社会责任感。<div style="margin-top:10px;font-size:12px;color:#1BB975"><i class="fas fa-user-check"></i> 辅导员已确认（张辅导员 · 2026-05）</div></div>';
+  } else if (key === 'selfreview') {
+    html += '<div class="text-block"><div class="text-block-title">自我鉴定 · 2025-2026学年</div>';
+    html += '本学年在专业学习上取得了显著进步，GPA从3.60提升至3.85，多门核心课程成绩优异。在科研方面，以第一作者身份发表SCI二区论文一篇，参加ACM-ICPC亚洲区域赛获银奖。积极参与创新创业活动，在互联网+大赛中获省赛金奖。</div>';
+  } else if (key === 'tutorreview') {
+    html += '<div class="text-block"><div class="text-block-title">导师评价 · 李教授</div>';
+    html += '该生学习态度端正，具有较强的科研潜力和创新意识。在课题组中表现突出，能够独立开展实验并撰写高质量论文。编程能力扎实，多次在学科竞赛中获奖。建议进一步拓宽学术视野，加强国际学术交流。<div style="margin-top:10px;font-size:12px;color:#9096A2"><i class="fas fa-lock"></i> 导师评价仅导师、学生本人及管理员可见，无需公示；导师可修改。</div></div>';
+  } else if (key === 'annualreview') {
+    html += '<div class="result-card">';
+    html += '<div class="result-badge"><i class="fas fa-circle-check"></i> 通过</div>';
+    html += '<div class="result-steps">';
+    html += '<div class="result-step"><div class="result-step-dot done"></div><div class="result-step-label">数据确认</div><div class="result-step-status done">已完成</div></div>';
+    html += '<div class="result-step"><div class="result-step-dot done"></div><div class="result-step-label">自我鉴定</div><div class="result-step-status done">已提交</div></div>';
+    html += '<div class="result-step"><div class="result-step-dot done"></div><div class="result-step-label">导师评价</div><div class="result-step-status done">已评价</div></div>';
+    html += '<div class="result-step"><div class="result-step-dot done"></div><div class="result-step-label">学院审定</div><div class="result-step-status done">已审定</div></div>';
+    html += '<div class="result-step"><div class="result-step-dot pending"></div><div class="result-step-label">学校备案</div><div class="result-step-status pending">进行中</div></div>';
+    html += '</div></div>';
+  } else {
+    html += '<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无数据</p></div>';
+  }
+
+  c.innerHTML = html;
+}
+
+function toggleCourse(el) {
+  var detail = el.querySelector('.course-detail');
+  if (detail) detail.classList.toggle('open');
+}
+
+function showDataPopup(type) {
+  var title = '', items = [];
+  if (type === 'gpa') {
+    title = 'GPA 详情';
+    items = ['当前 GPA：3.85', '排名：专业前 15%', '较上学年：+0.12'];
+  } else if (type === 'competition') {
+    title = '竞赛获奖 (3)';
+    items = ['ACM-ICPC 亚洲区域赛 · 银奖', '全国大学生数学建模竞赛 · 一等奖', '蓝桥杯程序设计大赛 · 一等奖'];
+  } else if (type === 'paper') {
+    title = '论文 (1)';
+    items = ['《基于深度学习的图像识别研究》 SCI二区'];
+  } else if (type === 'patent') {
+    title = '专利 (0)';
+    items = ['暂无专利记录'];
+  } else if (type === 'innovation') {
+    title = '创新创业 (2)';
+    items = ['互联网+大学生创新创业大赛 · 省赛金奖', '大学生创新创业训练计划 · 国家级结题优秀'];
+  } else if (type === 'scholarship') {
+    title = '奖学金 (1)';
+    items = ['国家奖学金 · 2025年度 · ¥8,000'];
+  }
+  document.getElementById('popupTitle').textContent = title;
+  var html = '';
+  items.forEach(function(item) { html += '<div class="popup-item">'+item+'</div>'; });
+  document.getElementById('popupBody').innerHTML = html;
+  document.getElementById('popupMask').classList.add('show');
+}
+
+function closePopup() {
+  document.getElementById('popupMask').classList.remove('show');
+}
+
+function openFabMenu() {
+  document.getElementById('fabMask').classList.add('show');
+  document.getElementById('fabDrawer').classList.add('show');
+}
+function closeFabMenu() {
+  document.getElementById('fabMask').classList.remove('show');
+  document.getElementById('fabDrawer').classList.remove('show');
+}
+
+var tabs = document.querySelectorAll('.cat-tab');
+tabs.forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    tabs.forEach(function(t) { t.classList.remove('active') });
+    tab.classList.add('active');
+    renderTab(tab.getAttribute('data-tab'));
+  });
+});
+
+renderTab('grades');
+
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  var icon = type === 'success' ? '<i class="fa-solid fa-circle-check" style="color:#1BB975"></i>' : '<i class="fa-solid fa-circle-info" style="color:#F29100"></i>';
+  t.innerHTML = icon + msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show') }, 2200);
+}
+
+function showConfirm(msg, sub, cb) {
+  var mask = document.createElement('div');
+  mask.className = 'confirm-mask show';
+  mask.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:300;display:flex;justify-content:center;align-items:center';
+  mask.innerHTML = '<div class="confirm-box" style="width:300px;background:#fff;border-radius:16px;overflow:hidden">'
+    + '<div class="confirm-body" style="padding:24px 20px 16px;text-align:center"><div class="msg" style="font-size:15px;font-weight:600;color:#1E2532;margin-bottom:6px">'+msg+'</div>'
+    + (sub ? '<div class="sub" style="font-size:13px;color:#9096A2">'+sub+'</div>' : '')
+    + '</div><div class="confirm-actions" style="display:flex;border-top:1px solid #F0F2F5">'
+    + '<button class="cancel-btn" style="flex:1;padding:14px;font-size:15px;color:#696F7D;border:none;border-right:1px solid #F0F2F5;background:#fff;cursor:pointer">取消</button>'
+    + '<button class="ok-btn" style="flex:1;padding:14px;font-size:15px;color:#F29100;font-weight:600;border:none;background:#fff;cursor:pointer">确定</button>'
+    + '</div></div>';
+  document.body.appendChild(mask);
+  mask.querySelector('.cancel-btn').onclick = function(){ mask.remove(); };
+  mask.querySelector('.ok-btn').onclick = function(){ mask.remove(); if(cb) cb(); };
+  mask.addEventListener('click', function(e){ if(e.target === mask) mask.remove(); });
+}
+</script>
+</body>
+</html>

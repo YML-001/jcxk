@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的申请 · 基础学科学生</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'OPPOSans',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#F5F7FA;color:#3C444F;min-height:100vh;font-size:14px}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+.layout{display:flex;min-height:100vh}
+
+.sidebar{width:232px;background:#fff;border-right:1px solid #ECEFF4;flex-shrink:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.sidebar-brand{padding:20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #ECEFF4}
+.brand-icon{width:38px;height:38px;background:linear-gradient(135deg,#1BB975,#16a164);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
+.brand-text h1{font-size:14px;font-weight:700;color:#3C444F}
+.brand-text p{font-size:11px;color:#9096A2;margin-top:2px}
+.sidebar-nav{flex:1;padding:14px 12px;overflow-y:auto}
+.nav-group{margin-bottom:18px}
+.nav-group-title{font-size:11px;color:#9096A2;font-weight:600;padding:0 10px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;color:#696F7D;cursor:pointer;transition:all .15s;margin-bottom:2px}
+.nav-item i{font-size:15px;width:18px}
+.nav-item:hover{background:#F5F7FA;color:#1BB975}
+.nav-item.active{background:#E8FCF4;color:#1BB975;font-weight:600}
+.nav-item .badge{margin-left:auto;font-size:11px;background:#DF2027;color:#fff;padding:1px 6px;border-radius:8px;font-weight:600}
+.sidebar-footer{padding:14px 16px;border-top:1px solid #ECEFF4;display:flex;align-items:center;gap:10px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1BB975,#16a164);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.user-info .name{font-size:13px;font-weight:600;color:#3C444F}
+.user-info .role{font-size:11px;color:#9096A2;margin-top:1px}
+
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{background:#fff;border-bottom:1px solid #ECEFF4;padding:14px 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10}
+.breadcrumb{font-size:13px;color:#9096A2}
+.breadcrumb .current{color:#3C444F;font-weight:600}
+.breadcrumb i{font-size:10px;margin:0 6px}
+.breadcrumb a:hover{color:#1BB975}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid transparent;line-height:1.2}
+.btn-primary{background:#1BB975;color:#fff}
+.btn-primary:hover{background:#16a164}
+.btn-default{background:#fff;color:#696F7D;border-color:#C8CAD1}
+.btn-default:hover{border-color:#1BB975;color:#1BB975}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+.content{padding:24px 28px;flex:1;overflow-y:auto;max-width:1140px;margin:0 auto;width:100%}
+.page-title{margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
+.page-title h2{font-size:22px;font-weight:700;color:#3C444F}
+.page-title .desc{font-size:13px;color:#9096A2;margin-top:6px}
+
+/* Stat tabs */
+.stat-tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+.stat-tab{background:#fff;border:2px solid #ECEFF4;border-radius:12px;padding:18px;cursor:pointer;transition:all .15s}
+.stat-tab:hover{border-color:#1BB975}
+.stat-tab.active{border-color:#1BB975;background:#F0FBF5}
+.st-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.st-i{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.st-blue{background:#E3F1F9;color:#3087CC}
+.st-orange{background:#FFF5E5;color:#F29100}
+.st-green{background:#E8FCF4;color:#1BB975}
+.st-red{background:#FCE8EA;color:#DF2027}
+.st-gray{background:#F1F2F3;color:#696F7D}
+.st-num{font-size:24px;font-weight:700;color:#3C444F;line-height:1}
+.st-lab{font-size:12px;color:#9096A2;margin-top:6px}
+
+/* Filter */
+.filter-bar{background:#fff;border:1px solid #ECEFF4;border-radius:12px;padding:14px 20px;margin-bottom:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.filter-bar select,.filter-bar input{height:34px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none;background:#fff}
+.filter-bar input{min-width:200px}
+
+/* Request List */
+.req-list{display:flex;flex-direction:column;gap:14px}
+.req-card{background:#fff;border:1px solid #ECEFF4;border-radius:12px;overflow:hidden;transition:all .2s}
+.req-card:hover{border-color:#1BB975;box-shadow:0 4px 14px rgba(27,185,117,0.08)}
+.req-head{padding:16px 20px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #F5F7FA}
+.req-type-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.rt-supp{background:#E3F1F9;color:#3087CC}
+.rt-corr{background:#FFF5E5;color:#F29100}
+.req-main{flex:1;min-width:0}
+.req-title{font-size:14px;font-weight:600;color:#3C444F;margin-bottom:5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.req-meta{font-size:12px;color:#9096A2;display:flex;gap:14px;flex-wrap:wrap}
+.req-meta span{display:inline-flex;align-items:center;gap:4px}
+.req-tag{display:inline-flex;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.rtag-supp{background:#E3F1F9;color:#3087CC}
+.rtag-corr{background:#FFF5E5;color:#F29100}
+
+.req-status{display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:14px;font-size:12px;font-weight:600;flex-shrink:0}
+.rs-pending{background:#FFF5E5;color:#F29100}
+.rs-approved{background:#E8FCF4;color:#1BB975}
+.rs-rejected{background:#FCE8EA;color:#DF2027}
+.rs-draft{background:#F1F2F3;color:#696F7D}
+
+/* Progress Bar */
+.req-progress{padding:16px 20px;background:#FAFBFC;border-top:1px solid #F5F7FA}
+.progress-steps{display:flex;align-items:center;gap:0}
+.prog-step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
+.prog-step:not(:last-child)::after{content:'';position:absolute;top:14px;left:50%;width:100%;height:2px;background:#ECEFF4;z-index:0}
+.prog-step.done:not(:last-child)::after,.prog-step.current:not(:last-child)::after{background:#1BB975}
+.ps-circle{width:28px;height:28px;border-radius:50%;background:#fff;border:2px solid #ECEFF4;display:flex;align-items:center;justify-content:center;font-size:11px;color:#9096A2;position:relative;z-index:1;margin-bottom:6px}
+.prog-step.done .ps-circle{background:#1BB975;border-color:#1BB975;color:#fff}
+.prog-step.current .ps-circle{background:#fff;border-color:#1BB975;color:#1BB975;box-shadow:0 0 0 4px rgba(27,185,117,0.15);font-weight:700}
+.prog-step.rejected .ps-circle{background:#DF2027;border-color:#DF2027;color:#fff}
+.ps-label{font-size:11px;color:#9096A2;text-align:center}
+.prog-step.done .ps-label{color:#1BB975;font-weight:500}
+.prog-step.current .ps-label{color:#1BB975;font-weight:600}
+.prog-step.rejected .ps-label{color:#DF2027;font-weight:600}
+.ps-time{font-size:10px;color:#9096A2;margin-top:2px}
+
+/* Reject reason */
+.reject-reason{padding:12px 20px;background:#FEF0F1;border-top:1px solid #FCE8EA;display:flex;gap:10px;align-items:flex-start}
+.reject-reason i{color:#DF2027;font-size:14px;margin-top:2px}
+.reject-reason .rr-content{flex:1;font-size:12px;color:#3C444F;line-height:1.7}
+.reject-reason .rr-content strong{color:#DF2027}
+
+.req-actions{padding:12px 20px;background:#FAFBFC;border-top:1px solid #F5F7FA;display:flex;justify-content:space-between;align-items:center}
+.req-actions .req-id{font-size:11px;color:#9096A2;font-family:monospace}
+.req-actions .ra-btns{display:flex;gap:8px}
+.req-actions button{padding:5px 12px;font-size:12px;border-radius:5px;cursor:pointer;transition:all .15s}
+.btn-detail{color:#3087CC;background:#E3F1F9;border:1px solid #BADEF3}
+.btn-detail:hover{background:#3087CC;color:#fff}
+.btn-edit{color:#F29100;background:#FFF5E5;border:1px solid #FFE0B3}
+.btn-edit:hover{background:#F29100;color:#fff}
+.btn-cancel{color:#696F7D;background:#F1F2F3;border:1px solid #ECEFF4}
+
+@media(max-width:1000px){.stat-tabs{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="fa-solid fa-user-graduate"></i></div>
+    <div class="brand-text"><h1>成长档案</h1><p>基础学科 · 学生端</p></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-group">
+      <div class="nav-group-title">我的档案</div>
+      <a class="nav-item" href="my-archive.html"><i class="fa-solid fa-folder-open"></i>我的成长档案</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">数据维护</div>
+      <a class="nav-item" href="data-supplement.html"><i class="fa-solid fa-file-circle-plus"></i>数据补充</a>
+      <div class="nav-item active"><i class="fa-solid fa-list-check"></i>我的申请<span class="badge">3</span></div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">学年事务</div>
+      <a class="nav-item" href="annual-confirm.html"><i class="fa-solid fa-circle-check"></i>学年数据确认</a>
+      <a class="nav-item" href="self-evaluation.html"><i class="fa-solid fa-pen-fancy"></i>自我鉴定</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">系统</div>
+      <a class="nav-item" href="../index.html"><i class="fa-solid fa-arrow-right-from-bracket"></i>返回导航</a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-avatar">王</div>
+    <div class="user-info"><div class="name">王明</div><div class="role">物理学院 · 2022级</div></div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="breadcrumb">
+      <i class="fa-solid fa-house"></i> <a href="my-archive.html">首页</a> <i class="fa-solid fa-chevron-right"></i>
+      <span class="current">我的申请记录</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="page-title">
+      <div>
+        <h2>我的申请记录</h2>
+        <div class="desc">查看所有补充/勘误申请的审核进度</div>
+      </div>
+      <a href="data-supplement.html" class="btn btn-primary"><i class="fa-solid fa-plus"></i>新建申请</a>
+    </div>
+
+    <!-- 状态统计 -->
+    <div class="stat-tabs">
+      <div class="stat-tab active" data-status="all">
+        <div class="st-head"><div class="st-i st-blue"><i class="fa-solid fa-list"></i></div></div>
+        <div class="st-num">12</div>
+        <div class="st-lab">全部申请</div>
+      </div>
+      <div class="stat-tab" data-status="pending">
+        <div class="st-head"><div class="st-i st-orange"><i class="fa-solid fa-clock"></i></div></div>
+        <div class="st-num" style="color:#F29100">3</div>
+        <div class="st-lab">审核中</div>
+      </div>
+      <div class="stat-tab" data-status="approved">
+        <div class="st-head"><div class="st-i st-green"><i class="fa-solid fa-check"></i></div></div>
+        <div class="st-num" style="color:#1BB975">8</div>
+        <div class="st-lab">已通过</div>
+      </div>
+      <div class="stat-tab" data-status="rejected">
+        <div class="st-head"><div class="st-i st-red"><i class="fa-solid fa-rotate-left"></i></div></div>
+        <div class="st-num" style="color:#DF2027">1</div>
+        <div class="st-lab">已退回</div>
+      </div>
+      <div class="stat-tab" data-status="draft">
+        <div class="st-head"><div class="st-i st-gray"><i class="fa-regular fa-file"></i></div></div>
+        <div class="st-num" style="color:#696F7D">0</div>
+        <div class="st-lab">草稿</div>
+      </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="filter-bar">
+      <select id="flt-year">
+        <option>全部学年</option>
+        <option>2025-2026</option>
+        <option>2024-2025</option>
+      </select>
+      <select id="flt-type">
+        <option>全部类型</option>
+        <option>补充申请</option>
+        <option>勘误申请</option>
+      </select>
+      <select id="flt-cat">
+        <option>全部类目</option>
+        <option>竞赛获奖</option>
+        <option>发表论文</option>
+        <option>专利软著</option>
+      </select>
+      <input id="flt-search" type="text" placeholder="搜索申请标题，回车筛选">
+      <select id="flt-sort">
+        <option>提交时间-倒序</option>
+        <option>提交时间-正序</option>
+      </select>
+    </div>
+
+    <!-- Request List -->
+    <div class="req-list">
+
+      <!-- 审核中 - 部门复审 -->
+      <div class="req-card" data-type="supp" data-cat="竞赛获奖" data-status="pending" data-year="2025-2026" data-ts="20260505"
+        data-detail='{"fields":[["奖项名称","ACM-ICPC 国际大学生程序设计竞赛 亚洲区域赛"],["奖项级别","国家级"],["获奖等级","银奖"],["获奖时间","2025-11-15"],["是否学术竞赛","是"]],"files":["获奖证书.pdf","团队合影.jpg"],"remark":"本人为团队第 1 位成员"}'>
+        <div class="req-head">
+          <div class="req-type-icon rt-supp"><i class="fa-solid fa-plus-circle"></i></div>
+          <div class="req-main">
+            <div class="req-title">
+              <span class="req-tag rtag-supp">补充</span>
+              ACM-ICPC 国际大学生程序设计竞赛 亚洲区域赛 银奖
+            </div>
+            <div class="req-meta">
+              <span><i class="fa-solid fa-tag"></i>竞赛获奖</span>
+              <span><i class="fa-regular fa-calendar"></i>提交于 6 天前</span>
+              <span><i class="fa-regular fa-clock"></i>等待 6 天</span>
+            </div>
+          </div>
+          <div class="req-status rs-pending"><i class="fa-solid fa-clock"></i> 审核中</div>
+        </div>
+        <div class="req-progress">
+          <div class="progress-steps">
+            <div class="prog-step done">
+              <div class="ps-circle"><i class="fa-solid fa-check"></i></div>
+              <div class="ps-label">已提交</div>
+              <div class="ps-time">05-05 14:23</div>
+            </div>
+            <div class="prog-step done">
+              <div class="ps-circle"><i class="fa-solid fa-check"></i></div>
+              <div class="ps-label">学院初审通过</div>
+              <div class="ps-time">05-06 09:30</div>
+            </div>
+            <div class="prog-step current">
+              <div class="ps-circle">3</div>
+              <div class="ps-label">部门复审中</div>
+              <div class="ps-time" style="color:#F29100">本科生院</div>
+            </div>
+            <div class="prog-step">
+              <div class="ps-circle">4</div>
+              <div class="ps-label">入库生效</div>
+              <div class="ps-time">—</div>
+            </div>
+          </div>
+        </div>
+        <div class="req-actions">
+          <div class="req-id">REQ20260505001</div>
+          <div class="ra-btns">
+            <button class="btn-detail" onclick="showReqDetail(this)">查看详情</button>
+            <button class="btn-cancel" onclick="withdrawReq(this)">撤回申请</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 审核中 - 学院初审 -->
+      <div class="req-card" data-type="corr" data-cat="竞赛获奖" data-status="pending" data-year="2025-2026" data-ts="20260509"
+        data-detail='{"fields":[["原获奖等级","省级 二等奖"],["修正为","省级 一等奖"],["竞赛名称","挑战杯全国大学生课外学术科技作品竞赛"],["勘误原因","系统录入时等级有误，实际获省级一等奖，附证书扫描件"]],"files":["获奖证书_修正版.pdf"],"remark":"已与学院教务员电话确认"}'>
+        <div class="req-head">
+          <div class="req-type-icon rt-corr"><i class="fa-solid fa-pen-to-square"></i></div>
+          <div class="req-main">
+            <div class="req-title">
+              <span class="req-tag rtag-corr">勘误</span>
+              "挑战杯"全国大学生课外学术科技作品竞赛 等级勘误
+            </div>
+            <div class="req-meta">
+              <span><i class="fa-solid fa-tag"></i>竞赛获奖</span>
+              <span><i class="fa-regular fa-calendar"></i>提交于 2 天前</span>
+              <span><i class="fa-regular fa-clock"></i>等待 2 天</span>
+            </div>
+          </div>
+          <div class="req-status rs-pending"><i class="fa-solid fa-clock"></i> 审核中</div>
+        </div>
+        <div class="req-progress">
+          <div class="progress-steps">
+            <div class="prog-step done">
+              <div class="ps-circle"><i class="fa-solid fa-check"></i></div>
+              <div class="ps-label">已提交</div>
+              <div class="ps-time">05-09 11:15</div>
+            </div>
+            <div class="prog-step current">
+              <div class="ps-circle">2</div>
+              <div class="ps-label">学院初审中</div>
+              <div class="ps-time" style="color:#F29100">教务员</div>
+            </div>
+            <div class="prog-step">
+              <div class="ps-circle">3</div>
+              <div class="ps-label">部门复审</div>
+              <div class="ps-time">—</div>
+            </div>
+            <div class="prog-step">
+              <div class="ps-circle">4</div>
+              <div class="ps-label">入库生效</div>
+              <div class="ps-time">—</div>
+            </div>
+          </div>
+        </div>
+        <div class="req-actions">
+          <div class="req-id">REQ20260509002</div>
+          <div class="ra-btns">
+            <button class="btn-detail" onclick="showReqDetail(this)">查看详情</button>
+            <button class="btn-cancel" onclick="withdrawReq(this)">撤回申请</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 审核中 - 学院初审 -->
+      <div class="req-card" data-type="supp" data-cat="竞赛获奖" data-status="pending" data-year="2025-2026" data-ts="20260508"
+        data-detail='{"fields":[["奖项名称","全国大学生英语竞赛 NECCS"],["奖项级别","校级"],["获奖等级","二等奖"],["获奖时间","2025-12-10"],["是否学术竞赛","否"]],"files":["NECCS证书.jpg"],"remark":"2025年秋季赛获奖"}'>
+        <div class="req-head">
+          <div class="req-type-icon rt-supp"><i class="fa-solid fa-plus-circle"></i></div>
+          <div class="req-main">
+            <div class="req-title">
+              <span class="req-tag rtag-supp">补充</span>
+              全国大学生英语竞赛 NECCS 二等奖
+            </div>
+            <div class="req-meta">
+              <span><i class="fa-solid fa-tag"></i>竞赛获奖</span>
+              <span><i class="fa-regular fa-calendar"></i>提交于 3 天前</span>
+              <span><i class="fa-regular fa-clock"></i>等待 3 天</span>
+            </div>
+          </div>
+          <div class="req-status rs-pending"><i class="fa-solid fa-clock"></i> 审核中</div>
+        </div>
+        <div class="req-progress">
+          <div class="progress-steps">
+            <div class="prog-step done">
+              <div class="ps-circle"><i class="fa-solid fa-check"></i></div>
+              <div class="ps-label">已提交</div>
+              <div class="ps-time">05-08 16:48</div>
+            </div>
+            <div class="prog-step current">
+              <div class="ps-circle">2</div>
+              <div class="ps-label">学院初审中</div>
+              <div class="ps-time" style="color:#F29100">教务员</div>
+            </div>
+            <div class="prog-step">
+              <div class="ps-circle">3</div>
+              <div class="ps-label">部门复审</div>
+              <div class="ps-time">—</div>
+            </div>
+            <div class="prog-step">
+              <div class="ps-circle">4</div>
+              <div class="ps-label">入库生效</div>
+              <div class="ps-time">—</div>
+            </div>
+          </div>
+        </div>
+        <div class="req-actions">
+          <div class="req-id">REQ20260508003</div>
+          <div class="ra-btns">
+            <button class="btn-detail" onclick="showReqDetail(this)">查看详情</button>
+            <button class="btn-cancel" onclick="withdrawReq(this)">撤回申请</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 已通过 -->
+      <div class="req-card" data-type="supp" data-cat="境内外交流" data-status="approved" data-year="2025-2026" data-ts="20260412"
+        data-detail='{"fields":[["项目名称","日本东京大学暑期研究项目"],["项目类别","境外"],["项目类型","科研实习"],["合作单位","东京大学物理工学系"],["活动时长","约 6 周"],["起止时间","2025-07-15 至 2025-08-25"]],"files":["录取通知书.pdf","结业证明.pdf"],"remark":"暑期 Research Program"}'>
+        <div class="req-head">
+          <div class="req-type-icon rt-supp"><i class="fa-solid fa-plus-circle"></i></div>
+          <div class="req-main">
+            <div class="req-title">
+              <span class="req-tag rtag-supp">补充</span>
+              日本东京大学暑期研究项目交流
+            </div>
+            <div class="req-meta">
+              <span><i class="fa-solid fa-tag"></i>境内外交流</span>
+              <span><i class="fa-regular fa-calendar"></i>提交于 2026-04-12</span>
+              <span><i class="fa-solid fa-check"></i>已生效</span>
+            </div>
+          </div>
+          <div class="req-status rs-approved"><i class="fa-solid fa-check"></i> 已通过</div>
+        </div>
+        <div class="req-progress">
+          <div class="progress-steps">
+            <div class="prog-step done"><div class="ps-circle"><i class="fa-solid fa-check"></i></div><div class="ps-label">已提交</div><div class="ps-time">04-12 09:00</div></div>
+            <div class="prog-step done"><div class="ps-circle"><i class="fa-solid fa-check"></i></div><div class="ps-label">学院初审通过</div><div class="ps-time">04-13 10:24</div></div>
+            <div class="prog-step done"><div class="ps-circle"><i class="fa-solid fa-check"></i></div><div class="ps-label">部门复审通过</div><div class="ps-time">04-15 14:30</div></div>
+            <div class="prog-step done"><div class="ps-circle"><i class="fa-solid fa-check"></i></div><div class="ps-label">入库生效</div><div class="ps-time">04-15 14:30</div></div>
+          </div>
+        </div>
+        <div class="req-actions">
+          <div class="req-id">REQ20260412005</div>
+          <div class="ra-btns">
+            <button class="btn-detail" onclick="showReqDetail(this)">查看详情</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 已退回 -->
+      <div class="req-card" data-type="supp" data-cat="其他获奖" data-status="rejected" data-year="2025-2026" data-ts="20260322"
+        data-detail='{"fields":[["奖项名称","校级合唱比赛"],["奖项级别","校级"],["获奖等级","优秀奖"],["获奖时间","2025-10-18"]],"files":["合唱比赛证书_模糊.jpg"],"remark":"校级文艺活动获奖"}'>
+        <div class="req-head">
+          <div class="req-type-icon rt-supp"><i class="fa-solid fa-plus-circle"></i></div>
+          <div class="req-main">
+            <div class="req-title">
+              <span class="req-tag rtag-supp">补充</span>
+              校级合唱比赛 优秀奖
+            </div>
+            <div class="req-meta">
+              <span><i class="fa-solid fa-tag"></i>其他获奖</span>
+              <span><i class="fa-regular fa-calendar"></i>提交于 2026-03-22</span>
+              <span><i class="fa-solid fa-rotate-left" style="color:#DF2027"></i>已退回</span>
+            </div>
+          </div>
+          <div class="req-status rs-rejected"><i class="fa-solid fa-xmark"></i> 已退回</div>
+        </div>
+        <div class="req-progress">
+          <div class="progress-steps">
+            <div class="prog-step done"><div class="ps-circle"><i class="fa-solid fa-check"></i></div><div class="ps-label">已提交</div><div class="ps-time">03-22 13:45</div></div>
+            <div class="prog-step rejected"><div class="ps-circle"><i class="fa-solid fa-xmark"></i></div><div class="ps-label">学院初审退回</div><div class="ps-time">03-25 16:20</div></div>
+            <div class="prog-step"><div class="ps-circle">3</div><div class="ps-label">部门复审</div><div class="ps-time">—</div></div>
+            <div class="prog-step"><div class="ps-circle">4</div><div class="ps-label">入库生效</div><div class="ps-time">—</div></div>
+          </div>
+        </div>
+        <div class="reject-reason">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <div class="rr-content">
+            <strong>退回原因（学院初审 · 李辅导员）</strong><br>
+            上传的获奖证书图片不清晰，无法辨认获奖等级，请重新拍照上传，建议使用文档扫描功能。同时建议补充说明该比赛主办单位。
+          </div>
+        </div>
+        <div class="req-actions">
+          <div class="req-id">REQ20260322008</div>
+          <div class="ra-btns">
+            <button class="btn-detail" onclick="showReqDetail(this)">查看详情</button>
+            <button class="btn-edit" onclick="window.location.href='data-supplement.html'"><i class="fa-solid fa-pen"></i> 修改后重提</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</main>
+
+</div>
+
+<script>
+/* Toast */
+function showToast(msg,type){type=type||'info';var t=document.createElement('div');var c={success:'#1BB975',info:'#3087CC',warning:'#F29100',error:'#DF2027'};var ic={success:'fa-circle-check',info:'fa-circle-info',warning:'fa-triangle-exclamation',error:'fa-circle-xmark'};t.innerHTML='<i class="fa-solid '+ic[type]+'"></i> '+msg;t.style.cssText='position:fixed;top:-60px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;color:#fff;background:'+(c[type]||c.info)+';box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;gap:8px;z-index:99999;transition:top 0.3s ease;white-space:nowrap;font-family:inherit';document.body.appendChild(t);requestAnimationFrame(function(){t.style.top='24px'});setTimeout(function(){t.style.top='-60px';setTimeout(function(){t.remove()},400)},2500)}
+/* 确认弹窗 */
+function showConfirm(title,msg,onOk){var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s';o.innerHTML='<div style="background:#fff;border-radius:12px;padding:28px;width:420px;max-width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2);font-family:inherit;transform:scale(0.9);transition:transform 0.2s"><h3 style="margin:0 0 8px;font-size:16px;color:#3C444F">'+title+'</h3><p style="margin:0 0 20px;font-size:14px;color:#696F7D;line-height:1.6">'+msg+'</p><div style="display:flex;gap:10px;justify-content:flex-end"><button class="_mc" style="padding:8px 20px;border-radius:8px;border:1px solid #ECEFF4;background:#F5F7FA;color:#3C444F;cursor:pointer;font-size:13px;font-family:inherit">取消</button><button class="_mo" style="padding:8px 20px;border-radius:8px;border:none;background:#3087CC;color:#fff;cursor:pointer;font-size:13px;font-family:inherit">确定</button></div></div>';document.body.appendChild(o);requestAnimationFrame(function(){o.style.opacity='1';o.firstElementChild.style.transform='scale(1)'});o.querySelector('._mo').onclick=function(){o.remove();if(onOk)onOk()};o.querySelector('._mc').onclick=function(){o.remove()};o.addEventListener('click',function(e){if(e.target===o)o.remove()})}
+/* 通用内容弹窗 */
+function openModal(title,bodyHTML,opts){opts=opts||{};var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;padding:20px';var width=opts.width||'520px';var footer=opts.footer?('<div style="padding:14px 22px;border-top:1px solid #ECEFF4;display:flex;justify-content:flex-end;gap:10px;flex-shrink:0">'+opts.footer+'</div>'):'';o.innerHTML='<div class="_mbox" style="background:#fff;border-radius:14px;width:'+width+';max-width:100%;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.2);font-family:inherit;transform:scale(0.94);transition:transform .2s;overflow:hidden"><div style="padding:16px 22px;border-bottom:1px solid #ECEFF4;display:flex;align-items:center;justify-content:space-between;flex-shrink:0"><h3 style="margin:0;font-size:16px;color:#3C444F;display:flex;align-items:center;gap:8px">'+title+'</h3><button class="_mx" style="width:30px;height:30px;border-radius:6px;color:#9096A2;font-size:15px;background:none;cursor:pointer"><i class="fa-solid fa-xmark"></i></button></div><div style="padding:20px 22px;overflow-y:auto">'+bodyHTML+'</div>'+footer+'</div>';document.body.appendChild(o);requestAnimationFrame(function(){o.style.opacity='1';o.querySelector('._mbox').style.transform='scale(1)'});function close(){o.style.opacity='0';o.querySelector('._mbox').style.transform='scale(0.94)';setTimeout(function(){if(o.parentNode)o.parentNode.removeChild(o)},200)}o.querySelector('._mx').onclick=close;o.addEventListener('click',function(e){if(e.target===o)close()});if(opts.onReady)opts.onReady(o,close);return{el:o,close:close}}
+
+/* 申请详情弹窗（含表单内容与附件） */
+function showReqDetail(btn){
+  var card=btn.closest('.req-card');
+  var title=(card.querySelector('.req-title')||{}).textContent.trim();
+  var id=(card.querySelector('.req-id')||{}).textContent.trim();
+  var statusEl=card.querySelector('.req-status');var status=statusEl?statusEl.textContent.trim():'';
+  var meta=card.querySelector('.req-meta')?card.querySelector('.req-meta').innerHTML:'';
+  var detail={};try{detail=JSON.parse(card.getAttribute('data-detail')||'{}')}catch(e){}
+  var fieldsHtml='';
+  if(detail.fields&&detail.fields.length){
+    fieldsHtml='<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:700;color:#3C444F;margin-bottom:10px"><i class="fa-solid fa-list-check" style="color:#1BB975;margin-right:6px"></i>申请内容</div><div style="border:1px solid #ECEFF4;border-radius:8px;overflow:hidden">';
+    detail.fields.forEach(function(f,i){fieldsHtml+='<div style="display:flex;padding:10px 14px;font-size:13px;'+(i%2?'background:#FAFBFC':'')+'"><span style="width:110px;color:#9096A2;flex-shrink:0">'+f[0]+'</span><span style="color:#3C444F;font-weight:500">'+f[1]+'</span></div>'});
+    fieldsHtml+='</div></div>';
+  }
+  var filesHtml='';
+  if(detail.files&&detail.files.length){
+    filesHtml='<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:700;color:#3C444F;margin-bottom:10px"><i class="fa-solid fa-paperclip" style="color:#3087CC;margin-right:6px"></i>证明材料（'+detail.files.length+' 份）</div><div style="display:flex;flex-direction:column;gap:6px">';
+    detail.files.forEach(function(f){var isImg=/\.(jpg|jpeg|png|gif)$/i.test(f);
+      filesHtml+='<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#FAFBFC;border:1px solid #ECEFF4;border-radius:8px"><div style="width:32px;height:32px;border-radius:6px;background:'+(isImg?'#FFF5E5':'#FCE8EA')+';color:'+(isImg?'#F29100':'#DF2027')+';display:flex;align-items:center;justify-content:center"><i class="fa-solid '+(isImg?'fa-image':'fa-file-pdf')+'"></i></div><span style="font-size:13px;color:#3C444F;flex:1">'+f+'</span><span style="font-size:11px;color:#1BB975">已上传</span></div>'});
+    filesHtml+='</div></div>';
+  }
+  var remarkHtml=detail.remark?('<div style="padding:12px 14px;background:#F8FAFC;border-radius:8px;border-left:3px solid #1BB975;font-size:12px;color:#696F7D;line-height:1.7;margin-bottom:16px"><strong style="color:#3C444F">补充说明：</strong>'+detail.remark+'</div>'):'';
+  var timeline='';
+  card.querySelectorAll('.prog-step').forEach(function(s){
+    var label=(s.querySelector('.ps-label')||{}).textContent||'';var time=(s.querySelector('.ps-time')||{}).textContent||'';
+    var done=s.classList.contains('done'),cur=s.classList.contains('current'),rej=s.classList.contains('rejected');
+    var color=rej?'#DF2027':(done?'#1BB975':(cur?'#F29100':'#C8CAD1'));var icon=rej?'fa-xmark':(done?'fa-check':(cur?'fa-clock':'fa-ellipsis'));
+    timeline+='<div style="display:flex;gap:12px;padding-bottom:14px"><div style="width:26px;height:26px;border-radius:50%;background:'+color+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0"><i class="fa-solid '+icon+'"></i></div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:#3C444F">'+label+'</div><div style="font-size:12px;color:#9096A2;margin-top:2px">'+(time&&time!=='—'?time:'待处理')+'</div></div></div>';
+  });
+  var reject=card.querySelector('.reject-reason');
+  var rejectHtml=reject?('<div style="margin-top:6px;padding:12px 14px;background:#FEF0F1;border:1px solid #FCE8EA;border-radius:8px;font-size:12px;color:#3C444F;line-height:1.7">'+reject.querySelector('.rr-content').innerHTML+'</div>'):'';
+  var body='<div style="font-size:15px;font-weight:700;color:#3C444F;margin-bottom:12px">'+title+'</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px;color:#696F7D;margin-bottom:12px"><div><span style="color:#9096A2">申请编号：</span>'+id+'</div><div><span style="color:#9096A2">当前状态：</span>'+status+'</div></div>'
+    +'<div style="font-size:12px;color:#696F7D;margin-bottom:16px;display:flex;gap:14px;flex-wrap:wrap">'+meta+'</div>'
+    +fieldsHtml+filesHtml+remarkHtml
+    +'<div style="border-top:1px solid #ECEFF4;padding-top:16px"><div style="font-size:13px;font-weight:700;color:#3C444F;margin-bottom:14px"><i class="fa-solid fa-clock-rotate-left" style="color:#1BB975;margin-right:6px"></i>审核进度记录</div>'+timeline+'</div>'+rejectHtml;
+  var footer='';
+  var st=card.getAttribute('data-status');
+  if(st==='pending'){footer='<button class="_wd" style="padding:9px 20px;border-radius:8px;border:1px solid #ECEFF4;background:#F5F7FA;color:#696F7D;cursor:pointer;font-size:13px;font-family:inherit" onclick="this.closest(\'[style*=fixed]\').querySelector(\'._mx\').click()">关闭</button><button class="_ww" style="padding:9px 20px;border-radius:8px;border:none;background:#DF2027;color:#fff;cursor:pointer;font-size:13px;font-family:inherit"><i class="fa-solid fa-rotate-left"></i> 撤回申请</button>'}
+  openModal('<i class="fa-solid fa-file-lines" style="color:#3087CC"></i> 申请详情',body,{width:'560px',footer:footer,onReady:function(o,close){
+    var wb=o.querySelector('._ww');if(wb){wb.onclick=function(){close();withdrawCard(card)}}
+  }});
+}
+
+/* 执行撤回（无二次确认） */
+function withdrawCard(card){
+  if(!card)return;
+  var pill=card.querySelector('.req-status');if(pill){pill.className='req-status rs-draft';pill.innerHTML='<i class="fa-solid fa-rotate-left"></i> 已撤回'}
+  card.setAttribute('data-status','withdrawn');
+  var cur=card.querySelector('.prog-step.current');if(cur){cur.classList.remove('current');cur.classList.add('rejected');var lab=cur.querySelector('.ps-label');if(lab)lab.textContent='已撤回';var c=cur.querySelector('.ps-circle');if(c)c.innerHTML='<i class="fa-solid fa-rotate-left"></i>';var tm=cur.querySelector('.ps-time');if(tm){tm.textContent='本人撤回';tm.style.color='#DF2027'}}
+  var btns=card.querySelector('.ra-btns');if(btns){btns.innerHTML='<button class="btn-detail" onclick="showReqDetail(this)">查看详情</button><button class="btn-edit" onclick="window.location.href=\'data-supplement.html\'"><i class="fa-solid fa-pen"></i> 修改后重提</button>'}
+  bumpStat('pending',-1);
+  var badge=document.querySelector('.nav-item.active .badge');if(badge){badge.textContent=Math.max(0,(parseInt(badge.textContent,10)||0)-1)}
+  showToast('申请已撤回','warning');applyFilters();
+}
+
+/* 统计数字增减 */
+function bumpStat(status,delta){var tab=document.querySelector('.stat-tab[data-status="'+status+'"]');if(tab){var n=tab.querySelector('.st-num');if(n){var v=(parseInt(n.textContent,10)||0)+delta;n.textContent=Math.max(0,v)}}}
+
+/* 撤回申请：确认弹窗 → 状态更新 */
+function withdrawReq(btn){
+  var card=btn.closest('.req-card');if(!card)return;
+  showConfirm('撤回申请','撤回后该申请将终止审核，你可修改后重新提交。确定撤回吗？',function(){withdrawCard(card)});
+}
+
+/* 综合筛选 */
+function applyFilters(){
+  var active=document.querySelector('.stat-tab.active');var status=active?active.getAttribute('data-status'):'all';
+  var typeVal=(document.getElementById('flt-type')||{}).value||'全部类型';
+  var catVal=(document.getElementById('flt-cat')||{}).value||'全部类目';
+  var yearVal=(document.getElementById('flt-year')||{}).value||'全部学年';
+  var q=((document.getElementById('flt-search')||{}).value||'').trim().toLowerCase();
+  var shown=0;
+  document.querySelectorAll('.req-list .req-card').forEach(function(card){
+    var ok=true;
+    var st=card.getAttribute('data-status')||'',ty=card.getAttribute('data-type')||'',ct=card.getAttribute('data-cat')||'',yr=card.getAttribute('data-year')||'';
+    if(status&&status!=='all'&&st!==status)ok=false;
+    if(typeVal==='补充申请'&&ty!=='supp')ok=false;
+    if(typeVal==='勘误申请'&&ty!=='corr')ok=false;
+    if(catVal!=='全部类目'&&ct!==catVal)ok=false;
+    if(yearVal!=='全部学年'&&yr!==yearVal)ok=false;
+    if(q){var title=((card.querySelector('.req-title')||{}).textContent||'').toLowerCase();if(title.indexOf(q)<0)ok=false}
+    card.style.display=ok?'':'none';if(ok)shown++;
+  });
+  var empty=document.getElementById('_reqEmpty');
+  if(shown===0){if(!empty){empty=document.createElement('div');empty.id='_reqEmpty';empty.style.cssText='background:#fff;border:1px dashed #C8CAD1;border-radius:12px;padding:44px;text-align:center;color:#9096A2;font-size:13px';empty.innerHTML='<i class="fa-solid fa-inbox" style="font-size:32px;color:#C8CAD1;display:block;margin-bottom:10px"></i>没有符合条件的申请记录';document.querySelector('.req-list').appendChild(empty)}else{empty.style.display=''}}
+  else if(empty){empty.style.display='none'}
+}
+
+/* 状态Tab筛选 */
+document.querySelectorAll('.stat-tab').forEach(function(tab){tab.addEventListener('click',function(){document.querySelectorAll('.stat-tab').forEach(function(t){t.classList.remove('active')});this.classList.add('active');applyFilters()})});
+/* 下拉筛选 */
+['flt-year','flt-type','flt-cat'].forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener('change',applyFilters)});
+/* 排序 */
+(function(){var s=document.getElementById('flt-sort');if(!s)return;s.addEventListener('change',function(){var asc=this.value.indexOf('正序')>=0;var list=document.querySelector('.req-list');var cards=Array.prototype.slice.call(list.querySelectorAll('.req-card'));cards.sort(function(a,b){var x=+(a.getAttribute('data-ts')||0),y=+(b.getAttribute('data-ts')||0);return asc?x-y:y-x});cards.forEach(function(c){list.appendChild(c)});applyFilters()})})();
+/* 搜索 */
+(function(){var s=document.getElementById('flt-search');if(!s)return;s.addEventListener('input',applyFilters);s.addEventListener('keydown',function(e){if(e.key==='Enter')applyFilters()})})();
+
+/* 从数据补充页跳转而来：注入新提交的申请 */
+(function(){
+  var p=new URLSearchParams(location.search);if(p.get('new')!=='1')return;
+  var type=p.get('type')||'supp',title=p.get('title')||'新的成长数据补充',cat=p.get('cat')||'成长数据';var isCorr=type==='corr';
+  var now=new Date();var mm=('0'+(now.getMonth()+1)).slice(-2),dd=('0'+now.getDate()).slice(-2),hh=('0'+now.getHours()).slice(-2),mi=('0'+now.getMinutes()).slice(-2);
+  var ts=''+now.getFullYear()+mm+dd;var reqId='REQ'+now.getFullYear()+mm+dd+String(Math.floor(Math.random()*900)+100);
+  var card=document.createElement('div');card.className='req-card';
+  card.setAttribute('data-type',type);card.setAttribute('data-cat',cat);card.setAttribute('data-status','pending');card.setAttribute('data-year','2025-2026');card.setAttribute('data-ts',ts);
+  card.setAttribute('data-detail',JSON.stringify({fields:[['申请类型',isCorr?'勘误':'补充'],['类目',cat],['标题',title]],files:['证明材料.pdf'],remark:'刚刚提交的申请'}));
+  card.style.boxShadow='0 0 0 2px #1BB975';
+  card.innerHTML='<div class="req-head"><div class="req-type-icon '+(isCorr?'rt-corr':'rt-supp')+'"><i class="fa-solid '+(isCorr?'fa-pen-to-square':'fa-plus-circle')+'"></i></div><div class="req-main"><div class="req-title"><span class="req-tag '+(isCorr?'rtag-corr':'rtag-supp')+'">'+(isCorr?'勘误':'补充')+'</span> '+title+'</div><div class="req-meta"><span><i class="fa-solid fa-tag"></i>'+cat+'</span><span><i class="fa-regular fa-calendar"></i>提交于 刚刚</span><span><i class="fa-regular fa-clock"></i>等待 0 天</span></div></div><div class="req-status rs-pending"><i class="fa-solid fa-clock"></i> 审核中</div></div>'
+    +'<div class="req-progress"><div class="progress-steps"><div class="prog-step done"><div class="ps-circle"><i class="fa-solid fa-check"></i></div><div class="ps-label">已提交</div><div class="ps-time">'+mm+'-'+dd+' '+hh+':'+mi+'</div></div><div class="prog-step current"><div class="ps-circle">2</div><div class="ps-label">学院初审中</div><div class="ps-time" style="color:#F29100">教务员</div></div><div class="prog-step"><div class="ps-circle">3</div><div class="ps-label">部门复审</div><div class="ps-time">—</div></div><div class="prog-step"><div class="ps-circle">4</div><div class="ps-label">入库生效</div><div class="ps-time">—</div></div></div></div>'
+    +'<div class="req-actions"><div class="req-id">'+reqId+'</div><div class="ra-btns"><button class="btn-detail" onclick="showReqDetail(this)">查看详情</button><button class="btn-cancel" onclick="withdrawReq(this)">撤回申请</button></div></div>';
+  var list=document.querySelector('.req-list');list.insertBefore(card,list.firstElementChild);
+  bumpStat('pending',1);bumpStat('all',1);
+  var badge=document.querySelector('.nav-item.active .badge');if(badge){badge.textContent=(parseInt(badge.textContent,10)||0)+1}
+  showToast('申请「'+title+'」已提交，进入学院初审','success');
+  setTimeout(function(){card.style.transition='box-shadow 1s';card.style.boxShadow=''},2600);
+  if(history.replaceState)history.replaceState({},'','my-requests.html');
+})();
+</script>
+
+</body>
+</html>

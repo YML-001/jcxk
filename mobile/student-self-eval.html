@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>自我鉴定填写</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'OPPOSans',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#F5F7FA;color:#3C444F;min-height:100vh;max-width:428px;margin:0 auto;font-size:14px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+
+.top-bar{position:sticky;top:0;z-index:100;background:#fff;height:44px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #ECEFF4;font-size:16px;font-weight:600}
+.top-bar .back{position:absolute;left:16px;font-size:14px;color:#3C444F;display:flex;align-items:center;gap:4px;cursor:pointer}
+
+.page-body{padding:16px 16px 120px}
+
+.card{background:#fff;border-radius:12px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.03);overflow:hidden}
+.card-green-top{height:4px;background:linear-gradient(90deg,#1BB975,#0fae66)}
+
+.info-card{padding:16px}
+.info-title{font-size:15px;font-weight:700;color:#3C444F;margin-bottom:4px}
+.info-sub{font-size:12px;color:#9096A2}
+
+.summary-card{padding:16px}
+.summary-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.summary-header h4{font-size:13px;font-weight:700;color:#3C444F;display:flex;align-items:center;gap:6px}
+.summary-header .toggle-icon{font-size:12px;color:#9096A2;transition:transform .2s}
+.summary-header .toggle-icon.open{transform:rotate(180deg)}
+.summary-brief{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.summary-tag{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;background:#E8FCF4;border-radius:6px;font-size:12px;color:#1BB975;font-weight:600}
+.summary-detail{max-height:0;overflow:hidden;transition:max-height .3s ease,opacity .3s;opacity:0;margin-top:0}
+.summary-detail.open{max-height:300px;opacity:1;margin-top:12px}
+.summary-detail-inner{padding:12px;background:#F5F7FA;border-radius:8px;font-size:12px;color:#696F7D;line-height:2}
+
+.guide-card{padding:14px 16px;background:#F0FBF5;margin:0 0 12px;border-radius:12px;border:1px solid #A7F3D0}
+.guide-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.guide-header h4{font-size:13px;font-weight:700;color:#1BB975;display:flex;align-items:center;gap:6px}
+.guide-header .toggle-icon{font-size:12px;color:#1BB975;transition:transform .2s}
+.guide-header .toggle-icon.open{transform:rotate(180deg)}
+.guide-body{margin-top:10px;font-size:12px;color:#696F7D;line-height:2}
+.guide-body.collapsed{display:none}
+.guide-body ul{list-style:none;padding:0}
+.guide-body li{display:flex;align-items:flex-start;gap:6px;padding:2px 0}
+.guide-body li::before{content:'•';color:#1BB975;font-weight:700;flex-shrink:0;margin-top:-1px}
+
+.textarea-card{padding:16px}
+.textarea-card h4{font-size:13px;font-weight:700;color:#3C444F;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.eval-textarea{width:100%;min-height:250px;padding:14px;border:1px solid #E0E3E8;border-radius:10px;font-size:14px;font-family:inherit;color:#3C444F;resize:vertical;outline:none;transition:border-color .2s;line-height:1.8}
+.eval-textarea:focus{border-color:#1BB975;box-shadow:0 0 0 3px rgba(27,185,117,0.1)}
+.textarea-footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.char-count{font-size:12px;color:#9096A2}
+.char-count.ok{color:#1BB975}
+.template-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:#F5F7FA;border:1px solid #E0E3E8;border-radius:6px;font-size:12px;color:#696F7D;cursor:pointer;font-family:inherit}
+.template-btn:active{background:#ECEFF4}
+
+.bottom-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:428px;padding:12px 16px;background:#fff;border-top:1px solid #ECEFF4;z-index:100}
+.bottom-btns{display:flex;gap:10px}
+.bottom-btns button{flex:1;height:44px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn-draft{background:#F5F7FA;color:#696F7D}
+.btn-draft:active{background:#ECEFF4}
+.btn-submit{background:#1BB975;color:#fff}
+.btn-submit:active{background:#16a164}
+.bottom-tip{text-align:center;font-size:11px;color:#9096A2;margin-top:6px}
+
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.8);background:rgba(0,0,0,0.75);color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;z-index:999;opacity:0;transition:all .3s;pointer-events:none;max-width:300px;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.toast.success{background:rgba(27,185,117,0.9)}
+
+.confirm-mask{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:998;opacity:0;pointer-events:none;transition:opacity .25s;display:flex;align-items:center;justify-content:center}
+.confirm-mask.show{opacity:1;pointer-events:auto}
+.confirm-dialog{background:#fff;border-radius:16px;padding:24px;width:300px;max-width:85%;transform:scale(0.9);transition:transform .25s;text-align:center}
+.confirm-mask.show .confirm-dialog{transform:scale(1)}
+.confirm-dialog h4{font-size:16px;font-weight:700;margin-bottom:8px;color:#3C444F}
+.confirm-dialog p{font-size:13px;color:#696F7D;line-height:1.6;margin-bottom:20px}
+.confirm-dialog .btns{display:flex;gap:10px}
+.confirm-dialog .btns button{flex:1;height:40px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.confirm-dialog .btn-cancel{background:#F5F7FA;color:#696F7D}
+.confirm-dialog .btn-ok{background:#1BB975;color:#fff}
+
+.drawer-mask{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;opacity:0;pointer-events:none;transition:opacity .3s}
+.drawer-mask.show{opacity:1;pointer-events:auto}
+.drawer{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:428px;max-height:60vh;background:#fff;border-radius:20px 20px 0 0;z-index:201;transition:transform .35s cubic-bezier(0.32,0.72,0,1);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.drawer.show{transform:translateX(-50%) translateY(0)}
+.drawer-handle{width:36px;height:4px;background:#E0E0E0;border-radius:2px;margin:10px auto 0;cursor:pointer}
+.drawer-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;border-bottom:1px solid #F2F3F5}
+.drawer-title{font-size:16px;font-weight:700}
+.drawer-close{width:28px;height:28px;border-radius:50%;background:#F5F7FA;display:flex;align-items:center;justify-content:center;font-size:14px;color:#9096A2;cursor:pointer;border:none}
+.drawer-body{padding:16px 20px 24px}
+.tpl-item{padding:14px;background:#F5F7FA;border-radius:10px;margin-bottom:10px;font-size:12px;color:#696F7D;line-height:1.7;cursor:pointer;transition:all .15s;border:1px solid transparent}
+.tpl-item:active{background:#E8FCF4;border-color:#A7F3D0}
+.tpl-item .tpl-label{font-size:12px;font-weight:700;color:#3C444F;margin-bottom:4px}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a class="back" href="student-confirm.html"><i class="fas fa-chevron-left"></i> 返回</a>
+  自我鉴定填写
+</div>
+
+<div class="page-body">
+  <div class="card">
+    <div class="card-green-top"></div>
+    <div class="info-card">
+      <div class="info-title">2025-2026 学年 自我鉴定 · 思想品德表现</div>
+      <div class="info-sub">王明 · 计算机科学与技术 · 计算机学院 · 国家级基础学科拔尖基地</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="summary-card">
+      <div class="summary-header" onclick="toggleSummary()">
+        <h4><i class="fas fa-chart-line" style="color:#1BB975"></i> 本学年成长数据（参考）</h4>
+        <i class="fas fa-chevron-down toggle-icon" id="summaryToggle"></i>
+      </div>
+      <div class="summary-brief" id="summaryBrief">
+        <span class="summary-tag"><i class="fas fa-graduation-cap"></i> GPA 3.85</span>
+        <span class="summary-tag"><i class="fas fa-trophy"></i> 竞赛 3项</span>
+        <span class="summary-tag"><i class="fas fa-file-lines"></i> 论文 1篇</span>
+        <span class="summary-tag"><i class="fas fa-lightbulb"></i> 专利 0项</span>
+      </div>
+      <div class="summary-detail" id="summaryDetail">
+        <div class="summary-detail-inner">
+          <strong>学业成绩</strong>：GPA 3.85，已修 45 学分，最高分 95<br>
+          <strong>竞赛获奖</strong>：ACM-ICPC 银奖、数学建模国一、蓝桥杯省一<br>
+          <strong>发表论文</strong>：深度学习图像识别 · SCI二区 · 第一作者<br>
+          <strong>创新创业</strong>：互联网+省赛金奖、大创国家级<br>
+          <strong>奖学金</strong>：国家奖学金 ¥8,000<br>
+          <strong>科研实践</strong>：张教授课题组
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="guide-card">
+    <div class="guide-header" onclick="toggleGuide()">
+      <h4><i class="fas fa-lightbulb"></i> 写作指南</h4>
+      <i class="fas fa-chevron-up toggle-icon open" id="guideToggle"></i>
+    </div>
+    <div class="guide-body" id="guideBody">
+      <p style="margin-bottom:6px;font-size:12px;color:#696F7D">建议从以下方面进行总结：</p>
+      <ul>
+        <li>思想品德与社会责任</li>
+        <li>学业学习与科研创新</li>
+        <li>实践能力与团队协作</li>
+        <li>个人成长与未来规划</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="textarea-card">
+      <h4><i class="fas fa-heart" style="color:#1BB975"></i> 思想品德表现</h4>
+      <div style="font-size:12px;color:#9096A2;margin:-4px 0 10px;line-height:1.6">由本人如实填写思想政治、道德品质、遵纪守法、社会责任等方面的表现，提交后由辅导员确认。</div>
+      <textarea class="eval-textarea" id="moralText" style="min-height:150px" placeholder="请填写本学年在思想政治、道德品质、遵纪守法、社会责任等方面的表现..." oninput="updateMoralCount()"></textarea>
+      <div class="textarea-footer">
+        <span style="font-size:11px;color:#9096A2"><i class="fas fa-user-check"></i> 提交后由辅导员确认</span>
+        <span class="char-count" id="moralCount">0/1000</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="textarea-card">
+      <h4><i class="fas fa-pen-fancy" style="color:#1BB975"></i> 自我鉴定</h4>
+      <textarea class="eval-textarea" id="evalText" placeholder="请结合本学年的学习、科研、实践等方面进行自我总结与评价..." oninput="updateCount()"></textarea>
+      <div class="textarea-footer">
+        <button class="template-btn" onclick="openTemplate()"><i class="fas fa-file-lines"></i> 参考模板</button>
+        <span class="char-count" id="charCount">0/3000</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <div class="bottom-btns">
+    <button class="btn-draft" onclick="saveDraft()"><i class="fas fa-save"></i> 暂存草稿</button>
+    <button class="btn-submit" onclick="submitEval()"><i class="fas fa-paper-plane"></i> 提交自我鉴定</button>
+  </div>
+  <div class="bottom-tip">思想品德表现提交后由辅导员确认；自我鉴定提交后不可自行修改</div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="confirm-mask" id="confirmMask" onclick="closeConfirm(event)">
+  <div class="confirm-dialog">
+    <h4 id="confirmTitle"></h4>
+    <p id="confirmMsg"></p>
+    <div class="btns">
+      <button class="btn-cancel" onclick="closeConfirmDlg()">取消</button>
+      <button class="btn-ok" id="confirmOk">确定</button>
+    </div>
+  </div>
+</div>
+
+<div class="drawer-mask" id="drawerMask" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-handle" onclick="closeDrawer()"></div>
+  <div class="drawer-header">
+    <div class="drawer-title">参考模板</div>
+    <button class="drawer-close" onclick="closeDrawer()"><i class="fas fa-xmark"></i></button>
+  </div>
+  <div class="drawer-body">
+    <div class="tpl-item" onclick="useTemplate(0)">
+      <div class="tpl-label">模板一：综合发展型</div>
+      本学年我在思想、学业、科研、实践等方面全面发展。思想上积极向党组织靠拢，学业上保持优异成绩（GPA 3.85），科研上积极参与课题组研究并发表论文，实践上参加了多项学科竞赛并取得优异成绩。未来将继续保持积极进取的态度，在专业领域深耕细作。
+    </div>
+    <div class="tpl-item" onclick="useTemplate(1)">
+      <div class="tpl-label">模板二：科研创新型</div>
+      本学年我将主要精力投入到学术研究中，在导师指导下开展了系统的科研训练。通过参与课题研究，提升了独立思考和解决问题的能力，以第一作者身份发表学术论文。同时积极参加学科竞赛，在实战中检验所学。不足之处是需要加强国际学术交流能力。
+    </div>
+    <div class="tpl-item" onclick="useTemplate(2)">
+      <div class="tpl-label">模板三：实践应用型</div>
+      本学年我注重将理论知识与实践能力相结合。在保证课业成绩优良的基础上，积极参与创新创业项目和社会实践活动，锻炼了团队协作和项目管理能力。通过参加各类竞赛和实践活动，对专业知识有了更深入的理解和应用能力的提升。
+    </div>
+  </div>
+</div>
+
+<script>
+var templates=[
+  '本学年我在思想、学业、科研、实践等方面全面发展。思想上积极向党组织靠拢，学业上保持优异成绩（GPA 3.85），科研上积极参与课题组研究并发表论文，实践上参加了多项学科竞赛并取得优异成绩。未来将继续保持积极进取的态度，在专业领域深耕细作。',
+  '本学年我将主要精力投入到学术研究中，在导师指导下开展了系统的科研训练。通过参与课题研究，提升了独立思考和解决问题的能力，以第一作者身份发表学术论文。同时积极参加学科竞赛，在实战中检验所学。不足之处是需要加强国际学术交流能力。',
+  '本学年我注重将理论知识与实践能力相结合。在保证课业成绩优良的基础上，积极参与创新创业项目和社会实践活动，锻炼了团队协作和项目管理能力。通过参加各类竞赛和实践活动，对专业知识有了更深入的理解和应用能力的提升。'
+];
+var SELF_EVAL_DRAFT_KEY='student_self_eval_draft';
+
+function restoreDraft(){
+  var raw=localStorage.getItem(SELF_EVAL_DRAFT_KEY);
+  if(!raw) return;
+  try{
+    var data=JSON.parse(raw);
+    if(data.moral) document.getElementById('moralText').value=data.moral;
+    if(data.eval) document.getElementById('evalText').value=data.eval;
+    updateCount();
+    updateMoralCount();
+  }catch(e){}
+}
+
+function showToast(msg,type){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast'+(type==='success'?' success':'');
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer=setTimeout(function(){t.classList.remove('show')},2000);
+}
+
+function showConfirm(title,msg,onOk){
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmMsg').textContent=msg;
+  document.getElementById('confirmMask').classList.add('show');
+  document.getElementById('confirmOk').onclick=function(){closeConfirmDlg();if(onOk)onOk()};
+}
+function closeConfirm(e){if(e.target===e.currentTarget)closeConfirmDlg()}
+function closeConfirmDlg(){document.getElementById('confirmMask').classList.remove('show')}
+
+function updateCount(){
+  var text=document.getElementById('evalText').value;
+  var len=text.length;
+  var counter=document.getElementById('charCount');
+  counter.textContent=len+'/3000';
+  counter.className='char-count'+(len>0&&len<=3000?' ok':'');
+}
+
+function updateMoralCount(){
+  var len=document.getElementById('moralText').value.length;
+  var counter=document.getElementById('moralCount');
+  counter.textContent=len+'/1000';
+  counter.className='char-count'+(len>0&&len<=1000?' ok':'');
+}
+
+function toggleSummary(){
+  var detail=document.getElementById('summaryDetail');
+  var toggle=document.getElementById('summaryToggle');
+  detail.classList.toggle('open');
+  toggle.classList.toggle('open');
+}
+
+function toggleGuide(){
+  var body=document.getElementById('guideBody');
+  var toggle=document.getElementById('guideToggle');
+  body.classList.toggle('collapsed');
+  toggle.classList.toggle('open');
+}
+
+function openTemplate(){
+  document.getElementById('drawerMask').classList.add('show');
+  document.getElementById('drawer').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+
+function closeDrawer(){
+  document.getElementById('drawerMask').classList.remove('show');
+  document.getElementById('drawer').classList.remove('show');
+  document.body.style.overflow='';
+}
+
+function useTemplate(idx){
+  document.getElementById('evalText').value=templates[idx];
+  updateCount();
+  closeDrawer();
+  showToast('已填入模板','success');
+}
+
+function saveDraft(){
+  localStorage.setItem(SELF_EVAL_DRAFT_KEY, JSON.stringify({
+    moral: document.getElementById('moralText').value,
+    eval: document.getElementById('evalText').value,
+    savedAt: new Date().toISOString()
+  }));
+  var t=new Date(),hh=('0'+t.getHours()).slice(-2),mm=('0'+t.getMinutes()).slice(-2);
+  showToast('草稿已保存 · '+hh+':'+mm,'success');
+}
+
+function submitEval(){
+  var moral=document.getElementById('moralText').value.trim();
+  var text=document.getElementById('evalText').value.trim();
+  if(!moral){
+    showToast('请填写思想品德表现');
+    return;
+  }
+  if(!text){
+    showToast('请填写自我鉴定内容');
+    return;
+  }
+  showConfirm('提交鉴定','思想品德表现将提交辅导员确认，自我鉴定提交后不可自行修改，确认提交吗？',function(){
+    localStorage.removeItem(SELF_EVAL_DRAFT_KEY);
+    showToast('思想品德表现与自我鉴定已提交','success');
+    setTimeout(function(){location.href='student-confirm.html'},1500);
+  });
+}
+restoreDraft();
+</script>
+</body>
+</html>

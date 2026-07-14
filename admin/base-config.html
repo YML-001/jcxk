@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>系统配置 · 基础学科学生成长档案</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'OPPOSans',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#F5F7FA;color:#3C444F;min-height:100vh;font-size:14px}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+.layout{display:flex;min-height:100vh}
+
+.sidebar{width:232px;background:#fff;border-right:1px solid #ECEFF4;flex-shrink:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.sidebar-brand{padding:20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #ECEFF4}
+.brand-icon{width:38px;height:38px;background:linear-gradient(135deg,#3087CC,#006DAD);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
+.brand-text h1{font-size:14px;font-weight:700;color:#3C444F}
+.brand-text p{font-size:11px;color:#9096A2;margin-top:2px}
+.sidebar-nav{flex:1;padding:14px 12px;overflow-y:auto}
+.nav-group{margin-bottom:18px}
+.nav-group-title{font-size:11px;color:#9096A2;font-weight:600;padding:0 10px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;color:#696F7D;cursor:pointer;transition:all .15s;margin-bottom:2px}
+.nav-item i{font-size:15px;width:18px}
+.nav-item:hover{background:#F5F7FA;color:#3087CC}
+.nav-item.active{background:#E3F1F9;color:#3087CC;font-weight:600}
+.nav-item .badge{margin-left:auto;font-size:11px;background:#DF2027;color:#fff;padding:1px 6px;border-radius:8px;font-weight:600}
+.sidebar-footer{padding:14px 16px;border-top:1px solid #ECEFF4;display:flex;align-items:center;gap:10px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3087CC,#006DAD);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.user-info .name{font-size:13px;font-weight:600;color:#3C444F}
+.user-info .role{font-size:11px;color:#9096A2;margin-top:1px}
+
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{background:#fff;border-bottom:1px solid #ECEFF4;padding:14px 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10}
+.breadcrumb{font-size:13px;color:#9096A2}
+.breadcrumb .current{color:#3C444F;font-weight:600}
+.breadcrumb i{font-size:10px;margin:0 6px}
+.topbar-actions{margin-left:auto;display:flex;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid transparent;line-height:1.2}
+.btn-primary{background:#3087CC;color:#fff}
+.btn-primary:hover{background:#006DAD}
+.btn-outline{background:#fff;color:#3087CC;border-color:#3087CC}
+.btn-outline:hover{background:#E3F1F9}
+.btn-default{background:#fff;color:#696F7D;border-color:#C8CAD1}
+.btn-default:hover{border-color:#3087CC;color:#3087CC}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+.content{padding:24px 28px;flex:1;overflow-y:auto}
+.page-title{margin-bottom:20px}
+.page-title h2{font-size:22px;font-weight:700;color:#3C444F}
+.page-title .desc{font-size:13px;color:#9096A2;margin-top:6px}
+
+/* Config Layout */
+.config-layout{display:grid;grid-template-columns:220px 1fr;gap:20px}
+
+.config-nav{background:#fff;border:1px solid #ECEFF4;border-radius:12px;padding:10px;height:fit-content;position:sticky;top:80px}
+.cn-group{margin-bottom:10px}
+.cn-title{font-size:11px;color:#9096A2;font-weight:600;padding:8px 10px}
+.cn-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;color:#696F7D;cursor:pointer;transition:all .15s;margin-bottom:2px}
+.cn-item i{font-size:14px;width:16px}
+.cn-item:hover{background:#F5F7FA;color:#3087CC}
+.cn-item.active{background:#E3F1F9;color:#3087CC;font-weight:600}
+
+/* Section */
+.section{background:#fff;border:1px solid #ECEFF4;border-radius:12px;overflow:hidden;margin-bottom:16px}
+.section-head{padding:16px 20px;border-bottom:1px solid #ECEFF4;display:flex;align-items:center;justify-content:space-between}
+.section-head h3{font-size:15px;font-weight:700;color:#3C444F;display:flex;align-items:center;gap:8px}
+.section-head h3 i{color:#3087CC}
+.section-head .sub{font-size:12px;color:#9096A2;font-weight:400;margin-left:6px}
+.section-body{padding:20px}
+
+/* Base Grid */
+.base-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.base-card{border:1px solid #ECEFF4;border-radius:10px;padding:16px;display:flex;gap:14px;transition:all .15s}
+.base-card:hover{border-color:#3087CC;box-shadow:0 4px 12px rgba(48,135,204,0.08)}
+.bc-icon{width:48px;height:48px;border-radius:12px;background:#E3F1F9;color:#3087CC;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.bc-main{flex:1;min-width:0}
+.bc-title{font-size:14px;font-weight:700;color:#3C444F;margin-bottom:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.bc-tag{display:inline-flex;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:600}
+.bc-tag.nat{background:#FCE8EA;color:#DF2027}
+.bc-tag.prov{background:#FFF5E5;color:#F29100}
+.bc-tag.qj{background:#E3F1F9;color:#3087CC}
+.bc-meta{font-size:12px;color:#9096A2;margin-bottom:8px}
+.bc-stats{display:flex;gap:14px;font-size:11px;color:#696F7D}
+.bc-stats strong{color:#3087CC;font-weight:600;font-size:13px}
+.bc-actions{display:flex;flex-direction:column;gap:6px}
+.bc-actions button{padding:5px 8px;font-size:11px;color:#696F7D;border:1px solid #ECEFF4;border-radius:5px;background:#fff;transition:all .15s}
+.bc-actions button:hover{border-color:#3087CC;color:#3087CC}
+
+/* Sync table */
+.sync-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.sync-stat{padding:14px;border:1px solid #ECEFF4;border-radius:10px;display:flex;align-items:center;gap:12px}
+.ss-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.ss-blue{background:#E3F1F9;color:#3087CC}
+.ss-green{background:#E8FCF4;color:#1BB975}
+.ss-orange{background:#FFF5E5;color:#F29100}
+.ss-red{background:#FCE8EA;color:#DF2027}
+.ss-label{font-size:11px;color:#9096A2}
+.ss-num{font-size:20px;font-weight:700;color:#3C444F;line-height:1}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#F5F7FA;padding:10px 14px;text-align:left;color:#3C444F;font-weight:600;font-size:12px;border-bottom:1px solid #ECEFF4}
+th.center{text-align:center}
+td{padding:12px 14px;border-bottom:1px solid #F5F7FA;color:#3C444F}
+td.center{text-align:center}
+tr:hover td{background:#FAFBFC}
+.sync-status{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600}
+.sync-ok{background:#E8FCF4;color:#1BB975}
+.sync-warn{background:#FFF5E5;color:#F29100}
+.sync-err{background:#FCE8EA;color:#DF2027}
+.sync-running{background:#E3F1F9;color:#3087CC}
+
+.system-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:500;background:#F5F7FA;color:#696F7D}
+.system-tag i{font-size:10px}
+
+/* Dict tags */
+.dict-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.dict-card{padding:14px;border:1px solid #ECEFF4;border-radius:10px;cursor:pointer;transition:all .15s}
+.dict-card:hover{border-color:#3087CC;background:#F5FBFF}
+.dc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.dc-name{font-size:13px;font-weight:600;color:#3C444F;display:flex;align-items:center;gap:6px}
+.dc-name i{color:#3087CC;font-size:12px}
+.dc-count{font-size:11px;color:#9096A2;background:#F1F2F3;padding:1px 8px;border-radius:8px}
+.dc-preview{font-size:11px;color:#9096A2;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+@media(max-width:1200px){.config-layout{grid-template-columns:1fr}.base-grid,.dict-grid{grid-template-columns:1fr}.sync-stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+    <div class="brand-text"><h1>成长档案</h1><p>基础学科 · 管理端</p></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-group">
+      <div class="nav-group-title">概览</div>
+      <a class="nav-item" href="dashboard.html"><i class="fa-solid fa-gauge-high"></i>工作台</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">档案管理</div>
+      <a class="nav-item" href="student-list.html"><i class="fa-solid fa-users"></i>学生档案<span class="badge">1180</span></a>
+      <a class="nav-item" href="student-detail.html"><i class="fa-solid fa-folder-open"></i>档案详情</a>
+      <a class="nav-item" href="data-entry.html"><i class="fa-solid fa-pen-to-square"></i>直接录入</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">审核中心</div>
+      <a class="nav-item" href="review-list.html"><i class="fa-solid fa-clipboard-check"></i>补充勘误审核<span class="badge">12</span></a>
+      <a class="nav-item" href="review-detail.html"><i class="fa-solid fa-eye"></i>审核详情</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">学年鉴定</div>
+      <a class="nav-item" href="annual-review.html"><i class="fa-solid fa-file-signature"></i>鉴定管理</a>
+      <a class="nav-item" href="annual-review-committee.html"><i class="fa-solid fa-user-group"></i>考核小组配置</a>
+      <a class="nav-item" href="annual-review-detail.html"><i class="fa-solid fa-pen-to-square"></i>考核录入</a>
+      <a class="nav-item" href="annual-review-export.html"><i class="fa-solid fa-file-export"></i>导出模板</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">数据分析</div>
+      <a class="nav-item" href="statistics.html"><i class="fa-solid fa-chart-column"></i>查询与统计</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">系统</div>
+      <div class="nav-item active"><i class="fa-solid fa-sliders"></i>系统配置</div>
+      <a class="nav-item" href="../index.html"><i class="fa-solid fa-arrow-right-from-bracket"></i>返回导航</a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-avatar">李</div>
+    <div class="user-info"><div class="name">李振华</div><div class="role">本科生院 · 管理员</div></div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="breadcrumb">
+      <i class="fa-solid fa-house"></i> 首页 <i class="fa-solid fa-chevron-right"></i>
+      <span class="current">系统配置</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="page-title">
+      <h2>系统配置</h2>
+      <div class="desc">学院与权限、数据中台、字典、模板等系统级配置</div>
+    </div>
+
+    <div class="config-layout">
+
+      <!-- Config Nav -->
+      <aside class="config-nav">
+        <div class="cn-group">
+          <div class="cn-title">基础配置</div>
+          <div class="cn-item active"><i class="fa-solid fa-people-roof"></i>学院与权限</div>
+          <div class="cn-item"><i class="fa-solid fa-user-shield"></i>角色与人员</div>
+        </div>
+        <div class="cn-group">
+          <div class="cn-title">数据中台</div>
+          <div class="cn-item"><i class="fa-solid fa-database"></i>数据源映射</div>
+          <div class="cn-item"><i class="fa-solid fa-arrows-rotate"></i>同步监控</div>
+        </div>
+        <div class="cn-group">
+          <div class="cn-title">字典与模板</div>
+          <div class="cn-item"><i class="fa-solid fa-book"></i>字典管理</div>
+          <div class="cn-item"><i class="fa-solid fa-file-word"></i>Word 模板</div>
+          <div class="cn-item"><i class="fa-solid fa-envelope"></i>通知模板</div>
+        </div>
+        <div class="cn-group">
+          <div class="cn-title">流程与审计</div>
+          <div class="cn-item"><i class="fa-solid fa-route"></i>审核流程</div>
+          <div class="cn-item"><i class="fa-solid fa-clock-rotate-left"></i>操作审计</div>
+        </div>
+      </aside>
+
+      <!-- Main config -->
+      <div>
+
+        <!-- 学院清单 -->
+        <div class="section" id="sec-college">
+          <div class="section-head">
+            <h3><i class="fa-solid fa-people-roof"></i>学院清单 <span class="sub">9 个归属学院（本科段）</span></h3>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-default btn-sm" onclick="openImportModal()"><i class="fa-solid fa-file-import"></i>批量导入</button>
+              <button class="btn btn-primary btn-sm" onclick="window.location.href='config-edit.html'"><i class="fa-solid fa-plus"></i>新增学院</button>
+            </div>
+          </div>
+          <div class="section-body">
+            <div class="base-grid">
+              <div class="base-card">
+                <div class="bc-icon"><i class="fa-solid fa-laptop-code"></i></div>
+                <div class="bc-main">
+                  <div class="bc-title">计算机学院 <span class="bc-tag nat">国家级拔尖基地</span></div>
+                  <div class="bc-meta">特色培养项目：国家级基础学科拔尖基地 · 编号：C01</div>
+                  <div class="bc-stats">
+                    <span>学生 <strong>186</strong></span>
+                    <span>导师 <strong>24</strong></span>
+                    <span>教务员 <strong>3</strong></span>
+                  </div>
+                </div>
+                <div class="bc-actions">
+                  <button onclick="window.location.href='config-edit.html'"><i class="fa-solid fa-pen"></i> 编辑</button>
+                  <button onclick="openMembers(this)"><i class="fa-solid fa-users"></i> 成员</button>
+                </div>
+              </div>
+              <div class="base-card">
+                <div class="bc-icon" style="background:#FCE8EA;color:#DF2027"><i class="fa-solid fa-atom"></i></div>
+                <div class="bc-main">
+                  <div class="bc-title">物理学院 <span class="bc-tag nat">国家级拔尖基地</span><span class="bc-tag qj">强基计划</span></div>
+                  <div class="bc-meta">特色培养项目：国家级基础学科拔尖基地、强基计划 · 编号：C02</div>
+                  <div class="bc-stats">
+                    <span>学生 <strong>142</strong></span>
+                    <span>导师 <strong>20</strong></span>
+                    <span>教务员 <strong>2</strong></span>
+                  </div>
+                </div>
+                <div class="bc-actions">
+                  <button onclick="window.location.href='config-edit.html'"><i class="fa-solid fa-pen"></i> 编辑</button>
+                  <button onclick="openMembers(this)"><i class="fa-solid fa-users"></i> 成员</button>
+                </div>
+              </div>
+              <div class="base-card">
+                <div class="bc-icon" style="background:#E8FCF4;color:#1BB975"><i class="fa-solid fa-dna"></i></div>
+                <div class="bc-main">
+                  <div class="bc-title">生命科学学院 <span class="bc-tag nat">国家级拔尖基地</span></div>
+                  <div class="bc-meta">特色培养项目：国家级基础学科拔尖基地 · 编号：C03</div>
+                  <div class="bc-stats">
+                    <span>学生 <strong>156</strong></span>
+                    <span>导师 <strong>22</strong></span>
+                    <span>教务员 <strong>3</strong></span>
+                  </div>
+                </div>
+                <div class="bc-actions">
+                  <button onclick="window.location.href='config-edit.html'"><i class="fa-solid fa-pen"></i> 编辑</button>
+                  <button onclick="openMembers(this)"><i class="fa-solid fa-users"></i> 成员</button>
+                </div>
+              </div>
+              <div class="base-card">
+                <div class="bc-icon" style="background:#FFF5E5;color:#F29100"><i class="fa-solid fa-heart-pulse"></i></div>
+                <div class="bc-main">
+                  <div class="bc-title">基础医学院 <span class="bc-tag nat">国家级拔尖基地</span></div>
+                  <div class="bc-meta">特色培养项目：国家级基础学科拔尖基地 · 编号：C04</div>
+                  <div class="bc-stats">
+                    <span>学生 <strong>98</strong></span>
+                    <span>导师 <strong>16</strong></span>
+                    <span>教务员 <strong>2</strong></span>
+                  </div>
+                </div>
+                <div class="bc-actions">
+                  <button onclick="window.location.href='config-edit.html'"><i class="fa-solid fa-pen"></i> 编辑</button>
+                  <button onclick="openMembers(this)"><i class="fa-solid fa-users"></i> 成员</button>
+                </div>
+              </div>
+              <div class="base-card">
+                <div class="bc-icon"><i class="fa-solid fa-square-root-variable"></i></div>
+                <div class="bc-main">
+                  <div class="bc-title">数学与统计学院 <span class="bc-tag qj">强基计划</span></div>
+                  <div class="bc-meta">特色培养项目：强基计划 · 编号：C05</div>
+                  <div class="bc-stats">
+                    <span>学生 <strong>128</strong></span>
+                    <span>导师 <strong>18</strong></span>
+                    <span>教务员 <strong>2</strong></span>
+                  </div>
+                </div>
+                <div class="bc-actions">
+                  <button onclick="window.location.href='config-edit.html'"><i class="fa-solid fa-pen"></i> 编辑</button>
+                  <button onclick="openMembers(this)"><i class="fa-solid fa-users"></i> 成员</button>
+                </div>
+              </div>
+              <div class="base-card">
+                <div class="bc-icon" style="background:#FCE8EA;color:#DF2027"><i class="fa-solid fa-flask"></i></div>
+                <div class="bc-main">
+                  <div class="bc-title">化学化工学院 <span class="bc-tag qj">强基计划</span></div>
+                  <div class="bc-meta">特色培养项目：强基计划 · 编号：C06</div>
+                  <div class="bc-stats">
+                    <span>学生 <strong>112</strong></span>
+                    <span>导师 <strong>17</strong></span>
+                    <span>教务员 <strong>2</strong></span>
+                  </div>
+                </div>
+                <div class="bc-actions">
+                  <button onclick="window.location.href='config-edit.html'"><i class="fa-solid fa-pen"></i> 编辑</button>
+                  <button onclick="openMembers(this)"><i class="fa-solid fa-users"></i> 成员</button>
+                </div>
+              </div>
+            </div>
+            <div style="text-align:center;padding:14px;color:#9096A2;font-size:12px;border-top:1px solid #F5F7FA;margin-top:14px" id="collegeMore">显示 6 / 9 个学院 · <a href="#" onclick="expandColleges(this);return false" style="color:#3087CC">展开全部</a></div>
+          </div>
+        </div>
+
+        <!-- 角色与权限（管理员分级） -->
+        <div class="section" id="sec-role">
+          <div class="section-head">
+            <h3><i class="fa-solid fa-user-shield"></i>角色与权限 <span class="sub">管理员仅分校级、学院级两级</span></h3>
+          </div>
+          <div class="section-body">
+            <div class="base-grid">
+              <div class="base-card">
+                <div class="bc-icon" style="background:#E3F1F9;color:#3087CC"><i class="fa-solid fa-building-columns"></i></div>
+                <div class="bc-main">
+                  <div class="bc-title">校级管理员 <span class="bc-tag nat">校级</span></div>
+                  <div class="bc-meta">本科生院 · 全校范围</div>
+                  <div class="bc-stats" style="display:block;line-height:1.7;color:#696F7D">可管理全部学院与学生数据，维护系统配置、字典与模板，并负责授权学院教务员与学院指定审核人。</div>
+                </div>
+              </div>
+              <div class="base-card">
+                <div class="bc-icon" style="background:#FFF5E5;color:#F29100"><i class="fa-solid fa-people-roof"></i></div>
+                <div class="bc-main">
+                  <div class="bc-title">学院级管理员 <span class="bc-tag qj">学院级</span></div>
+                  <div class="bc-meta">各归属学院 · 本学院范围</div>
+                  <div class="bc-stats" style="display:block;line-height:1.7;color:#696F7D">仅能查看 / 管理本学院学生；学院教务员由校级管理员授权后开通。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 归档与签章 -->
+        <div class="section">
+          <div class="section-head">
+            <h3><i class="fa-solid fa-file-shield"></i>归档与签章</h3>
+          </div>
+          <div class="section-body">
+            <div style="display:flex;gap:10px;align-items:flex-start;padding:14px 16px;background:#F5FBFF;border:1px solid #BADEF3;border-radius:8px">
+              <i class="fa-solid fa-stamp" style="color:#3087CC;font-size:16px;margin-top:2px"></i>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600;color:#3C444F;margin-bottom:4px">归档方式</div>
+                <div style="font-size:12px;color:#696F7D;line-height:1.7">学年鉴定表、成长档案等归档材料统一采用「导出纸质版 → 盖院章 → 上传盖章扫描件」方式归档，系统留存盖章扫描件作为归档凭证（不采用电子签章 / CA 证书 / OFD）。</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 数据同步监控 -->
+        <div class="section" id="sec-sync">
+          <div class="section-head">
+            <h3><i class="fa-solid fa-arrows-rotate"></i>数据中台同步监控 <span class="sub">9 个上游业务系统对接</span></h3>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-default btn-sm" onclick="openSyncHistory()"><i class="fa-solid fa-clock-rotate-left"></i>同步历史</button>
+              <button class="btn btn-primary btn-sm" onclick="showConfirm('触发校验','将对全部上游系统数据进行校验，预计耗时 5 分钟',function(){showToast('校验任务已启动','success')})"><i class="fa-solid fa-play"></i>触发全量校验</button>
+            </div>
+          </div>
+          <div class="section-body">
+            <div style="display:flex;gap:8px;align-items:center;padding:10px 14px;background:#F5FBFF;border:1px solid #BADEF3;border-radius:8px;margin-bottom:14px;font-size:12px;color:#3C444F"><i class="fa-solid fa-database" style="color:#3087CC"></i> 数据保留年限：<strong style="color:#3087CC;margin:0 2px">50 年</strong>；上游系统数据仅读取展示，不回写业务系统。</div>
+            <div class="sync-stats">
+              <div class="sync-stat">
+                <div class="ss-icon ss-blue"><i class="fa-solid fa-database"></i></div>
+                <div><div class="ss-label">今日同步任务</div><div class="ss-num">26</div></div>
+              </div>
+              <div class="sync-stat">
+                <div class="ss-icon ss-green"><i class="fa-solid fa-check"></i></div>
+                <div><div class="ss-label">成功</div><div class="ss-num" style="color:#1BB975">24</div></div>
+              </div>
+              <div class="sync-stat">
+                <div class="ss-icon ss-orange"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div><div class="ss-label">异常</div><div class="ss-num" style="color:#F29100">1</div></div>
+              </div>
+              <div class="sync-stat">
+                <div class="ss-icon ss-red"><i class="fa-solid fa-xmark"></i></div>
+                <div><div class="ss-label">失败</div><div class="ss-num" style="color:#DF2027">1</div></div>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>上游系统 → 数据表</th>
+                  <th>调度</th>
+                  <th>最近一次同步</th>
+                  <th class="center">条数</th>
+                  <th class="center">状态</th>
+                  <th class="center">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="system-tag"><i class="fa-solid fa-building-columns"></i> 本科教务</span> → 学籍信息</td>
+                  <td>每日 00:30</td>
+                  <td>今日 00:30:24</td>
+                  <td class="center">1,180</td>
+                  <td class="center"><span class="sync-status sync-ok"><i class="fa-solid fa-check"></i> 成功</span></td>
+                  <td class="center"><a style="color:#3087CC;font-size:12px;cursor:pointer" onclick="openSyncLog(this)">日志</a></td>
+                </tr>
+                <tr>
+                  <td><span class="system-tag"><i class="fa-solid fa-building-columns"></i> 本科教务</span> → 成绩</td>
+                  <td>每日 01:00</td>
+                  <td>今日 01:02:18</td>
+                  <td class="center">28,440</td>
+                  <td class="center"><span class="sync-status sync-ok"><i class="fa-solid fa-check"></i> 成功</span></td>
+                  <td class="center"><a style="color:#3087CC;font-size:12px;cursor:pointer" onclick="openSyncLog(this)">日志</a></td>
+                </tr>
+                <tr>
+                  <td><span class="system-tag"><i class="fa-solid fa-flask"></i> 科研系统</span> → 论文/专利</td>
+                  <td>每日 02:00</td>
+                  <td>今日 02:04:55</td>
+                  <td class="center">186</td>
+                  <td class="center"><span class="sync-status sync-warn"><i class="fa-solid fa-triangle-exclamation"></i> 部分异常</span></td>
+                  <td class="center"><a style="color:#3087CC;font-size:12px;cursor:pointer" onclick="openSyncLog(this)">日志</a> | <a style="color:#F29100;font-size:12px;cursor:pointer" onclick="openSyncError(this)">查看</a></td>
+                </tr>
+                <tr>
+                  <td><span class="system-tag"><i class="fa-solid fa-lightbulb"></i> 创新创业</span> → 项目</td>
+                  <td>每日 03:00</td>
+                  <td>今日 03:01:32</td>
+                  <td class="center">68</td>
+                  <td class="center"><span class="sync-status sync-ok"><i class="fa-solid fa-check"></i> 成功</span></td>
+                  <td class="center"><a style="color:#3087CC;font-size:12px;cursor:pointer" onclick="openSyncLog(this)">日志</a></td>
+                </tr>
+                <tr>
+                  <td><span class="system-tag"><i class="fa-solid fa-users"></i> 人事系统</span> → 教工/导师</td>
+                  <td>每周日 04:00</td>
+                  <td>2026-05-05 04:01</td>
+                  <td class="center">3,128</td>
+                  <td class="center"><span class="sync-status sync-ok"><i class="fa-solid fa-check"></i> 成功</span></td>
+                  <td class="center"><a style="color:#3087CC;font-size:12px;cursor:pointer" onclick="openSyncLog(this)">日志</a></td>
+                </tr>
+                <tr>
+                  <td><span class="system-tag"><i class="fa-solid fa-graduation-cap"></i> 本科招生</span> → 基本信息</td>
+                  <td>每年 9 月</td>
+                  <td>2025-09-01 10:00</td>
+                  <td class="center">280</td>
+                  <td class="center"><span class="sync-status sync-ok"><i class="fa-solid fa-check"></i> 成功</span></td>
+                  <td class="center"><a style="color:#3087CC;font-size:12px;cursor:pointer" onclick="openSyncLog(this)">日志</a></td>
+                </tr>
+                <tr>
+                  <td><span class="system-tag"><i class="fa-solid fa-people-group"></i> 团委系统</span> → 实践/社团</td>
+                  <td>每日 03:30</td>
+                  <td>今日 03:32:00</td>
+                  <td class="center">42</td>
+                  <td class="center"><span class="sync-status sync-err"><i class="fa-solid fa-xmark"></i> 接口超时</span></td>
+                  <td class="center"><a style="color:#3087CC;font-size:12px;cursor:pointer" onclick="openSyncLog(this)">日志</a> | <a style="color:#DF2027;font-size:12px;cursor:pointer" onclick="retrySync(this)">重试</a></td>
+                </tr>
+                <tr>
+                  <td><span class="system-tag"><i class="fa-solid fa-medal"></i> 学科竞赛</span> → 获奖</td>
+                  <td>每日 04:30</td>
+                  <td>正在同步...</td>
+                  <td class="center">—</td>
+                  <td class="center"><span class="sync-status sync-running"><i class="fa-solid fa-spinner fa-spin"></i> 同步中</span></td>
+                  <td class="center"><a style="color:#3087CC;font-size:12px;cursor:pointer" onclick="openSyncLog(this)">日志</a></td>
+                </tr>
+                <tr>
+                  <td><span class="system-tag"><i class="fa-solid fa-earth-asia"></i> 国教院</span> → 境外交流</td>
+                  <td>每日 05:00</td>
+                  <td>今日 05:01:12</td>
+                  <td class="center">28</td>
+                  <td class="center"><span class="sync-status sync-ok"><i class="fa-solid fa-check"></i> 成功</span></td>
+                  <td class="center"><a style="color:#3087CC;font-size:12px;cursor:pointer" onclick="openSyncLog(this)">日志</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 字典 -->
+        <div class="section" id="sec-dict">
+          <div class="section-head">
+            <h3><i class="fa-solid fa-book"></i>字典管理 <span class="sub">20 类系统字典</span></h3>
+            <button class="btn btn-default btn-sm" onclick="window.location.href='config-edit.html'"><i class="fa-solid fa-plus"></i>新增字典</button>
+          </div>
+          <div class="section-body">
+            <div class="dict-grid">
+              <div class="dict-card">
+                <div class="dc-head"><div class="dc-name"><i class="fa-solid fa-trophy"></i>竞赛等级</div><div class="dc-count">8 项</div></div>
+                <div class="dc-preview">国家级、省级、校级、其他、特等、一等、二等、三等</div>
+              </div>
+              <div class="dict-card">
+                <div class="dc-head"><div class="dc-name"><i class="fa-solid fa-file-lines"></i>论文级别</div><div class="dc-count">6 项</div></div>
+                <div class="dc-preview">SCI 一区/二区/三区/四区、EI、核心期刊</div>
+              </div>
+              <div class="dict-card">
+                <div class="dc-head"><div class="dc-name"><i class="fa-solid fa-certificate"></i>专利类型</div><div class="dc-count">4 项</div></div>
+                <div class="dc-preview">发明专利、实用新型、外观设计、软件著作权</div>
+              </div>
+              <div class="dict-card">
+                <div class="dc-head"><div class="dc-name"><i class="fa-solid fa-money-bill"></i>奖学金类型</div><div class="dc-count">12 项</div></div>
+                <div class="dc-preview">国家奖学金、国家励志、学业奖学金、社会捐赠...</div>
+              </div>
+              <div class="dict-card">
+                <div class="dc-head"><div class="dc-name"><i class="fa-solid fa-flag-checkered"></i>毕业去向</div><div class="dc-count">10 项</div></div>
+                <div class="dc-preview">就业、保研、考研、出国深造、自主创业、待就业...</div>
+              </div>
+              <div class="dict-card">
+                <div class="dc-head"><div class="dc-name"><i class="fa-solid fa-route"></i>异动类型</div><div class="dc-count">8 项</div></div>
+                <div class="dc-preview">休学、复学、转专业、退学、退出特色培养项目、转入特色培养项目...</div>
+              </div>
+              <div class="dict-card">
+                <div class="dc-head"><div class="dc-name"><i class="fa-solid fa-people-roof"></i>奖励级别</div><div class="dc-count">4 项</div></div>
+                <div class="dc-preview">国家级、省级、校级、院级</div>
+              </div>
+              <div class="dict-card">
+                <div class="dc-head"><div class="dc-name"><i class="fa-solid fa-globe"></i>境外项目类型</div><div class="dc-count">6 项</div></div>
+                <div class="dc-preview">学位项目、暑期项目、交换生、夏令营、访学、其他</div>
+              </div>
+              <div class="dict-card">
+                <div class="dc-head"><div class="dc-name"><i class="fa-solid fa-medal"></i>鉴定结果</div><div class="dc-count">2 项</div></div>
+                <div class="dc-preview">通过、不通过</div>
+              </div>
+              <div class="dict-card">
+                <div class="dc-head"><div class="dc-name"><i class="fa-solid fa-people-roof"></i>学院</div><div class="dc-count">9 项</div></div>
+                <div class="dc-preview">数学与统计学院、物理学院、化学化工学院、生命科学学院、地球科学与信息物理学院、人文学院、计算机学院、基础医学院、材料科学与工程学院</div>
+              </div>
+              <div class="dict-card">
+                <div class="dc-head"><div class="dc-name"><i class="fa-solid fa-star"></i>特色培养项目</div><div class="dc-count">7 项</div></div>
+                <div class="dc-preview">无、国家级基础学科拔尖基地、省级基础学科拔尖基地、强基计划、智慧创新班、卓越班、科创班（可扩展、可多选）</div>
+              </div>
+            </div>
+            <div style="text-align:center;padding:14px;color:#9096A2;font-size:12px;border-top:1px solid #F5F7FA;margin-top:14px" id="dictMore">显示 11 / 20 个字典 · <a href="#" onclick="expandDicts(this);return false" style="color:#3087CC">查看全部</a></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</main>
+
+</div>
+
+<script>
+/* Toast 提示 */
+function showToast(msg,type){type=type||'info';var t=document.createElement('div');var c={success:'#1BB975',info:'#3087CC',warning:'#F29100',error:'#DF2027'};var ic={success:'fa-circle-check',info:'fa-circle-info',warning:'fa-triangle-exclamation',error:'fa-circle-xmark'};t.innerHTML='<i class="fa-solid '+ic[type]+'"></i> '+msg;t.style.cssText='position:fixed;top:-60px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;color:#fff;background:'+(c[type]||c.info)+';box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;gap:8px;z-index:99999;transition:top 0.3s ease;white-space:nowrap;font-family:inherit';document.body.appendChild(t);requestAnimationFrame(function(){t.style.top='24px'});setTimeout(function(){t.style.top='-60px';setTimeout(function(){t.remove()},400)},2500)}
+
+/* 确认弹窗 */
+function showConfirm(title,msg,onOk){var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s';o.innerHTML='<div style="background:#fff;border-radius:12px;padding:28px;width:420px;max-width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2);font-family:inherit;transform:scale(0.9);transition:transform 0.2s"><h3 style="margin:0 0 8px;font-size:16px;color:#3C444F">'+title+'</h3><p style="margin:0 0 20px;font-size:14px;color:#696F7D;line-height:1.6">'+msg+'</p><div style="display:flex;gap:10px;justify-content:flex-end"><button class="_mc" style="padding:8px 20px;border-radius:8px;border:1px solid #ECEFF4;background:#F5F7FA;color:#3C444F;cursor:pointer;font-size:13px;font-family:inherit">取消</button><button class="_mo" style="padding:8px 20px;border-radius:8px;border:none;background:#3087CC;color:#fff;cursor:pointer;font-size:13px;font-family:inherit">确定</button></div></div>';document.body.appendChild(o);requestAnimationFrame(function(){o.style.opacity='1';o.firstElementChild.style.transform='scale(1)'});o.querySelector('._mo').onclick=function(){o.remove();if(onOk)onOk()};o.querySelector('._mc').onclick=function(){o.remove()};o.addEventListener('click',function(e){if(e.target===o)o.remove()})}
+
+/* 批量导入弹窗 */
+function openImportModal(){
+  var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s';
+  o.innerHTML='<div style="background:#fff;border-radius:12px;padding:0;width:520px;max-width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2);font-family:inherit;transform:scale(0.9);transition:transform 0.2s"><div style="padding:18px 24px;border-bottom:1px solid #ECEFF4;display:flex;align-items:center;justify-content:space-between"><h3 style="font-size:16px;color:#3C444F;margin:0"><i class="fa-solid fa-file-import" style="color:#3087CC;margin-right:8px"></i>批量导入配置</h3><button class="_close" style="width:32px;height:32px;border-radius:8px;background:#F5F7FA;border:none;cursor:pointer;font-size:14px;color:#696F7D">✕</button></div><div style="padding:20px 24px"><div style="margin-bottom:16px"><label style="display:block;font-size:12px;color:#696F7D;margin-bottom:6px;font-weight:600">导入类型</label><select style="width:100%;height:36px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none;background:#fff"><option>学院配置</option><option>字典数据</option><option>审核规则</option><option>通知模板</option></select></div><div style="margin-bottom:16px;padding:28px;border:2px dashed #C8CAD1;border-radius:10px;text-align:center;cursor:pointer;transition:all .15s;background:#FAFBFC" onmouseover="this.style.borderColor=\'#3087CC\';this.style.background=\'#F5FBFF\'" onmouseout="this.style.borderColor=\'#C8CAD1\';this.style.background=\'#FAFBFC\'" onclick="showToast(\'请选择 Excel/CSV 文件（原型演示）\',\'info\')"><i class="fa-solid fa-cloud-arrow-up" style="font-size:32px;color:#3087CC;margin-bottom:10px;display:block"></i><div style="font-size:14px;color:#3C444F;font-weight:600;margin-bottom:4px">拖拽文件到此处，或点击选择</div><div style="font-size:12px;color:#9096A2">支持 .xlsx、.csv 格式，单次最大 5MB</div></div><div style="display:flex;gap:10px;align-items:center;padding:12px 14px;background:#F5FBFF;border:1px solid #BADEF3;border-radius:8px"><i class="fa-solid fa-circle-info" style="color:#3087CC;font-size:14px"></i><div style="flex:1"><div style="font-size:12px;color:#3C444F;font-weight:500">操作说明</div><div style="font-size:11px;color:#696F7D;margin-top:2px">下载模板 → 填写数据 → 上传文件 → 预览确认 → 导入</div></div><button style="padding:5px 12px;border:1px solid #3087CC;border-radius:6px;font-size:11px;color:#3087CC;cursor:pointer;background:#fff;font-family:inherit" onclick="showToast(\'模板已开始下载\',\'success\')"><i class="fa-solid fa-download"></i> 下载模板</button></div></div><div style="padding:14px 24px;border-top:1px solid #ECEFF4;display:flex;gap:10px;justify-content:flex-end"><button class="_mc" style="padding:8px 20px;border-radius:8px;border:1px solid #ECEFF4;background:#F5F7FA;color:#3C444F;cursor:pointer;font-size:13px;font-family:inherit">取消</button><button class="_mo" style="padding:8px 20px;border-radius:8px;border:none;background:#3087CC;color:#fff;cursor:pointer;font-size:13px;font-family:inherit"><i class="fa-solid fa-file-import"></i> 开始导入</button></div></div>';
+  document.body.appendChild(o);requestAnimationFrame(function(){o.style.opacity='1';o.firstElementChild.style.transform='scale(1)'});
+  o.querySelector('._mo').onclick=function(){o.remove();showToast('请先选择文件再导入','warning')};
+  o.querySelector('._mc').onclick=o.querySelector('._close').onclick=function(){o.remove()};
+  o.addEventListener('click',function(e){if(e.target===o)o.remove()});
+}
+
+/* 通用弹窗 */
+function openModal(title,body,after,width){var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s';o.innerHTML='<div style="background:#fff;border-radius:12px;width:'+(width||520)+'px;max-width:92%;max-height:86vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.2);font-family:inherit;transform:scale(0.9);transition:transform .2s"><div style="padding:16px 22px;border-bottom:1px solid #ECEFF4;display:flex;align-items:center;justify-content:space-between"><h3 style="font-size:16px;color:#3C444F;margin:0">'+title+'</h3><button class="_x" style="width:30px;height:30px;border-radius:8px;background:#F5F7FA;border:none;cursor:pointer;color:#696F7D">✕</button></div><div style="padding:20px 22px;overflow-y:auto">'+body+'</div></div>';document.body.appendChild(o);requestAnimationFrame(function(){o.style.opacity='1';o.firstElementChild.style.transform='scale(1)'});o.querySelector('._x').onclick=function(){o.remove()};o.addEventListener('click',function(e){if(e.target===o)o.remove()});if(after)after(o);return o;}
+
+/* 配置侧栏切换：定位到对应区块或弹出说明 */
+var navMap={
+  '学院与权限':{sec:'sec-college'},
+  '角色与人员':{sec:'sec-role'},
+  '同步监控':{sec:'sec-sync'},
+  '字典管理':{sec:'sec-dict'},
+  '数据源映射':{desc:'配置上游 9 个业务系统与成长档案字段的对应关系。上游数据仅读取展示，不回写业务系统。'},
+  'Word 模板':{desc:'维护学年鉴定表、成长档案报告等导出用 Word 模板，包括占位符、页眉页脚与盖章位置。'},
+  '通知模板':{desc:'维护鉴定开启、催办、审核通过 / 退回等站内信与短信通知模板。'},
+  '审核流程':{desc:'配置补充 / 勘误审核的流转环节（学院初审 → 部门复审 → 入库）与超时提醒规则。'},
+  '操作审计':{desc:'记录管理员关键操作日志（登录、配置修改、数据导出等），支持按人员 / 时间检索。'}
+};
+function selectConfigNav(item){
+  document.querySelectorAll('.cn-item').forEach(function(i){i.classList.remove('active')});
+  item.classList.add('active');
+  var key=item.textContent.trim();var m=navMap[key];
+  if(m&&m.sec){var el=document.getElementById(m.sec);if(el){el.scrollIntoView({behavior:'smooth',block:'start'});el.style.transition='box-shadow .3s';el.style.boxShadow='0 0 0 2px #3087CC';setTimeout(function(){el.style.boxShadow=''},1200)}showToast('已定位到「'+key+'」','info');}
+  else if(m&&m.desc){openModal('<i class="fa-solid fa-circle-info" style="color:#3087CC;margin-right:8px"></i>'+key,'<div style="font-size:13px;color:#3C444F;line-height:1.8">'+m.desc+'</div><div style="margin-top:14px;padding:10px 14px;background:#F5FBFF;border:1px solid #BADEF3;border-radius:8px;font-size:12px;color:#696F7D">原型示意：该模块的详细配置项在正式环境中于此维护。</div>');}
+  else{showToast('已切换到 '+key,'info');}
+}
+document.querySelectorAll('.cn-item').forEach(function(item){item.addEventListener('click',function(){selectConfigNav(this)})});
+
+/* 学院成员列表弹窗 */
+function openMembers(btn){
+  var card=btn.closest('.base-card');
+  var name=card&&card.querySelector('.bc-title')?card.querySelector('.bc-title').firstChild.textContent.trim():'学院';
+  var rows=[['张院长','院长','学院负责人'],['李教务','教务办主任','教务员'],['刘教授','教授','学业导师'],['陈研究员','研究员','科研导师'],['王老师','讲师','辅导员']];
+  var th='style="text-align:left;padding:8px 10px;background:#F5F7FA;color:#3C444F;font-size:12px;border-bottom:1px solid #ECEFF4"';
+  var html='<div style="font-size:12px;color:#9096A2;margin-bottom:10px">'+name+' · 共 '+rows.length+' 名成员</div><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th '+th+'>姓名</th><th '+th+'>职务</th><th '+th+'>角色</th></tr></thead><tbody>';
+  rows.forEach(function(r){html+='<tr><td style="padding:8px 10px;border-bottom:1px solid #F5F7FA">'+r[0]+'</td><td style="padding:8px 10px;border-bottom:1px solid #F5F7FA;color:#696F7D">'+r[1]+'</td><td style="padding:8px 10px;border-bottom:1px solid #F5F7FA"><span style="padding:2px 8px;border-radius:4px;background:#E3F1F9;color:#3087CC;font-size:11px">'+r[2]+'</span></td></tr>'});
+  html+='</tbody></table><div style="margin-top:14px;text-align:right"><button class="_edit" style="padding:8px 16px;border-radius:8px;border:1px solid #3087CC;background:#fff;color:#3087CC;cursor:pointer;font-size:13px;font-family:inherit"><i class="fa-solid fa-user-gear"></i> 管理成员</button></div>';
+  openModal('<i class="fa-solid fa-users" style="color:#3087CC;margin-right:8px"></i>'+name+' · 成员列表',html,function(o){o.querySelector('._edit').onclick=function(){location.href='config-edit.html'}});
+}
+
+/* 展开全部学院 */
+function expandColleges(link){
+  var grid=link.closest('.section').querySelector('.base-grid');
+  var extra=[
+    {icon:'fa-earth-asia',name:'地球科学与信息物理学院',tag:'<span class="bc-tag qj">强基计划</span>',meta:'特色培养项目：强基计划 · 编号：C07',s:[68,12,2]},
+    {icon:'fa-feather-pointed',name:'人文学院',tag:'<span class="bc-tag prov">省级拔尖基地</span>',meta:'特色培养项目：省级基础学科拔尖基地 · 编号：C08',s:[168,20,3]},
+    {icon:'fa-microchip',name:'材料科学与工程学院',tag:'<span class="bc-tag qj">强基计划</span>',meta:'特色培养项目：强基计划 · 编号：C09',s:[122,18,2]}
+  ];
+  extra.forEach(function(c){var div=document.createElement('div');div.className='base-card';div.innerHTML='<div class="bc-icon"><i class="fa-solid '+c.icon+'"></i></div><div class="bc-main"><div class="bc-title">'+c.name+' '+c.tag+'</div><div class="bc-meta">'+c.meta+'</div><div class="bc-stats"><span>学生 <strong>'+c.s[0]+'</strong></span><span>导师 <strong>'+c.s[1]+'</strong></span><span>教务员 <strong>'+c.s[2]+'</strong></span></div></div><div class="bc-actions"><button onclick="window.location.href=\'config-edit.html\'"><i class="fa-solid fa-pen"></i> 编辑</button><button onclick="openMembers(this)"><i class="fa-solid fa-users"></i> 成员</button></div>';grid.appendChild(div)});
+  var more=document.getElementById('collegeMore');if(more)more.innerHTML='已显示全部 9 个学院';
+  showToast('已展开全部 9 个学院','success');
+}
+
+/* 查看全部字典 */
+function expandDicts(link){
+  var grid=link.closest('.section').querySelector('.dict-grid');
+  var extra=[
+    {i:'fa-graduation-cap',n:'成绩等级',c:'5 项',p:'优、良、中、及格、不及格'},
+    {i:'fa-user-graduate',n:'学历层次',c:'3 项',p:'本科、硕士研究生、博士研究生'},
+    {i:'fa-venus-mars',n:'性别',c:'2 项',p:'男、女'},
+    {i:'fa-people-group',n:'民族',c:'56 项',p:'汉族、蒙古族、回族、藏族、维吾尔族…'},
+    {i:'fa-flag',n:'政治面貌',c:'6 项',p:'中共党员、中共预备党员、共青团员、群众…'},
+    {i:'fa-diagram-project',n:'项目状态',c:'4 项',p:'未立项、进行中、已结题、已终止'},
+    {i:'fa-clipboard-check',n:'结题结果',c:'4 项',p:'优秀、良好、合格、不合格'},
+    {i:'fa-handshake-angle',n:'社会实践类型',c:'6 项',p:'暑期三下乡、志愿服务、社会调研、实习实训…'},
+    {i:'fa-bell',n:'通知类型',c:'5 项',p:'系统通知、审核通知、催办通知、鉴定通知、公告'}
+  ];
+  extra.forEach(function(d){var div=document.createElement('div');div.className='dict-card';div.innerHTML='<div class="dc-head"><div class="dc-name"><i class="fa-solid '+d.i+'"></i>'+d.n+'</div><div class="dc-count">'+d.c+'</div></div><div class="dc-preview">'+d.p+'</div>';bindDictCard(div);grid.appendChild(div)});
+  var more=document.getElementById('dictMore');if(more)more.innerHTML='已显示全部 20 个字典';
+  showToast('已展开全部 20 个字典','success');
+}
+
+/* 同步历史弹窗 */
+function openSyncHistory(){
+  var rows=[['今日 05:01:12','国教院 → 境外交流','28','成功','#1BB975'],['今日 04:30:00','学科竞赛 → 获奖','—','同步中','#3087CC'],['今日 03:32:00','团委系统 → 实践/社团','—','接口超时','#DF2027'],['今日 03:01:32','创新创业 → 项目','68','成功','#1BB975'],['今日 02:04:55','科研系统 → 论文/专利','186','部分异常','#F29100'],['今日 01:02:18','本科教务 → 成绩','28,440','成功','#1BB975'],['今日 00:30:24','本科教务 → 学籍信息','1,180','成功','#1BB975']];
+  var th='style="text-align:left;padding:8px 10px;background:#F5F7FA;color:#3C444F;border-bottom:1px solid #ECEFF4"';
+  var html='<div style="font-size:12px;color:#9096A2;margin-bottom:10px">最近 7 条同步记录</div><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr><th '+th+'>时间</th><th '+th+'>任务</th><th '+th+'>条数</th><th '+th+'>状态</th></tr></thead><tbody>';
+  rows.forEach(function(r){html+='<tr><td style="padding:8px 10px;border-bottom:1px solid #F5F7FA;color:#696F7D">'+r[0]+'</td><td style="padding:8px 10px;border-bottom:1px solid #F5F7FA">'+r[1]+'</td><td style="padding:8px 10px;border-bottom:1px solid #F5F7FA">'+r[2]+'</td><td style="padding:8px 10px;border-bottom:1px solid #F5F7FA;color:'+r[4]+';font-weight:600">'+r[3]+'</td></tr>'});
+  html+='</tbody></table>';
+  openModal('<i class="fa-solid fa-clock-rotate-left" style="color:#3087CC;margin-right:8px"></i>数据同步历史',html,null,600);
+}
+
+/* 同步日志弹窗 */
+function openSyncLog(a){
+  var tr=a.closest('tr');var sys=tr?tr.cells[0].textContent.trim().replace(/\s+/g,' '):'同步任务';
+  var log='[INFO] 任务开始 · 连接上游数据源…\n[INFO] 鉴权成功，开始拉取增量数据\n[INFO] 已接收记录，字段校验通过\n[INFO] 写入档案库完成，耗时 2.4s\n[INFO] 任务结束 · 状态：成功';
+  var html='<div style="font-size:12px;color:#9096A2;margin-bottom:10px">'+sys+'</div><pre style="margin:0;padding:14px;background:#0F172A;color:#8BE9A8;border-radius:8px;font-size:12px;line-height:1.7;white-space:pre-wrap;font-family:Consolas,Monaco,monospace">'+log+'</pre>';
+  openModal('<i class="fa-solid fa-file-lines" style="color:#3087CC;margin-right:8px"></i>同步日志',html,null,600);
+}
+
+/* 同步异常详情弹窗 */
+function openSyncError(a){
+  var tr=a.closest('tr');var sys=tr?tr.cells[0].textContent.trim().replace(/\s+/g,' '):'同步任务';
+  var td='style="padding:8px 10px;border-bottom:1px solid #F5F7FA"';
+  var html='<div style="font-size:12px;color:#9096A2;margin-bottom:10px">'+sys+'</div><div style="padding:12px 14px;background:#FFF5E5;border:1px solid #FFE0B3;border-radius:8px;font-size:13px;color:#3C444F;line-height:1.7"><strong style="color:#F29100"><i class="fa-solid fa-triangle-exclamation"></i> 部分异常</strong><br>共 186 条，其中 <strong>3 条</strong>字段校验未通过。</div><table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:12px"><thead><tr><th style="text-align:left;padding:8px 10px;background:#F5F7FA;border-bottom:1px solid #ECEFF4">记录</th><th style="text-align:left;padding:8px 10px;background:#F5F7FA;border-bottom:1px solid #ECEFF4">异常原因</th></tr></thead><tbody><tr><td '+td+'>论文 #P2026-041</td><td '+td+';color:#DF2027">期刊等级字段为空</td></tr><tr><td '+td+'>专利 #Z2026-018</td><td '+td+';color:#DF2027">发明人学号未匹配</td></tr><tr><td '+td+'>论文 #P2026-052</td><td '+td+';color:#DF2027">发表时间格式不合法</td></tr></tbody></table><div style="margin-top:14px;text-align:right"><button class="_rt" style="padding:8px 16px;border-radius:8px;border:none;background:#3087CC;color:#fff;cursor:pointer;font-size:13px;font-family:inherit"><i class="fa-solid fa-rotate"></i> 重新校验异常记录</button></div>';
+  openModal('<i class="fa-solid fa-triangle-exclamation" style="color:#F29100;margin-right:8px"></i>同步异常详情',html,function(o){o.querySelector('._rt').onclick=function(){o.remove();showToast('已提交重新校验，稍后刷新查看结果','success')}},600);
+}
+
+/* 重试同步：确认后行状态变「同步中」 */
+function retrySync(a){
+  var tr=a.closest('tr');
+  showConfirm('确认重试','确定要重试此同步任务吗？',function(){
+    if(tr){var stCell=tr.querySelector('.sync-status');if(stCell){stCell.className='sync-status sync-running';stCell.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> 同步中'}if(tr.cells[2])tr.cells[2].textContent='正在同步...'}
+    showToast('已触发重试，任务重新排队','success');
+  });
+}
+
+/* 字典卡片：点击弹出字典项列表，可新增 / 编辑（原型示意） */
+function bindDictCard(card){card.onclick=function(){openDictDetail(card)}}
+function openDictDetail(card){
+  var name=card.querySelector('.dc-name').textContent.trim();
+  var count=card.querySelector('.dc-count')?card.querySelector('.dc-count').textContent.trim():'';
+  var preview=card.querySelector('.dc-preview')?card.querySelector('.dc-preview').textContent.trim():'';
+  var items=preview.split(/[、,，]/);
+  var list='';var idx=0;
+  items.forEach(function(it){it=it.replace(/[.…]+$/,'').trim();if(!it)return;idx++;list+='<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border:1px solid #ECEFF4;border-radius:8px;margin-bottom:8px"><div style="font-size:13px;color:#3C444F"><span style="display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:#E3F1F9;color:#3087CC;font-size:11px;margin-right:8px">'+idx+'</span>'+it+'</div><div style="display:flex;gap:8px;align-items:center"><span style="padding:2px 8px;border-radius:4px;background:#E8FCF4;color:#1BB975;font-size:11px">启用</span><a onclick="location.href=\'config-edit.html\'" style="font-size:12px;color:#3087CC;cursor:pointer">编辑</a></div></div>'});
+  var html='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><div style="font-size:12px;color:#9096A2">'+name+' · '+count+'</div><button class="_add" style="padding:6px 12px;border-radius:6px;border:1px solid #3087CC;background:#fff;color:#3087CC;cursor:pointer;font-size:12px;font-family:inherit"><i class="fa-solid fa-plus"></i> 新增字典值</button></div><div id="_dictList">'+list+'</div><div style="margin-top:6px;text-align:right"><button class="_manage" style="padding:8px 16px;border-radius:8px;border:none;background:#3087CC;color:#fff;cursor:pointer;font-size:13px;font-family:inherit"><i class="fa-solid fa-pen-to-square"></i> 前往字典编辑页</button></div>';
+  openModal('<i class="fa-solid fa-book" style="color:#3087CC;margin-right:8px"></i>字典详情 · '+name,html,function(o){
+    o.querySelector('._manage').onclick=function(){location.href='config-edit.html'};
+    o.querySelector('._add').onclick=function(){
+      var listEl=o.querySelector('#_dictList');
+      var div=document.createElement('div');div.style.cssText='display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px dashed #3087CC;border-radius:8px;margin-bottom:8px';
+      div.innerHTML='<input placeholder="新字典值名称" style="flex:1;padding:6px 10px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none;font-family:inherit"><button style="padding:6px 12px;border-radius:6px;border:none;background:#3087CC;color:#fff;cursor:pointer;font-size:12px;font-family:inherit">保存</button>';
+      listEl.appendChild(div);
+      div.querySelector('button').onclick=function(){var v=div.querySelector('input').value.trim();if(!v){showToast('请输入字典值名称','warning');return}div.outerHTML='<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border:1px solid #ECEFF4;border-radius:8px;margin-bottom:8px"><div style="font-size:13px;color:#3C444F">'+v+'</div><span style="padding:2px 8px;border-radius:4px;background:#E8FCF4;color:#1BB975;font-size:11px">启用</span></div>';showToast('已新增字典值：'+v,'success')};
+      div.querySelector('input').focus();
+    };
+  },560);
+}
+document.querySelectorAll('.dict-card').forEach(bindDictCard);
+if(location.search.indexOf('saved=1')>=0){showToast('配置已保存成功','success');history.replaceState(null,'',location.pathname)}
+</script>
+
+</body>
+</html>

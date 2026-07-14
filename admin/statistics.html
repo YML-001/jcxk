@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>查询与统计 · 基础学科学生成长档案</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'OPPOSans',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#F5F7FA;color:#3C444F;min-height:100vh;font-size:14px}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+.layout{display:flex;min-height:100vh}
+
+.sidebar{width:232px;background:#fff;border-right:1px solid #ECEFF4;flex-shrink:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.sidebar-brand{padding:20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #ECEFF4}
+.brand-icon{width:38px;height:38px;background:linear-gradient(135deg,#3087CC,#006DAD);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
+.brand-text h1{font-size:14px;font-weight:700;color:#3C444F}
+.brand-text p{font-size:11px;color:#9096A2;margin-top:2px}
+.sidebar-nav{flex:1;padding:14px 12px;overflow-y:auto}
+.nav-group{margin-bottom:18px}
+.nav-group-title{font-size:11px;color:#9096A2;font-weight:600;padding:0 10px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;color:#696F7D;cursor:pointer;transition:all .15s;margin-bottom:2px}
+.nav-item i{font-size:15px;width:18px}
+.nav-item:hover{background:#F5F7FA;color:#3087CC}
+.nav-item.active{background:#E3F1F9;color:#3087CC;font-weight:600}
+.nav-item .badge{margin-left:auto;font-size:11px;background:#DF2027;color:#fff;padding:1px 6px;border-radius:8px;font-weight:600}
+.sidebar-footer{padding:14px 16px;border-top:1px solid #ECEFF4;display:flex;align-items:center;gap:10px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3087CC,#006DAD);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.user-info .name{font-size:13px;font-weight:600;color:#3C444F}
+.user-info .role{font-size:11px;color:#9096A2;margin-top:1px}
+
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{background:#fff;border-bottom:1px solid #ECEFF4;padding:14px 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10}
+.breadcrumb{font-size:13px;color:#9096A2}
+.breadcrumb .current{color:#3C444F;font-weight:600}
+.breadcrumb i{font-size:10px;margin:0 6px}
+.topbar-actions{margin-left:auto;display:flex;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid transparent;line-height:1.2}
+.btn-primary{background:#3087CC;color:#fff}
+.btn-primary:hover{background:#006DAD}
+.btn-outline{background:#fff;color:#3087CC;border-color:#3087CC}
+.btn-outline:hover{background:#E3F1F9}
+.btn-default{background:#fff;color:#696F7D;border-color:#C8CAD1}
+.btn-default:hover{border-color:#3087CC;color:#3087CC}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+.content{padding:24px 28px;flex:1;overflow-y:auto}
+.page-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.page-title h2{font-size:22px;font-weight:700;color:#3C444F}
+.page-title .desc{font-size:13px;color:#9096A2;margin-top:6px}
+
+/* Tab nav */
+.tab-nav{display:flex;gap:4px;background:#fff;border:1px solid #ECEFF4;border-radius:12px;padding:6px;margin-bottom:16px}
+.tab-btn{padding:9px 18px;border-radius:8px;font-size:13px;color:#696F7D;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.tab-btn:hover{color:#3087CC}
+.tab-btn.active{background:#3087CC;color:#fff;font-weight:600}
+
+/* Filter bar */
+.filter-bar{background:#fff;border:1px solid #ECEFF4;border-radius:12px;padding:16px 20px;margin-bottom:16px;display:grid;grid-template-columns:repeat(6,1fr);gap:12px;align-items:end}
+.filter-item label{display:block;font-size:11px;color:#696F7D;margin-bottom:6px;font-weight:500}
+.filter-item select,.filter-item input{width:100%;height:34px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none;background:#fff;transition:all .15s}
+.filter-item select:focus,.filter-item input:focus{border-color:#3087CC}
+.filter-actions{display:flex;gap:8px}
+
+/* Stats KPIs */
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:16px}
+.kpi-card{background:#fff;border:1px solid #ECEFF4;border-radius:12px;padding:16px 18px;position:relative;overflow:hidden}
+.kpi-bg-icon{position:absolute;right:-10px;bottom:-10px;font-size:80px;opacity:0.06}
+.kpi-label{font-size:12px;color:#9096A2;margin-bottom:6px}
+.kpi-value{font-size:26px;font-weight:700;color:#3C444F;line-height:1}
+.kpi-trend{display:inline-flex;align-items:center;gap:3px;margin-top:8px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
+.kpi-trend.up{background:#E8FCF4;color:#1BB975}
+.kpi-trend.down{background:#FCE8EA;color:#DF2027}
+
+/* Row */
+.row{display:grid;gap:16px;margin-bottom:16px}
+.row-2{grid-template-columns:1fr 1fr}
+.row-3{grid-template-columns:1fr 1fr 1fr}
+
+/* Chart Card */
+.chart-card{background:#fff;border:1px solid #ECEFF4;border-radius:12px;overflow:hidden}
+.chart-head{padding:14px 20px;border-bottom:1px solid #ECEFF4;display:flex;align-items:center;justify-content:space-between}
+.chart-head h4{font-size:15px;font-weight:700;color:#3C444F;display:flex;align-items:center;gap:8px}
+.chart-head h4 i{color:#3087CC}
+.chart-head .actions{display:flex;gap:8px}
+.chart-tool{padding:5px 10px;border:1px solid #ECEFF4;border-radius:6px;font-size:11px;color:#696F7D;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:4px}
+.chart-tool:hover{border-color:#3087CC;color:#3087CC}
+.chart-tool.active{background:#E3F1F9;border-color:#3087CC;color:#3087CC}
+.chart-body{padding:20px;min-height:280px}
+
+/* Bar chart big */
+.bar-chart-h{display:flex;flex-direction:column;gap:12px}
+.bch-row{display:grid;grid-template-columns:80px 1fr 60px;gap:12px;align-items:center}
+.bch-label{font-size:12px;color:#3C444F;font-weight:500}
+.bch-bar-bg{height:24px;background:#F5F7FA;border-radius:4px;overflow:hidden;display:flex}
+.bch-seg{height:100%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:600;transition:all .2s}
+.bch-seg:hover{opacity:0.85}
+.bch-s1{background:#3087CC}
+.bch-s2{background:#9CBFDA}
+.bch-s3{background:#1BB975}
+.bch-value{font-size:12px;color:#3C444F;font-weight:600;text-align:right}
+
+/* Donut */
+.donut-area{display:flex;align-items:center;justify-content:center;gap:20px;padding:20px}
+.donut-large{width:200px;height:200px;border-radius:50%;background:conic-gradient(#1BB975 0% 78%,#DF2027 78% 81%,#9CBFDA 81% 100%);position:relative;flex-shrink:0}
+.donut-large::before{content:'';position:absolute;inset:38px;background:#fff;border-radius:50%}
+.donut-large .donut-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1}
+.donut-large .donut-c .num{font-size:32px;font-weight:700;color:#3C444F;line-height:1}
+.donut-large .donut-c .lab{font-size:12px;color:#9096A2;margin-top:4px}
+.donut-list{flex:1}
+.donut-li{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #F5F7FA;font-size:13px}
+.donut-li:last-child{border-bottom:none}
+.donut-li .dl{display:flex;align-items:center;gap:8px;color:#3C444F}
+.donut-li .dl .dot{width:10px;height:10px;border-radius:2px}
+.donut-li .dv{color:#696F7D;font-weight:600}
+
+/* Line chart */
+.line-chart-wrap{position:relative;height:280px;padding:20px}
+.line-svg{width:100%;height:100%}
+
+/* Legend */
+.chart-legend{display:flex;justify-content:center;gap:18px;margin-top:8px;font-size:12px;color:#696F7D}
+.chart-legend-item{display:flex;align-items:center;gap:6px}
+.chart-legend-color{width:10px;height:10px;border-radius:2px}
+
+/* Trend Table */
+.trend-table{width:100%;border-collapse:collapse;font-size:13px}
+.trend-table th{background:#F5F7FA;padding:10px 14px;text-align:left;color:#3C444F;font-weight:600;font-size:12px;border-bottom:1px solid #ECEFF4}
+.trend-table th.center{text-align:center}
+.trend-table td{padding:12px 14px;border-bottom:1px solid #F5F7FA;color:#3C444F}
+.trend-table td.center{text-align:center}
+.trend-table tr:hover{background:#FAFBFC}
+.trend-arrow{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600}
+.trend-arrow.up{background:#E8FCF4;color:#1BB975}
+.trend-arrow.down{background:#FCE8EA;color:#DF2027}
+
+.trend-arrow.down{background:#FCE8EA;color:#DF2027}
+
+.pagination{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #ECEFF4}
+.pag-info{font-size:13px;color:#696F7D}
+.pag-info select{margin:0 6px;height:30px;padding:0 22px 0 8px;border:1px solid #C8CAD1;border-radius:4px;font-size:12px;background:#fff}
+.pag-pages{display:flex;gap:4px;align-items:center}
+.pag-btn{min-width:32px;height:32px;padding:0 8px;border:1px solid #ECEFF4;border-radius:6px;background:#fff;color:#696F7D;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.pag-btn:hover:not(:disabled){border-color:#3087CC;color:#3087CC}
+.pag-btn.active{background:#3087CC;border-color:#3087CC;color:#fff}
+.pag-btn:disabled{opacity:.4;cursor:not-allowed}
+.stat-panel{display:none}
+.stat-panel.active{display:block}
+.chart-view-table{width:100%;border-collapse:collapse;font-size:12px}
+.chart-view-table th{background:#F5F7FA;padding:8px 10px;text-align:left;border-bottom:1px solid #ECEFF4}
+.chart-view-table td{padding:8px 10px;border-bottom:1px solid #F5F7FA}
+.vbar-chart{display:flex;align-items:flex-end;justify-content:space-around;height:220px;padding:10px 0}
+.vbar-item{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1}
+.vbar-col{width:36px;border-radius:4px 4px 0 0;background:linear-gradient(180deg,#3087CC,#006DAD)}
+.vbar-lab{font-size:11px;color:#696F7D}
+
+@media(max-width:1400px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.filter-bar{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+    <div class="brand-text"><h1>成长档案</h1><p>基础学科 · 管理端</p></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-group">
+      <div class="nav-group-title">概览</div>
+      <a class="nav-item" href="dashboard.html"><i class="fa-solid fa-gauge-high"></i>工作台</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">档案管理</div>
+      <a class="nav-item" href="student-list.html"><i class="fa-solid fa-users"></i>学生档案<span class="badge">1180</span></a>
+      <a class="nav-item" href="student-detail.html"><i class="fa-solid fa-folder-open"></i>档案详情</a>
+      <a class="nav-item" href="data-entry.html"><i class="fa-solid fa-pen-to-square"></i>直接录入</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">审核中心</div>
+      <a class="nav-item" href="review-list.html"><i class="fa-solid fa-clipboard-check"></i>补充勘误审核<span class="badge">12</span></a>
+      <a class="nav-item" href="review-detail.html"><i class="fa-solid fa-eye"></i>审核详情</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">学年鉴定</div>
+      <a class="nav-item" href="annual-review.html"><i class="fa-solid fa-file-signature"></i>鉴定管理</a>
+      <a class="nav-item" href="annual-review-committee.html"><i class="fa-solid fa-user-group"></i>考核小组配置</a>
+      <a class="nav-item" href="annual-review-detail.html"><i class="fa-solid fa-pen-to-square"></i>考核录入</a>
+      <a class="nav-item" href="annual-review-export.html"><i class="fa-solid fa-file-export"></i>导出模板</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">数据分析</div>
+      <div class="nav-item active"><i class="fa-solid fa-chart-column"></i>查询与统计</div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">系统</div>
+      <a class="nav-item" href="base-config.html"><i class="fa-solid fa-sliders"></i>系统配置</a>
+      <a class="nav-item" href="../index.html"><i class="fa-solid fa-arrow-right-from-bracket"></i>返回导航</a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-avatar">李</div>
+    <div class="user-info"><div class="name">李振华</div><div class="role">本科生院 · 管理员</div></div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="breadcrumb">
+      <i class="fa-solid fa-house"></i> 首页 <i class="fa-solid fa-chevron-right"></i>
+      数据分析 <i class="fa-solid fa-chevron-right"></i>
+      <span class="current">查询与统计</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-default btn-sm" onclick="saveReport()"><i class="fa-solid fa-bookmark"></i>保存为我的报表</button>
+      <button class="btn btn-outline btn-sm" onclick="exportExcel()"><i class="fa-solid fa-file-export"></i>导出 Excel</button>
+      <button class="btn btn-primary btn-sm" onclick="downloadCharts()"><i class="fa-solid fa-download"></i>下载图表</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="page-title">
+      <div>
+        <h2>查询与统计</h2>
+        <div class="desc">多维度成长档案数据分析 · 支持自定义维度交叉与年度对比</div>
+      </div>
+    </div>
+
+    <!-- 视图切换 -->
+    <div class="tab-nav">
+      <div class="tab-btn active"><i class="fa-solid fa-chart-pie"></i>统计总览</div>
+      <div class="tab-btn"><i class="fa-solid fa-table-cells"></i>交叉统计</div>
+      <div class="tab-btn"><i class="fa-solid fa-chart-line"></i>年度对比</div>
+      <div class="tab-btn"><i class="fa-solid fa-list-ul"></i>明细数据</div>
+      <div class="tab-btn"><i class="fa-solid fa-bookmark"></i>我的报表 (<span id="myReportCount">3</span>)</div>
+    </div>
+
+    <!-- Filter -->
+    <div class="filter-bar" id="statsFilter">
+      <div class="filter-item">
+        <label>学年</label>
+        <select id="fltYear"><option>2025-2026</option><option>2024-2025</option><option>2023-2024</option><option>全部学年</option></select>
+      </div>
+      <div class="filter-item">
+        <label>学院</label>
+        <select id="fltCollege"><option>全部学院</option><option>计算机学院</option><option>物理学院</option><option>数学与统计学院</option><option>化学化工学院</option><option>生命科学学院</option><option>基础医学院</option><option>地球科学与信息物理学院</option><option>人文学院</option><option>材料科学与工程学院</option></select>
+      </div>
+      <div class="filter-item">
+        <label>特色培养项目</label>
+        <select id="fltProgram"><option>全部项目</option><option>国家级拔尖基地</option><option>省级拔尖基地</option><option>强基计划</option><option>智慧创新班</option><option>卓越班</option><option>科创班</option></select>
+      </div>
+      <div class="filter-item">
+        <label>年级</label>
+        <select id="fltGrade"><option>全部年级</option><option>2022级</option><option>2023级</option><option>2024级</option></select>
+      </div>
+      <div class="filter-item">
+        <label>统计维度</label>
+        <select id="fltDim"><option>按学院</option><option>按特色培养项目</option><option>按专业</option><option>按年级</option></select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-primary btn-sm" style="flex:1" onclick="applyStatsFilter()"><i class="fa-solid fa-magnifying-glass"></i>查询</button>
+        <button class="btn btn-default btn-sm" onclick="resetStatsFilter()"><i class="fa-solid fa-rotate-left"></i></button>
+      </div>
+    </div>
+
+    <div class="stat-panel active" id="panel-overview">
+    <!-- KPIs -->
+    <div class="kpi-grid" id="kpiGrid">
+      <div class="kpi-card">
+        <i class="fa-solid fa-users kpi-bg-icon" style="color:#3087CC"></i>
+        <div class="kpi-label">在籍学生</div>
+        <div class="kpi-value" style="color:#3087CC">1,180</div>
+        <span class="kpi-trend up"><i class="fa-solid fa-arrow-up"></i> 8.2%</span>
+      </div>
+      <div class="kpi-card">
+        <i class="fa-solid fa-trophy kpi-bg-icon" style="color:#F29100"></i>
+        <div class="kpi-label">竞赛获奖人次</div>
+        <div class="kpi-value">324</div>
+        <span class="kpi-trend up"><i class="fa-solid fa-arrow-up"></i> 16.5%</span>
+      </div>
+      <div class="kpi-card">
+        <i class="fa-solid fa-file-lines kpi-bg-icon" style="color:#1BB975"></i>
+        <div class="kpi-label">论文发表数</div>
+        <div class="kpi-value">186</div>
+        <span class="kpi-trend up"><i class="fa-solid fa-arrow-up"></i> 22.4%</span>
+      </div>
+      <div class="kpi-card">
+        <i class="fa-solid fa-certificate kpi-bg-icon" style="color:#DF2027"></i>
+        <div class="kpi-label">专利软著</div>
+        <div class="kpi-value">48</div>
+        <span class="kpi-trend up"><i class="fa-solid fa-arrow-up"></i> 5.6%</span>
+      </div>
+      <div class="kpi-card">
+        <i class="fa-solid fa-medal kpi-bg-icon" style="color:#3087CC"></i>
+        <div class="kpi-label">学年鉴定通过率</div>
+        <div class="kpi-value" style="color:#1BB975">96.9%</div>
+        <span class="kpi-trend up"><i class="fa-solid fa-arrow-up"></i> 0.6%</span>
+      </div>
+    </div>
+
+    <!-- Row 1：水平柱状 + 饼图 -->
+    <div class="row row-2">
+      <div class="chart-card">
+        <div class="chart-head">
+          <h4><i class="fa-solid fa-chart-bar"></i>各学院竞赛获奖人次（按级别）</h4>
+          <div class="actions">
+            <button class="chart-tool active" data-view="bar" onclick="switchChartView('chartComp',this)"><i class="fa-solid fa-chart-bar"></i> 柱状</button>
+            <button class="chart-tool" data-view="table" onclick="switchChartView('chartComp',this)"><i class="fa-solid fa-list"></i> 表格</button>
+          </div>
+        </div>
+        <div class="chart-body" id="chartComp">
+          <div class="chart-view" data-view="bar">
+          <div class="bar-chart-h">
+            <div class="bch-row">
+              <div class="bch-label">计算机</div>
+              <div class="bch-bar-bg">
+                <div class="bch-seg bch-s1" style="width:42%">国 12</div>
+                <div class="bch-seg bch-s2" style="width:38%">省 11</div>
+                <div class="bch-seg bch-s3" style="width:20%">校 7</div>
+              </div>
+              <div class="bch-value">30</div>
+            </div>
+            <div class="bch-row">
+              <div class="bch-label">物理</div>
+              <div class="bch-bar-bg">
+                <div class="bch-seg bch-s1" style="width:45%">国 9</div>
+                <div class="bch-seg bch-s2" style="width:35%">省 7</div>
+                <div class="bch-seg bch-s3" style="width:20%">校 4</div>
+              </div>
+              <div class="bch-value">20</div>
+            </div>
+            <div class="bch-row">
+              <div class="bch-label">生命科学</div>
+              <div class="bch-bar-bg">
+                <div class="bch-seg bch-s1" style="width:30%">国 5</div>
+                <div class="bch-seg bch-s2" style="width:45%">省 7</div>
+                <div class="bch-seg bch-s3" style="width:25%">校 4</div>
+              </div>
+              <div class="bch-value">16</div>
+            </div>
+            <div class="bch-row">
+              <div class="bch-label">数学统计</div>
+              <div class="bch-bar-bg">
+                <div class="bch-seg bch-s1" style="width:50%">国 11</div>
+                <div class="bch-seg bch-s2" style="width:32%">省 7</div>
+                <div class="bch-seg bch-s3" style="width:18%">校 4</div>
+              </div>
+              <div class="bch-value">22</div>
+            </div>
+            <div class="bch-row">
+              <div class="bch-label">化学化工</div>
+              <div class="bch-bar-bg">
+                <div class="bch-seg bch-s1" style="width:35%">国 6</div>
+                <div class="bch-seg bch-s2" style="width:40%">省 7</div>
+                <div class="bch-seg bch-s3" style="width:25%">校 4</div>
+              </div>
+              <div class="bch-value">17</div>
+            </div>
+            <div class="bch-row">
+              <div class="bch-label">基础医学</div>
+              <div class="bch-bar-bg">
+                <div class="bch-seg bch-s1" style="width:25%">国 3</div>
+                <div class="bch-seg bch-s2" style="width:50%">省 6</div>
+                <div class="bch-seg bch-s3" style="width:25%">校 3</div>
+              </div>
+              <div class="bch-value">12</div>
+            </div>
+            <div class="bch-row">
+              <div class="bch-label">地球科学</div>
+              <div class="bch-bar-bg">
+                <div class="bch-seg bch-s1" style="width:20%">国 1</div>
+                <div class="bch-seg bch-s2" style="width:60%">省 3</div>
+                <div class="bch-seg bch-s3" style="width:20%">校 1</div>
+              </div>
+              <div class="bch-value">5</div>
+            </div>
+            <div class="bch-row">
+              <div class="bch-label">人文</div>
+              <div class="bch-bar-bg">
+                <div class="bch-seg bch-s1" style="width:21%">国 3</div>
+                <div class="bch-seg bch-s2" style="width:43%">省 6</div>
+                <div class="bch-seg bch-s3" style="width:36%">校 5</div>
+              </div>
+              <div class="bch-value">14</div>
+            </div>
+            <div class="bch-row">
+              <div class="bch-label">材料</div>
+              <div class="bch-bar-bg">
+                <div class="bch-seg bch-s1" style="width:38%">国 7</div>
+                <div class="bch-seg bch-s2" style="width:38%">省 7</div>
+                <div class="bch-seg bch-s3" style="width:24%">校 4</div>
+              </div>
+              <div class="bch-value">18</div>
+            </div>
+          </div>
+          <div class="chart-legend">
+            <div class="chart-legend-item"><span class="chart-legend-color" style="background:#3087CC"></span>国家级</div>
+            <div class="chart-legend-item"><span class="chart-legend-color" style="background:#9CBFDA"></span>省级</div>
+            <div class="chart-legend-item"><span class="chart-legend-color" style="background:#1BB975"></span>校级</div>
+          </div>
+          </div>
+          <div class="chart-view" data-view="table" style="display:none">
+            <table class="chart-view-table"><thead><tr><th>学院</th><th>国家级</th><th>省级</th><th>校级</th><th>合计</th></tr></thead><tbody><tr><td>计算机</td><td>12</td><td>11</td><td>7</td><td><strong>30</strong></td></tr><tr><td>物理</td><td>9</td><td>7</td><td>4</td><td><strong>20</strong></td></tr><tr><td>生命科学</td><td>5</td><td>7</td><td>4</td><td><strong>16</strong></td></tr><tr><td>数学统计</td><td>11</td><td>7</td><td>4</td><td><strong>22</strong></td></tr><tr><td>化学化工</td><td>6</td><td>7</td><td>4</td><td><strong>17</strong></td></tr><tr><td>基础医学</td><td>3</td><td>6</td><td>3</td><td><strong>12</strong></td></tr><tr><td>地球科学</td><td>1</td><td>3</td><td>1</td><td><strong>5</strong></td></tr><tr><td>人文</td><td>3</td><td>6</td><td>5</td><td><strong>14</strong></td></tr><tr><td>材料</td><td>7</td><td>7</td><td>4</td><td><strong>18</strong></td></tr></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-head">
+          <h4><i class="fa-solid fa-chart-pie"></i>学年鉴定结果分布</h4>
+          <div class="actions">
+            <button class="chart-tool active" data-view="pie" onclick="switchChartView('chartReview',this)"><i class="fa-solid fa-chart-pie"></i> 饼图</button>
+            <button class="chart-tool" data-view="bar" onclick="switchChartView('chartReview',this)"><i class="fa-solid fa-chart-bar"></i> 柱状</button>
+          </div>
+        </div>
+        <div class="chart-body" id="chartReview">
+          <div class="chart-view" data-view="pie">
+            <div class="donut-area">
+            <div class="donut-large">
+              <div class="donut-c">
+                <div class="num">958</div>
+                <div class="lab">已完成鉴定</div>
+              </div>
+            </div>
+            <div class="donut-list">
+              <div class="donut-li"><span class="dl"><span class="dot" style="background:#1BB975"></span>通过</span><span class="dv">918 (95.8%)</span></div>
+              <div class="donut-li"><span class="dl"><span class="dot" style="background:#DF2027"></span>不通过</span><span class="dv">40 (4.2%)</span></div>
+              <div class="donut-li"><span class="dl"><span class="dot" style="background:#9CBFDA"></span>未完成</span><span class="dv">222</span></div>
+            </div>
+          </div>
+          </div>
+          <div class="chart-view" data-view="bar" style="display:none">
+            <div class="vbar-chart">
+              <div class="vbar-item"><div class="vbar-col" style="height:180px;background:#1BB975"></div><div class="vbar-lab">通过<br>918</div></div>
+              <div class="vbar-item"><div class="vbar-col" style="height:40px;background:#DF2027"></div><div class="vbar-lab">不通过<br>40</div></div>
+              <div class="vbar-item"><div class="vbar-col" style="height:90px;background:#9CBFDA"></div><div class="vbar-lab">未完成<br>222</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2 趋势图 -->
+    <div class="chart-card" style="margin-bottom:16px">
+      <div class="chart-head">
+        <h4><i class="fa-solid fa-chart-line"></i>近五年成长数据趋势</h4>
+        <div class="actions">
+          <button class="chart-tool" data-view="comp" onclick="switchChartView('chartTrend',this)"><i class="fa-solid fa-trophy"></i> 竞赛</button>
+          <button class="chart-tool active" data-view="all" onclick="switchChartView('chartTrend',this)"><i class="fa-solid fa-list-check"></i> 全部指标</button>
+          <button class="chart-tool" onclick="openDownloadModal('趋势图')"><i class="fa-solid fa-download"></i> 下载</button>
+        </div>
+      </div>
+      <div class="chart-body" id="chartTrend" style="padding:0">
+        <div class="chart-view" data-view="all">
+        <div class="line-chart-wrap">
+          <svg class="line-svg" viewBox="0 0 800 240" preserveAspectRatio="none">
+            <!-- Grid lines -->
+            <g stroke="#ECEFF4" stroke-width="1">
+              <line x1="60" y1="40" x2="780" y2="40"/>
+              <line x1="60" y1="90" x2="780" y2="90"/>
+              <line x1="60" y1="140" x2="780" y2="140"/>
+              <line x1="60" y1="190" x2="780" y2="190"/>
+            </g>
+            <!-- Y axis labels -->
+            <g fill="#9096A2" font-size="11" font-family="OPPOSans">
+              <text x="50" y="44" text-anchor="end">400</text>
+              <text x="50" y="94" text-anchor="end">300</text>
+              <text x="50" y="144" text-anchor="end">200</text>
+              <text x="50" y="194" text-anchor="end">100</text>
+              <text x="50" y="220" text-anchor="end">0</text>
+            </g>
+            <!-- X axis labels -->
+            <g fill="#9096A2" font-size="11" font-family="OPPOSans" text-anchor="middle">
+              <text x="120" y="230">2021-22</text>
+              <text x="270" y="230">2022-23</text>
+              <text x="420" y="230">2023-24</text>
+              <text x="570" y="230">2024-25</text>
+              <text x="720" y="230">2025-26</text>
+            </g>
+            <!-- Line 1 竞赛 -->
+            <polyline points="120,180 270,165 420,150 570,135 720,108" fill="none" stroke="#3087CC" stroke-width="2.5"/>
+            <g fill="#3087CC"><circle cx="120" cy="180" r="5"/><circle cx="270" cy="165" r="5"/><circle cx="420" cy="150" r="5"/><circle cx="570" cy="135" r="5"/><circle cx="720" cy="108" r="5"/></g>
+            <!-- Line 2 论文 -->
+            <polyline points="120,202 270,190 420,178 570,158 720,140" fill="none" stroke="#1BB975" stroke-width="2.5"/>
+            <g fill="#1BB975"><circle cx="120" cy="202" r="5"/><circle cx="270" cy="190" r="5"/><circle cx="420" cy="178" r="5"/><circle cx="570" cy="158" r="5"/><circle cx="720" cy="140" r="5"/></g>
+            <!-- Line 3 专利 -->
+            <polyline points="120,215 270,210 420,204 570,195 720,184" fill="none" stroke="#F29100" stroke-width="2.5"/>
+            <g fill="#F29100"><circle cx="120" cy="215" r="5"/><circle cx="270" cy="210" r="5"/><circle cx="420" cy="204" r="5"/><circle cx="570" cy="195" r="5"/><circle cx="720" cy="184" r="5"/></g>
+            <!-- Line 4 创新创业 -->
+            <polyline points="120,210 270,202 420,194 570,180 720,168" fill="none" stroke="#DF2027" stroke-width="2.5"/>
+            <g fill="#DF2027"><circle cx="120" cy="210" r="5"/><circle cx="270" cy="202" r="5"/><circle cx="420" cy="194" r="5"/><circle cx="570" cy="180" r="5"/><circle cx="720" cy="168" r="5"/></g>
+          </svg>
+        </div>
+        <div class="chart-legend" style="padding-bottom:14px">
+          <div class="chart-legend-item"><span class="chart-legend-color" style="background:#3087CC"></span>竞赛获奖</div>
+          <div class="chart-legend-item"><span class="chart-legend-color" style="background:#1BB975"></span>论文发表</div>
+          <div class="chart-legend-item"><span class="chart-legend-color" style="background:#F29100"></span>专利软著</div>
+          <div class="chart-legend-item"><span class="chart-legend-color" style="background:#DF2027"></span>创新创业项目</div>
+        </div>
+        </div>
+        <div class="chart-view" data-view="comp" style="display:none;padding:20px">
+          <div class="line-chart-wrap" style="height:220px">
+            <svg class="line-svg" viewBox="0 0 800 200" preserveAspectRatio="none">
+              <g stroke="#ECEFF4" stroke-width="1"><line x1="60" y1="40" x2="780" y2="40"/><line x1="60" y1="100" x2="780" y2="100"/><line x1="60" y1="160" x2="780" y2="160"/></g>
+              <polyline points="120,160 270,145 420,130 570,115 720,88" fill="none" stroke="#3087CC" stroke-width="3"/>
+              <g fill="#3087CC"><circle cx="120" cy="160" r="5"/><circle cx="270" cy="145" r="5"/><circle cx="420" cy="130" r="5"/><circle cx="570" cy="115" r="5"/><circle cx="720" cy="88" r="5"/></g>
+            </svg>
+          </div>
+          <div class="chart-legend"><div class="chart-legend-item"><span class="chart-legend-color" style="background:#3087CC"></span>竞赛获奖人次</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 交叉统计表 -->
+    <div class="chart-card">
+      <div class="chart-head">
+        <h4><i class="fa-solid fa-table-cells-large"></i>学院 × 学年交叉统计（学年鉴定通过率）</h4>
+        <div class="actions">
+          <button class="chart-tool" onclick="openDownloadModal('交叉统计表','xlsx')"><i class="fa-solid fa-file-export"></i> 导出</button>
+          <button class="chart-tool" onclick="openDimModal()"><i class="fa-solid fa-pen-to-square"></i> 自定义维度</button>
+        </div>
+      </div>
+      <div class="chart-body" style="padding:0">
+        <table class="trend-table" id="crossTable">
+          <thead>
+            <tr>
+              <th>学院</th>
+              <th class="center">2022-2023</th>
+              <th class="center">2023-2024</th>
+              <th class="center">2024-2025</th>
+              <th class="center">2025-2026</th>
+              <th class="center">趋势</th>
+              <th class="center">同比</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>计算机学院</strong></td>
+              <td class="center">96.2%</td>
+              <td class="center">97.1%</td>
+              <td class="center">98.0%</td>
+              <td class="center"><strong style="color:#1BB975">98.6%</strong></td>
+              <td class="center" style="color:#1BB975"><i class="fa-solid fa-arrow-trend-up"></i></td>
+              <td class="center"><span class="trend-arrow up"><i class="fa-solid fa-arrow-up"></i> 0.6%</span></td>
+            </tr>
+            <tr>
+              <td><strong>物理学院</strong></td>
+              <td class="center">95.4%</td>
+              <td class="center">96.2%</td>
+              <td class="center">97.0%</td>
+              <td class="center"><strong style="color:#1BB975">97.8%</strong></td>
+              <td class="center" style="color:#1BB975"><i class="fa-solid fa-arrow-trend-up"></i></td>
+              <td class="center"><span class="trend-arrow up"><i class="fa-solid fa-arrow-up"></i> 0.8%</span></td>
+            </tr>
+            <tr>
+              <td><strong>生命科学学院</strong></td>
+              <td class="center">94.6%</td>
+              <td class="center">95.3%</td>
+              <td class="center">96.1%</td>
+              <td class="center">96.5%</td>
+              <td class="center" style="color:#1BB975"><i class="fa-solid fa-arrow-trend-up"></i></td>
+              <td class="center"><span class="trend-arrow up"><i class="fa-solid fa-arrow-up"></i> 0.4%</span></td>
+            </tr>
+            <tr>
+              <td><strong>数学与统计学院</strong></td>
+              <td class="center">96.8%</td>
+              <td class="center">97.4%</td>
+              <td class="center">98.1%</td>
+              <td class="center"><strong style="color:#1BB975">98.9%</strong></td>
+              <td class="center" style="color:#1BB975"><i class="fa-solid fa-arrow-trend-up"></i></td>
+              <td class="center"><span class="trend-arrow up"><i class="fa-solid fa-arrow-up"></i> 0.8%</span></td>
+            </tr>
+            <tr>
+              <td><strong>化学化工学院</strong></td>
+              <td class="center">95.1%</td>
+              <td class="center">95.8%</td>
+              <td class="center">96.4%</td>
+              <td class="center">97.2%</td>
+              <td class="center" style="color:#1BB975"><i class="fa-solid fa-arrow-trend-up"></i></td>
+              <td class="center"><span class="trend-arrow up"><i class="fa-solid fa-arrow-up"></i> 0.8%</span></td>
+            </tr>
+            <tr>
+              <td><strong>基础医学院</strong></td>
+              <td class="center">93.8%</td>
+              <td class="center">94.5%</td>
+              <td class="center">95.0%</td>
+              <td class="center">95.9%</td>
+              <td class="center" style="color:#1BB975"><i class="fa-solid fa-arrow-trend-up"></i></td>
+              <td class="center"><span class="trend-arrow up"><i class="fa-solid fa-arrow-up"></i> 0.9%</span></td>
+            </tr>
+            <tr>
+              <td><strong>地球科学与信息物理学院</strong></td>
+              <td class="center">92.4%</td>
+              <td class="center">93.1%</td>
+              <td class="center">94.0%</td>
+              <td class="center">93.6%</td>
+              <td class="center" style="color:#DF2027"><i class="fa-solid fa-arrow-trend-down"></i></td>
+              <td class="center"><span class="trend-arrow down"><i class="fa-solid fa-arrow-down"></i> 0.4%</span></td>
+            </tr>
+            <tr>
+              <td><strong>人文学院</strong></td>
+              <td class="center">94.2%</td>
+              <td class="center">95.0%</td>
+              <td class="center">95.8%</td>
+              <td class="center">96.4%</td>
+              <td class="center" style="color:#1BB975"><i class="fa-solid fa-arrow-trend-up"></i></td>
+              <td class="center"><span class="trend-arrow up"><i class="fa-solid fa-arrow-up"></i> 0.6%</span></td>
+            </tr>
+            <tr>
+              <td><strong>材料科学与工程学院</strong></td>
+              <td class="center">95.0%</td>
+              <td class="center">95.9%</td>
+              <td class="center">96.6%</td>
+              <td class="center">97.4%</td>
+              <td class="center" style="color:#1BB975"><i class="fa-solid fa-arrow-trend-up"></i></td>
+              <td class="center"><span class="trend-arrow up"><i class="fa-solid fa-arrow-up"></i> 0.8%</span></td>
+            </tr>
+            <tr style="background:#F5FBFF;font-weight:600">
+              <td><strong style="color:#3087CC">总计平均</strong></td>
+              <td class="center">94.83%</td>
+              <td class="center">95.59%</td>
+              <td class="center">96.33%</td>
+              <td class="center"><strong style="color:#3087CC">96.92%</strong></td>
+              <td class="center" style="color:#1BB975"><i class="fa-solid fa-arrow-trend-up"></i></td>
+              <td class="center"><span class="trend-arrow up"><i class="fa-solid fa-arrow-up"></i> 0.59%</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="pagination" id="crossPag">
+          <div class="pag-info">每页显示 <select id="crossPageSize" onchange="renderCrossPage()"><option>5</option><option selected>10</option></select> 条 · 共 <span id="crossTotal">10</span> 条 · 当前第 <span id="crossRange">1-10</span> 条</div>
+          <div class="pag-pages" id="crossPages"></div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <div class="stat-panel" id="panel-detail">
+      <div class="chart-card">
+        <div class="chart-head"><h4><i class="fa-solid fa-list-ul"></i>学生成长明细数据</h4></div>
+        <div class="chart-body" style="padding:0">
+          <table class="trend-table" id="detailTable"><thead><tr><th>学号</th><th>姓名</th><th>学院</th><th class="center">GPA</th><th class="center">竞赛</th><th class="center">论文</th><th class="center">鉴定结果</th></tr></thead><tbody></tbody></table>
+          <div class="pagination"><div class="pag-info">每页显示 <select id="detailPageSize" onchange="renderDetailPage()"><option>10</option><option selected>20</option></select> 条 · 共 <span id="detailTotal">0</span> 条 · 当前第 <span id="detailRange">0</span> 条</div><div class="pag-pages" id="detailPages"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-panel" id="panel-reports">
+      <div class="chart-card"><div class="chart-head"><h4><i class="fa-solid fa-bookmark"></i>我的报表</h4></div><div class="chart-body" id="reportList"><div style="padding:12px 14px;border:1px solid #ECEFF4;border-radius:8px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:600;color:#3C444F">各学院竞赛获奖统计</div><div style="font-size:12px;color:#9096A2;margin-top:4px">2025-2026 · 按学院 · 保存于 2026-05-10</div></div><button class="btn btn-outline btn-sm" onclick="loadReport(0)">加载</button></div><div style="padding:12px 14px;border:1px solid #ECEFF4;border-radius:8px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:600;color:#3C444F">学年鉴定通过率对比</div><div style="font-size:12px;color:#9096A2;margin-top:4px">2024-2026 · 交叉统计 · 保存于 2026-04-28</div></div><button class="btn btn-outline btn-sm" onclick="loadReport(1)">加载</button></div><div style="padding:12px 14px;border:1px solid #ECEFF4;border-radius:8px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:600;color:#3C444F">物理学院成长趋势</div><div style="font-size:12px;color:#9096A2;margin-top:4px">近五年 · 物理学院 · 保存于 2026-03-15</div></div><button class="btn btn-outline btn-sm" onclick="loadReport(2)">加载</button></div></div></div>
+    </div>
+
+  </div>
+</main>
+
+</div>
+
+<script>
+/* Toast 提示 */
+function showToast(msg,type){type=type||'info';var t=document.createElement('div');var c={success:'#1BB975',info:'#3087CC',warning:'#F29100',error:'#DF2027'};var ic={success:'fa-circle-check',info:'fa-circle-info',warning:'fa-triangle-exclamation',error:'fa-circle-xmark'};t.innerHTML='<i class="fa-solid '+ic[type]+'"></i> '+msg;t.style.cssText='position:fixed;top:-60px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;color:#fff;background:'+(c[type]||c.info)+';box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;gap:8px;z-index:99999;transition:top 0.3s ease;white-space:nowrap;font-family:inherit';document.body.appendChild(t);requestAnimationFrame(function(){t.style.top='24px'});setTimeout(function(){t.style.top='-60px';setTimeout(function(){t.remove()},400)},2500)}
+
+/* 确认弹窗 */
+function showConfirm(title,msg,onOk){var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s';o.innerHTML='<div style="background:#fff;border-radius:12px;padding:28px;width:420px;max-width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2);font-family:inherit;transform:scale(0.9);transition:transform 0.2s"><h3 style="margin:0 0 8px;font-size:16px;color:#3C444F">'+title+'</h3><p style="margin:0 0 20px;font-size:14px;color:#696F7D;line-height:1.6">'+msg+'</p><div style="display:flex;gap:10px;justify-content:flex-end"><button class="_mc" style="padding:8px 20px;border-radius:8px;border:1px solid #ECEFF4;background:#F5F7FA;color:#3C444F;cursor:pointer;font-size:13px;font-family:inherit">取消</button><button class="_mo" style="padding:8px 20px;border-radius:8px;border:none;background:#3087CC;color:#fff;cursor:pointer;font-size:13px;font-family:inherit">确定</button></div></div>';document.body.appendChild(o);requestAnimationFrame(function(){o.style.opacity='1';o.firstElementChild.style.transform='scale(1)'});o.querySelector('._mo').onclick=function(){o.remove();if(onOk)onOk()};o.querySelector('._mc').onclick=function(){o.remove()};o.addEventListener('click',function(e){if(e.target===o)o.remove()})}
+
+/* 自定义维度弹窗 */
+function openDimModal(){
+  var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s';
+  o.innerHTML='<div style="background:#fff;border-radius:12px;padding:0;width:560px;max-width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2);font-family:inherit;transform:scale(0.9);transition:transform 0.2s"><div style="padding:18px 24px;border-bottom:1px solid #ECEFF4;display:flex;align-items:center;justify-content:space-between"><h3 style="font-size:16px;color:#3C444F;margin:0"><i class="fa-solid fa-pen-to-square" style="color:#3087CC;margin-right:8px"></i>自定义维度分析</h3><button class="_close" style="width:32px;height:32px;border-radius:8px;background:#F5F7FA;border:none;cursor:pointer;font-size:14px;color:#696F7D">✕</button></div><div style="padding:20px 24px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px"><div><label style="display:block;font-size:12px;color:#696F7D;margin-bottom:6px;font-weight:600">行维度（纵轴）</label><select style="width:100%;height:36px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none;background:#fff"><option selected>学院</option><option>特色培养项目</option><option>专业</option><option>年级</option><option>导师</option><option>学年</option></select></div><div><label style="display:block;font-size:12px;color:#696F7D;margin-bottom:6px;font-weight:600">列维度（横轴）</label><select style="width:100%;height:36px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none;background:#fff"><option>学年</option><option selected>鉴定结果</option><option>竞赛级别</option><option>论文层次</option><option>奖学金类型</option></select></div><div><label style="display:block;font-size:12px;color:#696F7D;margin-bottom:6px;font-weight:600">统计指标</label><select style="width:100%;height:36px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none;background:#fff"><option selected>通过率</option><option>人数</option><option>占比</option><option>GPA 均值</option><option>竞赛获奖总数</option><option>论文发表总数</option></select></div><div><label style="display:block;font-size:12px;color:#696F7D;margin-bottom:6px;font-weight:600">图表类型</label><select style="width:100%;height:36px;padding:0 12px;border:1px solid #C8CAD1;border-radius:6px;font-size:13px;outline:none;background:#fff"><option selected>表格</option><option>柱状图</option><option>折线图</option><option>热力图</option></select></div></div><div style="margin-top:16px;padding:14px;background:#F5FBFF;border:1px solid #BADEF3;border-radius:8px"><div style="font-size:12px;font-weight:600;color:#3087CC;margin-bottom:6px"><i class="fa-solid fa-lightbulb"></i> 预设模板</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button style="padding:5px 12px;border:1px solid #ECEFF4;border-radius:14px;font-size:11px;color:#696F7D;cursor:pointer;background:#fff;font-family:inherit;transition:all .15s" onclick="showToast(\'已加载模板：各学院历年通过率\',\'success\')">各学院历年通过率</button><button style="padding:5px 12px;border:1px solid #ECEFF4;border-radius:14px;font-size:11px;color:#696F7D;cursor:pointer;background:#fff;font-family:inherit;transition:all .15s" onclick="showToast(\'已加载模板：年级×竞赛获奖数\',\'success\')">年级×竞赛获奖数</button><button style="padding:5px 12px;border:1px solid #ECEFF4;border-radius:14px;font-size:11px;color:#696F7D;cursor:pointer;background:#fff;font-family:inherit;transition:all .15s" onclick="showToast(\'已加载模板：导师指导成果对比\',\'success\')">导师指导成果对比</button><button style="padding:5px 12px;border:1px solid #ECEFF4;border-radius:14px;font-size:11px;color:#696F7D;cursor:pointer;background:#fff;font-family:inherit;transition:all .15s" onclick="showToast(\'已加载模板：论文分布×学院\',\'success\')">论文分布×学院</button></div></div></div><div style="padding:14px 24px;border-top:1px solid #ECEFF4;display:flex;gap:10px;justify-content:flex-end"><button class="_mc" style="padding:8px 20px;border-radius:8px;border:1px solid #ECEFF4;background:#F5F7FA;color:#3C444F;cursor:pointer;font-size:13px;font-family:inherit">取消</button><button class="_mo" style="padding:8px 20px;border-radius:8px;border:none;background:#3087CC;color:#fff;cursor:pointer;font-size:13px;font-family:inherit"><i class="fa-solid fa-chart-column"></i> 生成分析</button></div></div>';
+  document.body.appendChild(o);requestAnimationFrame(function(){o.style.opacity='1';o.firstElementChild.style.transform='scale(1)'});
+  o.querySelector('._mo').onclick=function(){o.remove();showToast('自定义维度分析已生成','success')};
+  o.querySelector('._mc').onclick=o.querySelector('._close').onclick=function(){o.remove()};
+  o.addEventListener('click',function(e){if(e.target===o)o.remove()});
+}
+
+/* Tab切换 */
+var _tabPanels=['panel-overview','panel-overview','panel-overview','panel-detail','panel-reports'];
+document.querySelectorAll('.tab-btn').forEach(function(tab,i){
+  tab.addEventListener('click',function(){
+    document.querySelectorAll('.tab-btn').forEach(function(t){t.classList.remove('active')});
+    this.classList.add('active');
+    var idx=Array.prototype.indexOf.call(document.querySelectorAll('.tab-btn'),this);
+    document.querySelectorAll('.stat-panel').forEach(function(p){p.classList.remove('active')});
+    var pid=_tabPanels[idx]||'panel-overview';
+    var el=document.getElementById(pid);if(el)el.classList.add('active');
+    if(pid==='panel-detail')renderDetailPage();
+    showToast('已切换到 '+this.textContent.replace(/\s*\(.*/,'').trim(),'info');
+  });
+});
+
+/* 图表视图切换 */
+function switchChartView(chartId,btn){
+  var body=document.getElementById(chartId);if(!body)return;
+  var view=btn.getAttribute('data-view');if(!view)return;
+  var head=btn.closest('.chart-head');
+  if(head)head.querySelectorAll('.chart-tool[data-view]').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  body.querySelectorAll('.chart-view').forEach(function(v){v.style.display=v.getAttribute('data-view')===view?'':'none'});
+}
+
+function mockDownload(filename){
+  var blob=new Blob(['\ufeff'+filename+' · 原型演示\n'+new Date().toLocaleString('zh-CN')],{type:'text/plain;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},200);
+}
+
+function openDownloadModal(title,defExt){
+  var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s';
+  o.innerHTML='<div style="background:#fff;border-radius:12px;padding:28px;width:420px;max-width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2);font-family:inherit;transform:scale(0.9);transition:transform .2s"><h3 style="margin:0 0 12px;font-size:16px;color:#3C444F"><i class="fa-solid fa-download" style="color:#3087CC;margin-right:8px"></i>下载 · '+title+'</h3><div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px"><label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="radio" name="_dl" checked style="accent-color:#3087CC"> Excel（.xlsx）</label><label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="radio" name="_dl" style="accent-color:#3087CC"> CSV（.csv）</label><label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="radio" name="_dl" style="accent-color:#3087CC"> PNG 图片</label></div><div style="display:flex;gap:10px;justify-content:flex-end"><button class="_c" style="padding:8px 18px;border-radius:8px;border:1px solid #ECEFF4;background:#F5F7FA;cursor:pointer;font-size:13px;font-family:inherit">取消</button><button class="_g" style="padding:8px 18px;border-radius:8px;border:none;background:#3087CC;color:#fff;cursor:pointer;font-size:13px;font-family:inherit"><i class="fa-solid fa-download"></i> 开始下载</button></div></div>';
+  document.body.appendChild(o);requestAnimationFrame(function(){o.style.opacity='1';o.firstElementChild.style.transform='scale(1)'});
+  o.querySelector('._c').onclick=function(){o.remove()};
+  o.querySelector('._g').onclick=function(){var sel=o.querySelector('input[name=_dl]:checked');var ext=sel&&sel.parentElement.textContent.indexOf('PNG')>=0?'png':(sel&&sel.parentElement.textContent.indexOf('CSV')>=0?'csv':'xlsx');o.remove();showToast('正在生成文件…','info');setTimeout(function(){mockDownload(title+'.'+ext);showToast(title+' 已开始下载','success')},1000)};
+  o.addEventListener('click',function(e){if(e.target===o)o.remove()});
+}
+
+function saveReport(){showConfirm('保存报表','将当前筛选条件与图表配置保存为「我的报表」，确定保存？',function(){var c=document.getElementById('myReportCount');if(c)c.textContent=parseInt(c.textContent,10)+1;showToast('报表已保存至「我的报表」','success')})}
+function exportExcel(){openDownloadModal('成长档案统计数据')}
+function downloadCharts(){openDownloadModal('统计图表包','zip')}
+
+/* 筛选查询 */
+function applyStatsFilter(){
+  var col=document.getElementById('fltCollege').value;
+  var rows=document.querySelectorAll('#crossTable tbody tr');
+  var n=0;
+  rows.forEach(function(tr){
+    var name=tr.cells[0]?tr.cells[0].textContent:'';
+    var ok=(col==='全部学院')||name.indexOf(col.replace('学院',''))>=0||name.indexOf(col)>=0;
+    tr.setAttribute('data-filtered',ok?'1':'0');
+    if(ok)n++;
+  });
+  _crossPage=1;renderCrossPage();
+  var kpi=document.querySelector('#kpiGrid .kpi-value');
+  if(kpi&&col!=='全部学院'){kpi.textContent=col.indexOf('物理')>=0?'142':(col.indexOf('计算机')>=0?'186':'328')}
+  showToast('查询完成，共 '+n+' 条记录匹配','success');
+}
+function resetStatsFilter(){
+  document.querySelectorAll('#statsFilter select').forEach(function(s){s.selectedIndex=0});
+  document.querySelectorAll('#crossTable tbody tr').forEach(function(tr){tr.setAttribute('data-filtered','1')});
+  _crossPage=1;renderCrossPage();
+  var kpi=document.querySelector('#kpiGrid .kpi-value');if(kpi)kpi.textContent='1,180';
+  showToast('筛选条件已重置','info');
+}
+
+/* 交叉表分页 */
+var _crossPage=1;
+function renderCrossPage(){
+  var size=parseInt(document.getElementById('crossPageSize').value,10)||10;
+  var rows=Array.prototype.filter.call(document.querySelectorAll('#crossTable tbody tr'),function(tr){return tr.getAttribute('data-filtered')!=='0'});
+  var total=rows.length,pages=Math.max(1,Math.ceil(total/size));
+  if(_crossPage>pages)_crossPage=pages;
+  rows.forEach(function(tr,i){tr.style.display=(i>=(_crossPage-1)*size&&i<_crossPage*size)?'':'none'});
+  document.getElementById('crossTotal').textContent=total;
+  var s=total?(_crossPage-1)*size+1:0,e=Math.min(_crossPage*size,total);
+  document.getElementById('crossRange').textContent=total?s+'-'+e:'0';
+  var pg=document.getElementById('crossPages');pg.innerHTML='';
+  var prev=document.createElement('button');prev.className='pag-btn';prev.innerHTML='<i class="fa-solid fa-chevron-left"></i>';prev.disabled=_crossPage<=1;prev.onclick=function(){_crossPage--;renderCrossPage()};pg.appendChild(prev);
+  for(var p=1;p<=Math.min(pages,5);p++){(function(n){var b=document.createElement('button');b.className='pag-btn'+(n===_crossPage?' active':'');b.textContent=n;b.onclick=function(){_crossPage=n;renderCrossPage()};pg.appendChild(b)})(p)}
+  if(pages>5){var dots=document.createElement('button');dots.className='pag-btn';dots.textContent='...';dots.onclick=function(){_crossPage=pages;renderCrossPage()};pg.appendChild(dots)}
+  var next=document.createElement('button');next.className='pag-btn';next.innerHTML='<i class="fa-solid fa-chevron-right"></i>';next.disabled=_crossPage>=pages;next.onclick=function(){_crossPage++;renderCrossPage()};pg.appendChild(next);
+}
+
+/* 明细数据 */
+var _detailData=[
+  ['2022100123','王明','物理学院','3.85','5','2','通过'],['2022100124','李思远','物理学院','3.72','3','1','通过'],
+  ['2022100456','张梓萱','计算机学院','3.91','4','3','通过'],['2022100789','陈雨桐','生命科学学院','3.68','2','1','通过'],
+  ['2022101001','赵磊','数学与统计学院','3.55','6','2','通过'],['2022101122','刘畅','化学化工学院','3.42','1','0','未完成'],
+  ['2022101234','周婷','基础医学院','3.78','2','1','通过'],['2022101356','吴昊','人文学院','3.61','3','0','通过'],
+  ['2022101456','郑凯','材料科学与工程学院','3.49','2','1','不通过'],['2022101567','孙悦','地球科学与信息物理学院','3.33','1','0','未完成'],
+  ['2022101678','钱程','计算机学院','3.88','7','4','通过'],['2022101789','冯雪','物理学院','3.76','4','2','通过']
+];
+var _detailPage=1;
+function renderDetailPage(){
+  var tbody=document.querySelector('#detailTable tbody');if(!tbody)return;
+  var col=document.getElementById('fltCollege').value;
+  var filtered=_detailData.filter(function(r){return col==='全部学院'||r[2].indexOf(col.replace('学院',''))>=0||r[2]===col});
+  var size=parseInt(document.getElementById('detailPageSize').value,10)||20;
+  var total=filtered.length,pages=Math.max(1,Math.ceil(total/size));
+  if(_detailPage>pages)_detailPage=pages;
+  tbody.innerHTML='';
+  filtered.slice((_detailPage-1)*size,_detailPage*size).forEach(function(r){
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+r[0]+'</td><td><strong>'+r[1]+'</strong></td><td>'+r[2]+'</td><td class="center">'+r[3]+'</td><td class="center">'+r[4]+'</td><td class="center">'+r[5]+'</td><td class="center">'+r[6]+'</td>';
+    tbody.appendChild(tr);
+  });
+  document.getElementById('detailTotal').textContent=total;
+  var s=total?(_detailPage-1)*size+1:0,e=Math.min(_detailPage*size,total);
+  document.getElementById('detailRange').textContent=total?s+'-'+e:'0';
+  var pg=document.getElementById('detailPages');pg.innerHTML='';
+  var prev=document.createElement('button');prev.className='pag-btn';prev.innerHTML='<i class="fa-solid fa-chevron-left"></i>';prev.disabled=_detailPage<=1;prev.onclick=function(){_detailPage--;renderDetailPage()};pg.appendChild(prev);
+  for(var p=1;p<=Math.min(pages,3);p++){(function(n){var b=document.createElement('button');b.className='pag-btn'+(n===_detailPage?' active':'');b.textContent=n;b.onclick=function(){_detailPage=n;renderDetailPage()};pg.appendChild(b)})(p)}
+  var next=document.createElement('button');next.className='pag-btn';next.innerHTML='<i class="fa-solid fa-chevron-right"></i>';next.disabled=_detailPage>=pages;next.onclick=function(){_detailPage++;renderDetailPage()};pg.appendChild(next);
+}
+function loadReport(i){document.querySelectorAll('.tab-btn')[0].click();showToast('已加载报表配置','success')}
+document.querySelectorAll('#crossTable tbody tr').forEach(function(tr){tr.setAttribute('data-filtered','1')});
+renderCrossPage();
+</script>
+</body>
+</html>

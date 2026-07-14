@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>导师评价 · 导师端</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'OPPOSans',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#F5F7FA;color:#1E2532;max-width:428px;margin:0 auto;min-height:100vh;font-size:14px;padding-bottom:140px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+textarea{font-family:inherit;font-size:14px}
+
+.navbar{position:sticky;top:0;z-index:100;height:44px;background:#fff;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid #ECEFF4}
+.navbar .back{font-size:18px;color:#3C444F;padding:8px 8px 8px 0}
+.navbar .title{flex:1;text-align:center;font-size:16px;font-weight:600;color:#1E2532;margin-right:26px}
+
+.info-card{background:#fff;border-radius:14px;margin:16px;overflow:hidden;cursor:pointer;transition:background .15s}
+.info-card:active{background:#FFF8F0}
+.info-card-bar{height:4px;background:linear-gradient(90deg,#F29100,#FFB84D)}
+.info-card-body{padding:16px;display:flex;gap:14px;align-items:center}
+.avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#F29100,#E07D00);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0}
+.info-text .name{font-size:16px;font-weight:700;color:#1E2532}
+.info-text .meta{font-size:12px;color:#9096A2;margin-top:3px;line-height:1.5}
+
+.card{background:#fff;border-radius:14px;margin:0 16px 16px;padding:20px 16px}
+.card-title{font-size:15px;font-weight:600;color:#1E2532;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.card-title .required{color:#E8443A;font-size:16px}
+
+.data-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.data-item{text-align:center;padding:12px 4px;background:#FAFBFC;border-radius:10px;cursor:pointer;transition:all .15s}
+.data-item:active{background:#FFF3E0}
+.data-item .val{font-size:22px;font-weight:700;color:#1E2532}
+.data-item .label{font-size:11px;color:#9096A2;margin-top:4px}
+
+.detail-toggle{display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;color:#F29100;cursor:pointer;padding:6px 0;font-weight:500}
+.detail-toggle i{font-size:11px;transition:transform .2s}
+.detail-toggle.open i{transform:rotate(180deg)}
+.detail-content{display:none;padding-top:12px;border-top:1px solid #F0F2F5;margin-top:8px}
+.detail-content.show{display:block}
+.detail-list{list-style:none}
+.detail-list li{padding:8px 0;border-bottom:1px solid #F5F7FA;display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.detail-list li:last-child{border-bottom:none}
+.detail-list .label{color:#696F7D}
+.detail-list .value{color:#1E2532;font-weight:500}
+.detail-section-title{font-size:12px;font-weight:600;color:#9096A2;margin:8px 0 4px;text-transform:uppercase}
+
+.eval-textarea{width:100%;min-height:200px;padding:14px;border:1px solid #E0E3E8;border-radius:12px;background:#FAFBFC;outline:none;font-size:14px;color:#1E2532;resize:vertical;line-height:1.8;transition:border-color .2s}
+.eval-textarea:focus{border-color:#F29100;background:#fff}
+.textarea-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.char-count{font-size:12px;color:#B0B5BF}
+.template-btn{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:#F29100;font-weight:500;cursor:pointer;padding:4px 0}
+.template-btn i{font-size:12px}
+
+.bottom-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:428px;background:#fff;border-top:1px solid #ECEFF4;z-index:100;padding-bottom:env(safe-area-inset-bottom,0px)}
+.bottom-btns{display:flex;gap:12px;padding:10px 16px 4px}
+.btn{flex:1;height:46px;border-radius:12px;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:all .15s;cursor:pointer}
+.btn-gray{background:#F0F2F5;color:#696F7D}
+.btn-gray:active{background:#E0E3E8}
+.btn-orange{background:#F29100;color:#fff}
+.btn-orange:active{background:#E07D00}
+.bottom-hint{text-align:center;font-size:11px;color:#B0B5BF;padding:6px 16px 4px}
+.bottom-nav{display:flex;justify-content:space-between;align-items:center;padding:6px 16px 8px;border-top:1px solid #F0F2F5}
+.nav-link{display:flex;align-items:center;gap:4px;font-size:13px;color:#F29100;font-weight:500;cursor:pointer;padding:6px 0}
+.nav-link.disabled{color:#C8CAD1;pointer-events:none}
+.nav-link i{font-size:12px}
+.nav-counter{font-size:12px;color:#9096A2}
+
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.8);background:rgba(30,37,50,0.88);color:#fff;padding:14px 28px;border-radius:12px;font-size:14px;z-index:9999;opacity:0;transition:all .25s;pointer-events:none;text-align:center;max-width:280px}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.toast i{display:block;font-size:28px;margin-bottom:8px}
+
+.confirm-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:300;display:none;justify-content:center;align-items:center}
+.confirm-mask.show{display:flex}
+.confirm-box{width:300px;background:#fff;border-radius:16px;overflow:hidden;animation:popIn .2s ease}
+@keyframes popIn{from{transform:scale(0.85);opacity:0}to{transform:scale(1);opacity:1}}
+.confirm-body{padding:28px 24px 20px;text-align:center}
+.confirm-body .icon{font-size:40px;color:#F29100;margin-bottom:12px}
+.confirm-body .msg{font-size:16px;font-weight:600;color:#1E2532;margin-bottom:8px}
+.confirm-body .sub{font-size:13px;color:#9096A2;line-height:1.5}
+.confirm-actions{display:flex;border-top:1px solid #F0F2F5}
+.confirm-actions button{flex:1;padding:14px;font-size:15px;font-weight:500;cursor:pointer;transition:background .15s}
+.confirm-actions .cancel-btn{color:#696F7D;border-right:1px solid #F0F2F5}
+.confirm-actions .cancel-btn:active{background:#F5F7FA}
+.confirm-actions .ok-btn{color:#F29100;font-weight:600}
+.confirm-actions .ok-btn:active{background:#FFF8F0}
+
+.template-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:200;display:none;justify-content:center;align-items:flex-end}
+.template-mask.show{display:flex}
+.template-panel{width:100%;max-width:428px;background:#fff;border-radius:16px 16px 0 0;padding-bottom:env(safe-area-inset-bottom,0px);animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.template-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #F0F2F5}
+.template-header .title{font-size:16px;font-weight:600;color:#1E2532}
+.template-header .close{font-size:18px;color:#9096A2;padding:4px;cursor:pointer}
+.template-list{padding:12px 16px 20px;max-height:50vh;overflow-y:auto}
+.template-item{padding:14px;background:#FAFBFC;border-radius:10px;margin-bottom:10px;font-size:13px;color:#3C444F;line-height:1.7;cursor:pointer;transition:all .15s;border:2px solid transparent}
+.template-item:active{border-color:#F29100;background:#FFF8F0}
+
+.drawer-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
+.drawer-mask.show{opacity:1;pointer-events:auto}
+.drawer{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:428px;background:#fff;border-radius:20px 20px 0 0;z-index:201;transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:80vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,0px)}
+.drawer.show{transform:translateX(-50%) translateY(0)}
+.drawer-header{display:flex;justify-content:space-between;align-items:center;padding:18px 20px 14px;border-bottom:1px solid #F0F2F5;position:sticky;top:0;background:#fff;border-radius:20px 20px 0 0;z-index:1}
+.drawer-header .title{font-size:17px;font-weight:700;color:#1E2532}
+.drawer-header .close{width:32px;height:32px;border-radius:50%;background:#F0F2F5;display:flex;align-items:center;justify-content:center;font-size:16px;color:#696F7D;cursor:pointer}
+.drawer-header .close:active{background:#E0E3E8}
+.drawer-body{padding:16px 20px 24px}
+.profile-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #F5F7FA;font-size:13px}
+.profile-item:last-child{border-bottom:none}
+.profile-item .plabel{color:#9096A2}
+.profile-item .pval{color:#1E2532;font-weight:500}
+.profile-section{font-size:13px;font-weight:600;color:#696F7D;margin:16px 0 8px}
+.profile-btn{margin-top:18px;height:42px;border-radius:10px;background:#F0F2F5;color:#696F7D;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+.profile-btn:active{background:#E0E3E8}
+
+.popup-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.35);z-index:250;display:none;justify-content:center;align-items:center}
+.popup-mask.show{display:flex}
+.popup-box{width:300px;background:#fff;border-radius:14px;overflow:hidden;animation:popIn .2s ease}
+.popup-header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #F0F2F5}
+.popup-header .title{font-size:15px;font-weight:600;color:#1E2532}
+.popup-header .close{font-size:16px;color:#9096A2;cursor:pointer;padding:4px}
+.popup-body{padding:12px 16px 18px;max-height:240px;overflow-y:auto}
+.popup-item{padding:10px 0;border-bottom:1px solid #F5F7FA;font-size:13px;color:#3C444F}
+.popup-item:last-child{border-bottom:none}
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <a class="back" href="tutor-students.html"><i class="fa-solid fa-chevron-left"></i></a>
+  <div class="title">导师评价</div>
+</div>
+
+<div style="padding:10px 16px 0;font-size:12px;color:#9096A2;line-height:1.5"><i class="fa-solid fa-circle-info" style="color:#F29100"></i> 仅显示您指导的学生；导师评价可修改，仅导师、学生本人及管理员可见，无需公示。</div>
+
+<div class="info-card" id="infoCard" onclick="openStudentProfile()">
+  <div class="info-card-bar"></div>
+  <div class="info-card-body">
+    <div class="avatar" id="avatarEl">张</div>
+    <div class="info-text">
+      <div class="name" id="nameEl">张三</div>
+      <div class="meta" id="metaEl">2022级 · 计算机科学与技术<br>计算机学院 · 国家级基础学科拔尖基地<br>2025-2026 学年</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">本学年数据摘要</div>
+  <div class="data-grid" id="dataGrid">
+    <div class="data-item" onclick="showDataDetail('gpa')"><div class="val" id="valGpa">3.85</div><div class="label">GPA</div></div>
+    <div class="data-item" onclick="showDataDetail('competition')"><div class="val" id="valComp" style="color:#F29100">2</div><div class="label">竞赛</div></div>
+    <div class="data-item" onclick="showDataDetail('paper')"><div class="val" id="valPaper" style="color:#2196F3">1</div><div class="label">论文</div></div>
+    <div class="data-item" onclick="showDataDetail('patent')"><div class="val" id="valPatent">0</div><div class="label">专利</div></div>
+  </div>
+  <div class="detail-toggle" id="detailToggle" onclick="toggleDetail()">
+    <span>查看详情</span><i class="fa-solid fa-chevron-down"></i>
+  </div>
+  <div class="detail-content" id="detailContent"></div>
+</div>
+
+<div class="card">
+  <div class="card-title">导师评价 <span class="required">*</span></div>
+  <textarea class="eval-textarea" id="evalText" placeholder="请从学习态度、科研能力、创新精神、团队协作等方面进行评价..." oninput="updateCount()"></textarea>
+  <div class="textarea-footer">
+    <span class="template-btn" onclick="openTemplate()"><i class="fa-solid fa-wand-magic-sparkles"></i>参考模板</span>
+    <span class="char-count" id="charCount">0/3000</span>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <div class="bottom-btns">
+    <button class="btn btn-gray" onclick="saveDraft()">暂存</button>
+    <button class="btn btn-orange" onclick="showConfirm()">提交评价</button>
+  </div>
+  <div class="bottom-hint">导师评价提交后可修改 · 仅导师、学生本人及管理员可见，无需公示</div>
+  <div class="bottom-nav">
+    <span class="nav-link" id="prevBtn" onclick="switchStudent(-1)"><i class="fa-solid fa-chevron-left"></i> 上一个学生</span>
+    <span class="nav-counter" id="navCounter">学生 1/4</span>
+    <span class="nav-link" id="nextBtn" onclick="switchStudent(1)">下一个学生 <i class="fa-solid fa-chevron-right"></i></span>
+  </div>
+</div>
+
+<div class="template-mask" id="templateMask" onclick="closeTemplate()">
+  <div class="template-panel" onclick="event.stopPropagation()">
+    <div class="template-header">
+      <span class="title">参考评语模板</span>
+      <span class="close" onclick="closeTemplate()"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="template-list">
+      <div class="template-item" onclick="useTemplate(this)">该同学学习态度端正，科研能力突出，在本学年取得了显著的学术成果。积极参与团队合作，具有较强的创新精神和独立思考能力，善于发现问题并提出解决方案。在学术竞赛中表现优异，展现了扎实的专业基础和良好的综合素质。</div>
+      <div class="template-item" onclick="useTemplate(this)">该同学勤奋好学，具备良好的科研素养和学术潜力。在课题研究中能够独立完成实验设计与数据分析，论文写作能力较强。团队协作精神好，能够积极参与学术讨论并提出建设性意见。建议在跨学科交叉研究方面继续拓展视野。</div>
+      <div class="template-item" onclick="useTemplate(this)">该同学专业基础扎实，学习成绩优秀。在科研实践中表现出较强的动手能力和创新意识。参与多项学术竞赛并取得优异成绩，展现了良好的团队领导力和沟通协调能力。在学术规范和研究方法方面有较好的训练基础。</div>
+    </div>
+  </div>
+</div>
+
+<div class="confirm-mask" id="confirmMask" onclick="closeConfirm()">
+  <div class="confirm-box" onclick="event.stopPropagation()">
+    <div class="confirm-body">
+      <div class="icon"><i class="fa-solid fa-paper-plane"></i></div>
+      <div class="msg">确认提交评价？</div>
+      <div class="sub">提交后仍可修改<br>仅导师、学生本人及管理员可见</div>
+    </div>
+    <div class="confirm-actions">
+      <button class="cancel-btn" onclick="closeConfirm()">再想想</button>
+      <button class="ok-btn" onclick="doSubmit()">确认提交</button>
+    </div>
+  </div>
+</div>
+
+<div class="drawer-mask" id="profileMask" onclick="closeStudentProfile()"></div>
+<div class="drawer" id="profileDrawer">
+  <div class="drawer-header">
+    <span class="title">学生档案</span>
+    <span class="close" onclick="closeStudentProfile()"><i class="fa-solid fa-xmark"></i></span>
+  </div>
+  <div class="drawer-body" id="profileBody"></div>
+</div>
+
+<div class="popup-mask" id="popupMask" onclick="closePopup()">
+  <div class="popup-box" onclick="event.stopPropagation()">
+    <div class="popup-header">
+      <span class="title" id="popupTitle">详情</span>
+      <span class="close" onclick="closePopup()"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="popup-body" id="popupBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var studentList = [
+  {name:'张三', grade:'2022级', major:'计算机科学与技术', college:'计算机学院', program:'国家级基础学科拔尖基地', sid:'2022010101', gpa:'3.85', competition:2, paper:1, patent:0,
+    details:{competition:['全国大学生数学建模竞赛 - 国家级一等奖','ACM-ICPC 亚洲区域赛 - 银奖'],paper:['《基于深度学习的图像分割》 SCI Q2'],patent:[]}},
+  {name:'李四', grade:'2022级', major:'数学与应用数学', college:'数学与统计学院', program:'强基计划', sid:'2022020205', gpa:'3.72', competition:1, paper:0, patent:0,
+    details:{competition:['全国大学生数学竞赛 - 省级二等奖'],paper:[],patent:[]}},
+  {name:'赵敏', grade:'2023级', major:'计算机科学与技术', college:'计算机学院', program:'国家级基础学科拔尖基地', sid:'2023010103', gpa:'3.91', competition:3, paper:2, patent:1,
+    details:{competition:['数学建模省赛 - 一等奖','蓝桥杯 - 国家级二等奖','ACM校赛 - 金奖'],paper:['《图神经网络综述》 CCF-A','《轻量化目标检测》 SCI Q1'],patent:['一种基于注意力机制的图像分类方法']}},
+  {name:'周蕾', grade:'2023级', major:'化学', college:'化学化工学院', program:'国家级基础学科拔尖基地', sid:'2023040108', gpa:'3.68', competition:1, paper:1, patent:0,
+    details:{competition:['全国大学生化学实验竞赛 - 省级一等奖'],paper:['《新型催化材料研究》 核心期刊'],patent:[]}}
+];
+
+var currentIdx = 0;
+var DRAFT_KEY = 'mobile_tutor_eval_drafts';
+var SUBMITTED_KEY = 'mobile_tutor_eval_submitted';
+
+function draftKey(sid){ return DRAFT_KEY + '_' + sid; }
+
+function saveCurrentDraft(){
+  var s = studentList[currentIdx];
+  localStorage.setItem(draftKey(s.sid), document.getElementById('evalText').value);
+}
+
+function renderStudent(){
+  var s = studentList[currentIdx];
+  document.getElementById('avatarEl').textContent = s.name[0];
+  document.getElementById('nameEl').textContent = s.name;
+  document.getElementById('metaEl').innerHTML = s.grade+' · '+s.major+'<br>'+s.college+' · '+s.program+'<br>2025-2026 学年';
+  document.getElementById('valGpa').textContent = s.gpa;
+  document.getElementById('valComp').textContent = s.competition;
+  document.getElementById('valPaper').textContent = s.paper;
+  document.getElementById('valPatent').textContent = s.patent;
+  var draft = localStorage.getItem(draftKey(s.sid));
+  document.getElementById('evalText').value = draft || '';
+  updateCount();
+  document.getElementById('navCounter').textContent = '学生 '+(currentIdx+1)+'/'+studentList.length;
+  var dc = document.getElementById('detailContent');
+  dc.classList.remove('show');
+  var dt = document.getElementById('detailToggle');
+  dt.classList.remove('open');
+  dt.querySelector('span').textContent = '查看详情';
+  renderDetailContent();
+  updateNavBtns();
+}
+
+function renderDetailContent(){
+  var s = studentList[currentIdx];
+  var html = '';
+  if(s.details.competition.length){
+    html += '<div class="detail-section-title">竞赛获奖</div><ul class="detail-list">';
+    s.details.competition.forEach(function(item){
+      var parts = item.split(' - ');
+      html += '<li><span class="label">'+parts[0]+'</span><span class="value" style="color:#F29100">'+(parts[1]||'')+'</span></li>';
+    });
+    html += '</ul>';
+  }
+  if(s.details.paper.length){
+    html += '<div class="detail-section-title">发表论文</div><ul class="detail-list">';
+    s.details.paper.forEach(function(item){
+      var parts = item.split(' ');
+      var title = parts.slice(0,-1).join(' ');
+      var level = parts[parts.length-1];
+      html += '<li><span class="label">'+title+'</span><span class="value" style="color:#2196F3">'+level+'</span></li>';
+    });
+    html += '</ul>';
+  }
+  if(s.details.patent.length){
+    html += '<div class="detail-section-title">专利</div><ul class="detail-list">';
+    s.details.patent.forEach(function(item){
+      html += '<li><span class="label">'+item+'</span><span class="value" style="color:#1BB975">已授权</span></li>';
+    });
+    html += '</ul>';
+  }
+  if(!html) html = '<div style="text-align:center;color:#B0B5BF;padding:20px 0;font-size:13px">暂无详细数据</div>';
+  document.getElementById('detailContent').innerHTML = html;
+}
+
+function updateNavBtns(){
+  var prev = document.getElementById('prevBtn');
+  var next = document.getElementById('nextBtn');
+  if(currentIdx === 0){prev.classList.add('disabled');}else{prev.classList.remove('disabled');}
+  if(currentIdx === studentList.length-1){next.classList.add('disabled');}else{next.classList.remove('disabled');}
+}
+
+function switchStudent(dir){
+  var newIdx = currentIdx + dir;
+  if(newIdx < 0 || newIdx >= studentList.length) return;
+  saveCurrentDraft();
+  currentIdx = newIdx;
+  renderStudent();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function saveDraft(){
+  saveCurrentDraft();
+  var t = new Date();
+  var hh = ('0'+t.getHours()).slice(-2);
+  var mm = ('0'+t.getMinutes()).slice(-2);
+  showToast('评价已暂存 · '+hh+':'+mm,'success');
+}
+
+function toggleDetail(){
+  var c=document.getElementById('detailContent');
+  var t=document.getElementById('detailToggle');
+  if(c.classList.contains('show')){
+    c.classList.remove('show');t.classList.remove('open');
+    t.querySelector('span').textContent='查看详情';
+  }else{
+    c.classList.add('show');t.classList.add('open');
+    t.querySelector('span').textContent='收起详情';
+  }
+}
+
+function updateCount(){
+  var len=document.getElementById('evalText').value.length;
+  document.getElementById('charCount').textContent=len+'/3000';
+}
+
+function openTemplate(){document.getElementById('templateMask').classList.add('show')}
+function closeTemplate(){document.getElementById('templateMask').classList.remove('show')}
+function useTemplate(el){
+  document.getElementById('evalText').value=el.textContent;
+  updateCount();closeTemplate();
+  showToast('已填入模板评语','success');
+}
+
+function showConfirm(){document.getElementById('confirmMask').classList.add('show')}
+function closeConfirm(){document.getElementById('confirmMask').classList.remove('show')}
+function doSubmit(){
+  var text=document.getElementById('evalText').value.trim();
+  if(!text){
+    closeConfirm();
+    showToast('请填写导师评价内容','info');
+    return;
+  }
+  closeConfirm();
+  var s=studentList[currentIdx];
+  localStorage.removeItem(draftKey(s.sid));
+  var submitted=JSON.parse(localStorage.getItem(SUBMITTED_KEY)||'[]');
+  if(submitted.indexOf(s.sid)===-1) submitted.push(s.sid);
+  localStorage.setItem(SUBMITTED_KEY, JSON.stringify(submitted));
+  showToast('评价提交成功','success');
+  setTimeout(function(){
+    if(currentIdx < studentList.length - 1){
+      currentIdx++;
+      renderStudent();
+      window.scrollTo({top:0,behavior:'smooth'});
+    } else {
+      showToast('所有学生评价已完成','success');
+      setTimeout(function(){ location.href='tutor-students.html'; },1800);
+    }
+  },1900);
+}
+
+function openStudentProfile(){
+  var s = studentList[currentIdx];
+  var html = '<div class="profile-item"><span class="plabel">姓名</span><span class="pval">'+s.name+'</span></div>'
+    +'<div class="profile-item"><span class="plabel">学号</span><span class="pval">'+s.sid+'</span></div>'
+    +'<div class="profile-item"><span class="plabel">专业</span><span class="pval">'+s.major+'</span></div>'
+    +'<div class="profile-item"><span class="plabel">年级</span><span class="pval">'+s.grade+'</span></div>'
+    +'<div class="profile-item"><span class="plabel">学院</span><span class="pval">'+s.college+'</span></div>'
+    +'<div class="profile-item"><span class="plabel">特色培养项目</span><span class="pval">'+s.program+'</span></div>'
+    +'<div class="profile-item"><span class="plabel">入学时间</span><span class="pval">'+s.grade.replace('级','')+'年9月</span></div>'
+    +'<div class="profile-section">本学年成果统计</div>'
+    +'<div class="profile-item"><span class="plabel">GPA</span><span class="pval">'+s.gpa+'</span></div>'
+    +'<div class="profile-item"><span class="plabel">竞赛获奖</span><span class="pval">'+s.competition+' 项</span></div>'
+    +'<div class="profile-item"><span class="plabel">发表论文</span><span class="pval">'+s.paper+' 篇</span></div>'
+    +'<div class="profile-item"><span class="plabel">专利</span><span class="pval">'+s.patent+' 项</span></div>'
+    +'<div class="profile-btn" onclick="closeStudentProfile();location.href=\'tutor-archive.html\'"><i class="fa-solid fa-expand"></i> 查看完整档案</div>';
+  document.getElementById('profileBody').innerHTML = html;
+  document.getElementById('profileMask').classList.add('show');
+  document.getElementById('profileDrawer').classList.add('show');
+}
+function closeStudentProfile(){
+  document.getElementById('profileMask').classList.remove('show');
+  document.getElementById('profileDrawer').classList.remove('show');
+}
+
+function showDataDetail(type){
+  var s = studentList[currentIdx];
+  var title = '', items = [];
+  if(type === 'gpa'){
+    title = 'GPA 详情';
+    items = ['当前 GPA：'+s.gpa, '排名：专业前 15%', '较上学年：+0.12'];
+  } else if(type === 'competition'){
+    title = '竞赛获奖 ('+s.competition+')';
+    items = s.details.competition.length ? s.details.competition : ['暂无竞赛获奖记录'];
+  } else if(type === 'paper'){
+    title = '发表论文 ('+s.paper+')';
+    items = s.details.paper.length ? s.details.paper : ['暂无论文发表记录'];
+  } else if(type === 'patent'){
+    title = '专利 ('+s.patent+')';
+    items = s.details.patent.length ? s.details.patent : ['暂无专利记录'];
+  }
+  document.getElementById('popupTitle').textContent = title;
+  var html = '';
+  items.forEach(function(item){ html += '<div class="popup-item">'+item+'</div>'; });
+  document.getElementById('popupBody').innerHTML = html;
+  document.getElementById('popupMask').classList.add('show');
+}
+function closePopup(){
+  document.getElementById('popupMask').classList.remove('show');
+}
+
+function showToast(msg,type){
+  var t=document.getElementById('toast');
+  var icon=type==='success'?'<i class="fa-solid fa-circle-check" style="color:#1BB975"></i>':'<i class="fa-solid fa-circle-info" style="color:#F29100"></i>';
+  t.innerHTML=icon+msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show')},1800);
+}
+
+renderStudent();
+</script>
+</body>
+</html>
